@@ -751,25 +751,56 @@
       sintomas: sintomas || []
     };
   }
+let enviandoAgora = false;
 
   async function enviar(payload) {
+    if (enviandoAgora) {
+      toast('aguarde, salvando...', false);
+      return;
+    }
+    enviandoAgora = true;
+
+    // Desabilita todos os botões de ação pra evitar duplicidade
+    const btnSalvar = $('btn-salvar');
+    const btnsAcao = document.querySelectorAll('#tela-registro .btn-secundario, #tela-coleta .btn-azul');
+    if (btnSalvar) {
+      btnSalvar.disabled = true;
+      btnSalvar.innerHTML = '<span class="spinner"></span> salvando...';
+    }
+    btnsAcao.forEach(b => b.disabled = true);
+
     try {
-      // O Apps Script com fetch e Content-Type text/plain evita o preflight CORS
       await fetch(API_URL, {
         method: 'POST',
         mode: 'no-cors',
         body: JSON.stringify(payload),
         headers: { 'Content-Type': 'text/plain;charset=utf-8' }
       });
-      toast('Mergulho salvo!');
-      // Volta pro plano e recarrega
+      toast('mergulho salvo!');
+
+      // pequeno delay pra usuário ver o toast, depois volta
       setTimeout(() => {
+        // restaura botões antes de voltar
+        if (btnSalvar) {
+          btnSalvar.disabled = false;
+          btnSalvar.innerHTML = 'finalizar e ir pro próximo';
+        }
+        btnsAcao.forEach(b => b.disabled = false);
+        enviandoAgora = false;
         goMerg();
-      }, 800);
+      }, 1200);
     } catch (e) {
-      toast('Erro ao salvar', true);
+      // erro: libera botões pra tentar de novo
+      if (btnSalvar) {
+        btnSalvar.disabled = false;
+        btnSalvar.innerHTML = 'finalizar e ir pro próximo';
+      }
+      btnsAcao.forEach(b => b.disabled = false);
+      enviandoAgora = false;
+      toast('erro ao salvar — tente de novo', true);
     }
   }
+  
 
   // ===== Online/offline =====
   function atualizarRede() {
