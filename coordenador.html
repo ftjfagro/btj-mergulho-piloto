@@ -26,13 +26,13 @@
     max-width: 760px; margin: 0 auto;
   }
   button, input, select, textarea { font-family: inherit; }
-  input[type="number"], input[type="text"] {
+  input[type="number"], input[type="text"], select {
     width: 100%; padding: 12px; font-size: 16px;
     border: 1px solid #D6E0EA; border-radius: 8px;
     background: #fff; color: #0E2A47;
     -webkit-appearance: none; appearance: none;
   }
-  input:focus { outline: none; border-color: #3FA0D6;
+  input:focus, select:focus { outline: none; border-color: #3FA0D6;
     box-shadow: 0 0 0 3px rgba(63,160,214,0.15); }
   button { cursor: pointer; -webkit-appearance: none; appearance: none; }
   .label { font-size: 12px; color: #5C6B7A; margin: 0 0 6px; }
@@ -108,14 +108,11 @@
     margin-bottom: 12px;
   }
   .config-row .lbl { flex: 1; font-size: 14px; }
-  .stepper {
-    display: flex; align-items: center; gap: 4px;
-  }
+  .stepper { display: flex; align-items: center; gap: 4px; }
   .stepper button {
     width: 36px; height: 36px;
     background: #fff; border: 1px solid #D6E0EA;
-    border-radius: 8px; font-size: 18px; font-weight: 600;
-    color: #0E2A47;
+    border-radius: 8px; font-size: 18px; font-weight: 600; color: #0E2A47;
   }
   .stepper button:active { background: #D6E8F4; }
   .stepper input {
@@ -128,6 +125,135 @@
     font-size: 12px; color: #5C6B7A; margin-top: 8px;
   }
   .ref-box strong { color: #0E2A47; }
+
+  /* Plano semanal */
+  .seletor-semana {
+    display: flex; gap: 6px; margin-bottom: 12px;
+  }
+  .btn-semana {
+    flex: 1; padding: 10px 8px;
+    background: #fff; border: 1px solid #D6E0EA;
+    border-radius: 8px; font-size: 12px; color: #5C6B7A; font-weight: 500;
+  }
+  .btn-semana.ativa {
+    background: #D6E8F4; border: 2px solid #0E2A47;
+    color: #0E2A47; padding: 9px 7px;
+  }
+
+  .filtros-row {
+    display: flex; gap: 8px; margin-bottom: 12px; align-items: center;
+  }
+  .filtros-row select { flex: 1; padding: 10px; font-size: 14px; }
+  .ordem-group {
+    display: flex; gap: 4px;
+    background: #F2F6FA; padding: 3px; border-radius: 8px;
+  }
+  .ordem-btn {
+    padding: 8px 12px; font-size: 12px;
+    background: transparent; border: none;
+    border-radius: 6px; color: #5C6B7A; font-weight: 500;
+  }
+  .ordem-btn.ativa { background: #fff; color: #0E2A47; font-weight: 600; }
+
+  .dia-card {
+    background: #fff; border: 1px solid #D6E0EA;
+    border-radius: 10px; padding: 12px;
+    margin-bottom: 8px;
+  }
+  .dia-header {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 8px;
+  }
+  .dia-titulo {
+    font-size: 13px; font-weight: 600; color: #0E2A47;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .dia-contagem { font-size: 11px; color: #5C6B7A; }
+  .dia-add {
+    background: #0E2A47; color: white;
+    padding: 6px 12px; border: none;
+    border-radius: 999px; font-size: 12px; font-weight: 600;
+  }
+  .tanque-mini {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px; margin-bottom: 4px;
+    background: #F8FAFC; border-radius: 6px;
+    font-size: 13px;
+  }
+  .tanque-mini .ico { font-size: 14px; }
+  .tanque-mini .num { font-weight: 600; }
+  .tanque-mini .desc { flex: 1; color: #5C6B7A; font-size: 11px; }
+  .tanque-mini .remover {
+    background: none; border: none;
+    color: #B23A2A; font-size: 18px; padding: 0 4px;
+  }
+  .dia-vazio {
+    font-size: 12px; color: #8A99A8;
+    text-align: center; padding: 8px;
+  }
+
+  /* Tela de seleção */
+  .item-selecao {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px; margin-bottom: 6px;
+    border: 1px solid #D6E0EA; border-radius: 8px;
+    background: #fff; font-size: 13px;
+  }
+  .item-selecao.selecionado {
+    border: 2px solid #0E2A47;
+    background: #D6E8F4; padding: 11px;
+  }
+  .item-selecao .check {
+    width: 22px; height: 22px;
+    border: 1.5px solid #B0BDC9; border-radius: 4px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: white;
+  }
+  .item-selecao.selecionado .check {
+    background: #0E2A47; border-color: #0E2A47;
+  }
+  .item-selecao .ico-grp { font-size: 16px; }
+  .item-selecao .num { font-weight: 600; font-size: 14px; }
+  .item-selecao .desc { flex: 1; color: #5C6B7A; font-size: 11px; }
+
+  .grupo-label {
+    font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.5px; color: #8A99A8;
+    margin: 12px 0 6px; font-weight: 600;
+  }
+
+  .dias-replicar {
+    display: flex; gap: 4px; flex-wrap: wrap;
+    background: #F2F6FA; padding: 10px;
+    border-radius: 8px; margin-bottom: 12px;
+  }
+  .dia-btn {
+    flex: 1; min-width: 40px; padding: 10px 4px;
+    background: #fff; border: 1px solid #D6E0EA;
+    border-radius: 6px; font-size: 12px;
+    color: #5C6B7A; font-weight: 600;
+    text-align: center;
+  }
+  .dia-btn.ativo {
+    background: #0E2A47; color: white; border-color: #0E2A47;
+  }
+
+  .barra-acao {
+    position: sticky; bottom: 0;
+    background: white; padding: 12px 0;
+    border-top: 1px solid #D6E0EA;
+    margin-top: 16px;
+  }
+
+  .loading { text-align: center; padding: 24px; color: #5C6B7A; font-size: 14px; }
+  .spinner {
+    display: inline-block; width: 16px; height: 16px;
+    border: 2px solid #D6E0EA; border-top-color: #0E2A47;
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+    vertical-align: -3px; margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -173,12 +299,11 @@
   <h2 style="margin:0 0 4px; font-size:20px; font-weight:600;">⚙️ Janela viral</h2>
   <p style="font-size:13px; color:#5C6B7A; margin:0 0 16px;">
     Período de dias em F1 em que o risco de surto viral é maior.
-    Tanques nessa janela aparecem como "amarelos" no plano.
   </p>
 
   <div class="config-card">
     <div style="font-size:13px; color:#0E2A47; font-weight:600; margin-bottom:12px;">
-      🌐 BTJ ILHA
+      🌐 BTJ <span id="cfg-unidade">ILHA</span>
     </div>
 
     <div class="config-row">
@@ -201,14 +326,77 @@
 
     <div class="ref-box">
       <strong>📌 Referência:</strong> tipicamente <strong>15 a 80 dias</strong>.
-      Ajuste conforme a estação atual: <em>inverno</em> tende a janela mais curta;
-      <em>verão</em> tende a janela mais longa (maior pressão viral).
+      Ajuste conforme a estação: <em>inverno</em> tende a janela mais curta;
+      <em>verão</em> tende a janela mais longa.
     </div>
 
     <div id="cfg-info" style="font-size:11px; color:#8A99A8; margin-top:10px;"></div>
   </div>
 
   <button class="btn-azul" onclick="salvarConfig()">salvar configuração</button>
+</div>
+
+<!-- TELA 3: PLANO SEMANAL -->
+<div id="tela-plano" style="display:none;">
+  <button class="voltar" onclick="goMenu()">voltar</button>
+  <h2 style="margin:0 0 12px; font-size:20px; font-weight:600;">📋 Plano semanal</h2>
+
+  <div class="seletor-semana">
+    <button class="btn-semana" id="btn-sem-passada" onclick="mudarSemana(-1)">passada</button>
+    <button class="btn-semana ativa" id="btn-sem-atual" onclick="mudarSemana(0)">esta semana</button>
+    <button class="btn-semana" id="btn-sem-proxima" onclick="mudarSemana(1)">próxima</button>
+  </div>
+
+  <div id="lbl-periodo" style="font-size:12px; color:#5C6B7A; text-align:center; margin-bottom:12px;"></div>
+
+  <div class="filtros-row">
+    <select id="sel-operador">
+      <option value="">— escolher operador —</option>
+    </select>
+  </div>
+
+  <div id="plano-conteudo">
+    <div class="loading"><span class="spinner"></span>carregando...</div>
+  </div>
+
+  <div id="plano-rodape" style="display:none;" class="barra-acao">
+    <div style="font-size:12px; color:#5C6B7A; text-align:center; margin-bottom:8px;">
+      total: <strong id="total-tanques">0</strong> tanques no plano
+    </div>
+    <button class="btn-azul" onclick="salvarPlano()">salvar plano</button>
+  </div>
+</div>
+
+<!-- TELA 4: SELECIONAR TANQUES -->
+<div id="tela-selecao" style="display:none;">
+  <button class="voltar" onclick="voltarPlano()">voltar</button>
+  <h2 id="sel-titulo" style="margin:0 0 12px; font-size:18px; font-weight:600;">
+    Adicionar tanques
+  </h2>
+
+  <div class="ordem-group" style="margin-bottom:12px;">
+    <button class="ordem-btn ativa" id="ord-rota" onclick="mudarOrdem('rota')">📍 rota física</button>
+    <button class="ordem-btn" id="ord-biosseg" onclick="mudarOrdem('biosseg')">🦠 biossegurança</button>
+  </div>
+
+  <div style="margin-bottom:12px; font-size:12px; color:#5C6B7A;">
+    selecione os dias da semana em que esses tanques entrarão:
+  </div>
+
+  <div class="dias-replicar" id="dias-replicar"></div>
+
+  <div id="lista-tanques">
+    <div class="loading"><span class="spinner"></span>carregando lotes...</div>
+  </div>
+
+  <div class="barra-acao">
+    <div style="font-size:12px; color:#5C6B7A; text-align:center; margin-bottom:8px;">
+      <strong id="sel-contagem">0</strong> tanques selecionados ×
+      <strong id="sel-dias">0</strong> dias =
+      <strong id="sel-total">0</strong> entradas
+    </div>
+    <button class="btn-azul" onclick="confirmarSelecao()">adicionar ao plano</button>
+  </div>
 </div>
 
 <div id="toast" class="toast">salvo!</div>
@@ -218,10 +406,23 @@
 
   let estado = {
     funcionario: null,
-    unidade: 'ILHA'
+    unidade: 'ILHA',
+    semanaOffset: 0, // 0=atual, -1=passada, +1=próxima
+    semanaInicio: null, // string dd/mm/aaaa
+    operador: '',
+    funcionarios: [],
+    lotes: [],
+    plano: [], // [{dia, id_tanque, ...}]
+    ordem: 'rota', // 'rota' ou 'biosseg'
+    selecionados: new Set(), // tanques marcados na tela de seleção
+    diasSelecionados: new Set(), // dias marcados pra replicar
+    diaAtivo: null, // dia da semana sendo editado (string dd/mm/aaaa)
+    enviandoAgora: false
   };
 
   const $ = id => document.getElementById(id);
+  const DIAS_NOMES = ['seg','ter','qua','qui','sex','sáb','dom'];
+  const DIAS_LONGOS = ['SEG','TER','QUA','QUI','SEX','SÁB','DOM'];
 
   function toast(msg, erro) {
     const t = $('toast');
@@ -230,7 +431,27 @@
     setTimeout(() => { t.className = 'toast' + (erro ? ' erro' : ''); }, 2500);
   }
 
-  // ===== Carrega quem está logado =====
+  // ===== Helpers de data =====
+  function segundaDaSemana(d) {
+    const dia = d.getDay();
+    const diff = dia === 0 ? -6 : 1 - dia;
+    const seg = new Date(d);
+    seg.setDate(d.getDate() + diff);
+    seg.setHours(0,0,0,0);
+    return seg;
+  }
+  function fmtData(d) {
+    return String(d.getDate()).padStart(2,'0') + '/' +
+           String(d.getMonth()+1).padStart(2,'0') + '/' +
+           d.getFullYear();
+  }
+  function diaDaSemana(offset, base) {
+    const d = new Date(base);
+    d.setDate(base.getDate() + offset);
+    return d;
+  }
+
+  // ===== Sessão =====
   function carregarSessao() {
     try {
       const raw = localStorage.getItem('btj_funcionario');
@@ -240,7 +461,6 @@
     } catch(e) {}
 
     if (!estado.funcionario) {
-      // Sem sessão → manda pro login
       window.location.href = 'index.html';
       return;
     }
@@ -249,24 +469,21 @@
   }
 
   // ===== Navegação =====
-  const telas = ['tela-menu','tela-config'];
+  const telas = ['tela-menu','tela-config','tela-plano','tela-selecao'];
   function mostrar(id) {
     telas.forEach(t => $(t).style.display = 'none');
     $(id).style.display = 'block';
     window.scrollTo(0,0);
   }
   function goMenu() { mostrar('tela-menu'); }
-  function goConfig() {
-    mostrar('tela-config');
-    carregarConfigAtual();
-  }
+  function goConfig() { mostrar('tela-config'); carregarConfigAtual(); }
   function goPlano() {
-    toast('Tela de plano semanal vem no próximo passo 🚧', false);
-    // Patch 3 vai implementar
+    mostrar('tela-plano');
+    estado.semanaOffset = 0;
+    atualizarBotoesSemana();
+    carregarFuncionariosParaPlano();
   }
-  function irPraCampo() {
-    window.location.href = 'index.html?modo=operador';
-  }
+  function irPraCampo() { window.location.href = 'index.html?modo=operador'; }
   function sair() {
     try {
       localStorage.removeItem('btj_funcionario');
@@ -283,7 +500,6 @@
     inp.value = v;
     validarConfig();
   }
-
   function validarConfig() {
     const ini = parseInt($('cfg-ini').value) || 0;
     const fim = parseInt($('cfg-fim').value) || 0;
@@ -296,8 +512,8 @@
     $('cfg-info').style.color = '#8A99A8';
     return true;
   }
-
   async function carregarConfigAtual() {
+    $('cfg-unidade').textContent = estado.unidade;
     try {
       const r = await fetch(API_URL + '?acao=ler_config&unidade=' + estado.unidade);
       const j = await r.json();
@@ -306,16 +522,10 @@
         $('cfg-fim').value = j.config.janela_dia_fim;
         validarConfig();
       }
-    } catch(e) {
-      toast('Erro ao carregar configuração', true);
-    }
+    } catch(e) { toast('Erro ao carregar configuração', true); }
   }
-
   async function salvarConfig() {
-    if (!validarConfig()) {
-      toast('Corrija os valores antes de salvar', true);
-      return;
-    }
+    if (!validarConfig()) { toast('Corrija os valores antes de salvar', true); return; }
     const payload = {
       acao: 'salvar_config',
       unidade: estado.unidade,
@@ -325,15 +535,311 @@
     };
     try {
       await fetch(API_URL, {
-        method: 'POST',
-        mode: 'no-cors',
+        method: 'POST', mode: 'no-cors',
         body: JSON.stringify(payload),
         headers: { 'Content-Type': 'text/plain;charset=utf-8' }
       });
       toast('Configuração salva!');
       setTimeout(() => goMenu(), 1000);
+    } catch(e) { toast('Erro ao salvar', true); }
+  }
+
+  // ===== Plano semanal =====
+  function atualizarBotoesSemana() {
+    document.querySelectorAll('.btn-semana').forEach(b => b.classList.remove('ativa'));
+    const id = estado.semanaOffset === -1 ? 'btn-sem-passada' :
+               estado.semanaOffset === 1 ? 'btn-sem-proxima' : 'btn-sem-atual';
+    $(id).classList.add('ativa');
+
+    const hoje = new Date();
+    const seg = segundaDaSemana(hoje);
+    seg.setDate(seg.getDate() + 7 * estado.semanaOffset);
+    estado.semanaInicio = fmtData(seg);
+    const dom = new Date(seg); dom.setDate(seg.getDate() + 6);
+    $('lbl-periodo').textContent = fmtData(seg) + ' – ' + fmtData(dom);
+  }
+
+  function mudarSemana(offset) {
+    estado.semanaOffset = offset;
+    atualizarBotoesSemana();
+    if (estado.operador) carregarPlano();
+  }
+
+  async function carregarFuncionariosParaPlano() {
+    try {
+      const r = await fetch(API_URL + '?acao=listar_funcionarios&unidade=' + estado.unidade);
+      const j = await r.json();
+      estado.funcionarios = j.funcionarios || [];
+      const opts = ['<option value="">— escolher operador —</option>'];
+      estado.funcionarios.forEach(f => {
+        opts.push(`<option value="${f.nome}">${f.nome} (${f.funcao})</option>`);
+      });
+      $('sel-operador').innerHTML = opts.join('');
+      $('sel-operador').onchange = () => {
+        estado.operador = $('sel-operador').value;
+        if (estado.operador) carregarPlano();
+        else { $('plano-conteudo').innerHTML = '<div class="loading">escolha um operador acima</div>'; $('plano-rodape').style.display = 'none'; }
+      };
+      $('plano-conteudo').innerHTML = '<div class="loading">escolha um operador acima</div>';
+      $('plano-rodape').style.display = 'none';
+    } catch(e) {
+      $('plano-conteudo').innerHTML = '<div class="loading">erro ao carregar</div>';
+    }
+  }
+
+  async function carregarPlano() {
+    $('plano-conteudo').innerHTML = '<div class="loading"><span class="spinner"></span>carregando plano...</div>';
+    $('plano-rodape').style.display = 'none';
+    try {
+      // Carrega plano atual da semana
+      const r = await fetch(API_URL + '?acao=plano_semana&operador=' + encodeURIComponent(estado.operador) + '&semana_inicio=' + encodeURIComponent(estado.semanaInicio));
+      const j = await r.json();
+      estado.plano = j.plano || [];
+      // Carrega lotes classificados pra mostrar contexto
+      if (!estado.lotes.length) {
+        const r2 = await fetch(API_URL + '?acao=classificar_lotes&unidade=' + estado.unidade);
+        const j2 = await r2.json();
+        estado.lotes = j2.lotes || [];
+      }
+      renderPlano();
+    } catch(e) {
+      $('plano-conteudo').innerHTML = '<div class="loading">erro ao carregar</div>';
+    }
+  }
+
+  function renderPlano() {
+    const seg = parsearData(estado.semanaInicio);
+    const html = [];
+    for (let i = 0; i < 7; i++) {
+      const d = diaDaSemana(i, seg);
+      const dataStr = fmtData(d);
+      const itens = estado.plano.filter(p => p.dia === dataStr);
+      html.push(`
+        <div class="dia-card">
+          <div class="dia-header">
+            <div>
+              <span class="dia-titulo">${DIAS_LONGOS[i]} ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}</span>
+              <span class="dia-contagem">· ${itens.length} tanque${itens.length===1?'':'s'}</span>
+            </div>
+            <button class="dia-add" onclick="abrirSelecao('${dataStr}')">+ add</button>
+          </div>
+          ${itens.length ? itens.map(it => {
+            const lt = estado.lotes.find(l => l.id_tanque === it.id_tanque);
+            const grp = lt ? lt.grupo_biosseguranca : 'saudavel';
+            const ico = iconGrupo(grp);
+            const m = it.id_tanque.match(/^(\\d+)-/);
+            const num = m ? m[1] : it.id_tanque;
+            const desc = lt ? `${lt.codigo_lote} · ${lt.dias_em_fase}d · sobrev ${parseFloat(String(lt.sobrevivencia).replace(',','.')).toFixed(1)}%` : '';
+            return `
+              <div class="tanque-mini">
+                <span class="ico">${ico}</span>
+                <span class="num">${num}</span>
+                <span class="desc">${desc}</span>
+                <button class="remover" onclick="removerTanque('${dataStr}','${it.id_tanque}')">×</button>
+              </div>
+            `;
+          }).join('') : '<div class="dia-vazio">— nenhum tanque planejado —</div>'}
+        </div>
+      `);
+    }
+    $('plano-conteudo').innerHTML = html.join('');
+    $('plano-rodape').style.display = 'block';
+    $('total-tanques').textContent = estado.plano.length;
+  }
+
+  function parsearData(s) {
+    const p = s.split('/');
+    return new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
+  }
+
+  function iconGrupo(g) {
+    if (g === 'viral_confirmado') return '🔴';
+    if (g === 'janela_viral') return '🟡';
+    if (g === 'suspeito') return '🟡';
+    return '🟢';
+  }
+  function labelGrupo(g) {
+    if (g === 'viral_confirmado') return 'viral confirmado';
+    if (g === 'janela_viral') return 'janela viral';
+    if (g === 'suspeito') return 'suspeito';
+    return 'saudável';
+  }
+
+  function removerTanque(dia, idTanque) {
+    estado.plano = estado.plano.filter(p => !(p.dia === dia && p.id_tanque === idTanque));
+    renderPlano();
+  }
+
+  // ===== Seleção de tanques =====
+  function abrirSelecao(dia) {
+    estado.diaAtivo = dia;
+    estado.selecionados = new Set();
+    estado.diasSelecionados = new Set([dia]);
+    estado.ordem = 'rota';
+    document.querySelectorAll('.ordem-btn').forEach(b => b.classList.remove('ativa'));
+    $('ord-rota').classList.add('ativa');
+    $('sel-titulo').textContent = 'Adicionar tanques';
+    renderDiasReplicar();
+    renderListaTanques();
+    atualizarContagensSelecao();
+    mostrar('tela-selecao');
+  }
+
+  function voltarPlano() {
+    mostrar('tela-plano');
+  }
+
+  function renderDiasReplicar() {
+    const seg = parsearData(estado.semanaInicio);
+    const html = [];
+    for (let i = 0; i < 7; i++) {
+      const d = diaDaSemana(i, seg);
+      const dataStr = fmtData(d);
+      const ativo = estado.diasSelecionados.has(dataStr) ? 'ativo' : '';
+      html.push(`
+        <button class="dia-btn ${ativo}" onclick="toggleDiaReplicar('${dataStr}')">
+          ${DIAS_NOMES[i]}<br>${String(d.getDate()).padStart(2,'0')}
+        </button>
+      `);
+    }
+    $('dias-replicar').innerHTML = html.join('');
+  }
+
+  function toggleDiaReplicar(dataStr) {
+    if (estado.diasSelecionados.has(dataStr)) {
+      estado.diasSelecionados.delete(dataStr);
+    } else {
+      estado.diasSelecionados.add(dataStr);
+    }
+    renderDiasReplicar();
+    atualizarContagensSelecao();
+  }
+
+  function mudarOrdem(o) {
+    estado.ordem = o;
+    document.querySelectorAll('.ordem-btn').forEach(b => b.classList.remove('ativa'));
+    $(o === 'rota' ? 'ord-rota' : 'ord-biosseg').classList.add('ativa');
+    renderListaTanques();
+  }
+
+  function renderListaTanques() {
+    if (!estado.lotes.length) {
+      $('lista-tanques').innerHTML = '<div class="loading">nenhum lote F1 disponível</div>';
+      return;
+    }
+
+    let ordenados;
+    if (estado.ordem === 'rota') {
+      ordenados = estado.lotes.slice().sort((a,b) => (a.numero_ordem||999) - (b.numero_ordem||999));
+      const html = ['<div class="grupo-label">📍 ordem por número do tanque</div>'];
+      ordenados.forEach(lt => html.push(itemHtml(lt)));
+      $('lista-tanques').innerHTML = html.join('');
+    } else {
+      // biosseg: saudavel → janela_viral → suspeito → viral_confirmado
+      const ordem = { 'saudavel':0, 'janela_viral':1, 'suspeito':2, 'viral_confirmado':3 };
+      ordenados = estado.lotes.slice().sort((a,b) => {
+        const ga = ordem[a.grupo_biosseguranca] ?? 4;
+        const gb = ordem[b.grupo_biosseguranca] ?? 4;
+        if (ga !== gb) return ga - gb;
+        return (a.numero_ordem||999) - (b.numero_ordem||999);
+      });
+      const html = [];
+      let grupoAtual = null;
+      ordenados.forEach(lt => {
+        if (lt.grupo_biosseguranca !== grupoAtual) {
+          grupoAtual = lt.grupo_biosseguranca;
+          html.push(`<div class="grupo-label">${iconGrupo(grupoAtual)} ${labelGrupo(grupoAtual)}</div>`);
+        }
+        html.push(itemHtml(lt));
+      });
+      $('lista-tanques').innerHTML = html.join('');
+    }
+  }
+
+  function itemHtml(lt) {
+    const m = lt.id_tanque.match(/^(\\d+)-/);
+    const num = m ? m[1] : lt.id_tanque;
+    const sel = estado.selecionados.has(lt.id_tanque) ? 'selecionado' : '';
+    const check = estado.selecionados.has(lt.id_tanque) ? '✓' : '';
+    const sobrev = parseFloat(String(lt.sobrevivencia).replace(',','.')) || 0;
+    return `
+      <div class="item-selecao ${sel}" onclick="toggleTanque('${lt.id_tanque}')">
+        <div class="check">${check}</div>
+        <span class="ico-grp">${iconGrupo(lt.grupo_biosseguranca)}</span>
+        <span class="num">${num}</span>
+        <span class="desc">${lt.dias_em_fase}d · sobrev ${sobrev.toFixed(1)}%</span>
+      </div>
+    `;
+  }
+
+  function toggleTanque(idTanque) {
+    if (estado.selecionados.has(idTanque)) {
+      estado.selecionados.delete(idTanque);
+    } else {
+      estado.selecionados.add(idTanque);
+    }
+    renderListaTanques();
+    atualizarContagensSelecao();
+  }
+
+  function atualizarContagensSelecao() {
+    const t = estado.selecionados.size;
+    const d = estado.diasSelecionados.size;
+    $('sel-contagem').textContent = t;
+    $('sel-dias').textContent = d;
+    $('sel-total').textContent = t * d;
+  }
+
+  function confirmarSelecao() {
+    if (!estado.selecionados.size) { toast('Selecione ao menos 1 tanque', true); return; }
+    if (!estado.diasSelecionados.size) { toast('Selecione ao menos 1 dia', true); return; }
+
+    // Adiciona ao plano, evitando duplicatas
+    estado.diasSelecionados.forEach(dia => {
+      estado.selecionados.forEach(idTq => {
+        const existe = estado.plano.find(p => p.dia === dia && p.id_tanque === idTq);
+        if (!existe) {
+          estado.plano.push({
+            dia: dia,
+            id_tanque: idTq,
+            status: 'pendente'
+          });
+        }
+      });
+    });
+
+    const total = estado.selecionados.size * estado.diasSelecionados.size;
+    toast(`${total} entradas adicionadas ao plano`);
+    mostrar('tela-plano');
+    renderPlano();
+  }
+
+  async function salvarPlano() {
+    if (estado.enviandoAgora) { toast('aguarde...', false); return; }
+    if (!estado.operador) { toast('Escolha um operador', true); return; }
+
+    estado.enviandoAgora = true;
+
+    const payload = {
+      acao: 'criar_plano_semana',
+      unidade: estado.unidade,
+      operador: estado.operador,
+      semana_inicio: estado.semanaInicio,
+      criado_por: estado.funcionario.nome,
+      itens: estado.plano.map(p => ({ dia: p.dia, id_tanque: p.id_tanque }))
+    };
+
+    try {
+      await fetch(API_URL, {
+        method: 'POST', mode: 'no-cors',
+        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+      });
+      toast('Plano salvo!');
+      setTimeout(() => { estado.enviandoAgora = false; }, 1500);
     } catch(e) {
       toast('Erro ao salvar', true);
+      estado.enviandoAgora = false;
     }
   }
 
