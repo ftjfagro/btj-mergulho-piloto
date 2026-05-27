@@ -302,7 +302,12 @@
       </div>
     </div>
   </div>
-
+<div id="barra-mergulhador" style="background:#FBE9D6; border-radius:8px; padding:10px 12px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
+    <div style="font-size:13px; color:#633806;">
+      🤿 mergulhador: <strong id="lbl-mergulhador" style="font-weight:600;">— escolher —</strong>
+    </div>
+    <button onclick="abrirSelMergulhador()" style="font-size:12px; padding:6px 12px; background:#fff; border:1px solid #BA7517; color:#633806; border-radius:999px; font-weight:500;">trocar</button>
+  </div>
   <div id="merg-conteudo">
     <div class="loading"><span class="spinner"></span>carregando lotes F1...</div>
   </div>
@@ -420,7 +425,13 @@
     finalizar e ir pro próximo
   </button>
 </div>
-
+<div id="modal-merg-bg" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(14,42,71,0.6); z-index:100; padding:16px; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:12px; padding:20px; max-width:420px; width:100%; max-height:80vh; overflow-y:auto;">
+    <h3 style="margin:0 0 12px; color:#0E2A47; font-size:17px;">Quem está mergulhando?</h3>
+    <div id="lista-merg-opcoes"></div>
+    <button onclick="fecharSelMergulhador()" style="width:100%; padding:12px; margin-top:8px; background:#fff; border:1px solid #D6E0EA; border-radius:8px; color:#5C6B7A;">cancelar</button>
+  </div>
+</div>
 <div id="toast" class="toast">salvo!</div>
 
 <script>
@@ -434,6 +445,7 @@
   let estado = {
     unidade: 'ILHA',
     funcionario: null,
+    mergulhador: null,
     funcionarios: [],
     lotes: [],
     tanqueAtivo: null,
@@ -610,10 +622,39 @@
     });
     $('sel-funcionario').innerHTML = opts.join('');
   }
-
-  function entrarComoFuncionario() {
+// ===== Seleção de mergulhador =====
+  function abrirSelMergulhador() {
+    const lista = $('lista-merg-opcoes');
+    const opts = estado.funcionarios.map(f => `
+      <button onclick="selecionarMergulhador('${f.nome.replace(/'/g,"\\'")}')" style="width:100%; padding:14px; margin-bottom:6px; background:#fff; border:1px solid #D6E0EA; border-radius:8px; text-align:left; font-size:15px; color:#0E2A47; font-weight:500;">
+        ${f.nome} <span style="font-size:11px; color:#5C6B7A; font-weight:400;">(${f.funcao})</span>
+      </button>
+    `).join('');
+    lista.innerHTML = opts;
+    $('modal-merg-bg').style.display = 'flex';
+  }
+  function fecharSelMergulhador() {
+    $('modal-merg-bg').style.display = 'none';
+  }
+  function selecionarMergulhador(nome) {
+    estado.mergulhador = nome;
+    $('lbl-mergulhador').textContent = nome;
+    $('lbl-mergulhador').style.color = '#0E2A47';
+    fecharSelMergulhador();
+    try { localStorage.setItem('btj_mergulhador', nome); } catch(e) {}
+  }
+function entrarComoFuncionario() {
     $('hdr-nome').textContent = estado.funcionario.nome;
     $('hdr-contexto').textContent = '· BTJ ' + estado.unidade + ' · ' + estado.funcionario.funcao;
+    // recupera o último mergulhador escolhido
+    try {
+      const m = localStorage.getItem('btj_mergulhador');
+      if (m) {
+        estado.mergulhador = m;
+        $('lbl-mergulhador').textContent = m;
+        $('lbl-mergulhador').style.color = '#0E2A47';
+      }
+    } catch(e) {}
     mostrar('tela-merg');
     carregarLotes();
   }
@@ -811,11 +852,13 @@
   }
 
   async function registrarInspecaoOk() {
-    if (!estado.horaChegada) { toast('Marque chegada no tanque primeiro', true); return; }
+   if (!estado.mergulhador) { toast('Escolha o mergulhador antes (toque em "trocar" no topo)', true); return; }
+   if (!estado.horaChegada) { toast('Marque chegada no tanque primeiro', true); return; }
     enviar(montarPayload('inspecao_ok'));
   }
 
   async function salvarMergulho() {
+    if (!estado.mergulhador) { toast('Escolha o mergulhador antes (toque em "trocar" no topo)', true); return; }
     if (!estado.horaChegada) { toast('Marque chegada primeiro', true); return; }
 
     let tipo = 'coleta_' + estado.tipoColeta;
@@ -835,7 +878,7 @@
     enviar(montarPayload(tipo, qtd, sintomas));
   }
 
-  function montarPayload(tipo, qtd, sintomas) {
+function montarPayload(tipo, qtd, sintomas) {
     const lote = estado.tanqueAtivo;
     const agora = new Date();
     const data = String(agora.getDate()).padStart(2,'0') + '/' +
@@ -852,7 +895,8 @@
       id_plano: '',
       id_tanque: lote.id_tanque,
       id_lote: lote.id_lote,
-      operador: estado.funcionario.nome,
+      apontador: estado.funcionario.nome,
+      mergulhador: estado.mergulhador || '',
       data: data,
       hora_chegada: hh,
       hora_finalizou: hf,
@@ -868,8 +912,7 @@
       cobertura_varredura: '',
       sintomas: sintomas || []
     };
-  }
-
+  } 
 async function enviar(payload) {
     if (estado.enviandoAgora) {
       toast('aguarde, salvando...', false);
