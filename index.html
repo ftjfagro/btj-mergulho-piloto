@@ -595,11 +595,23 @@
     $('btn-entrar').disabled = !$('sel-funcionario').value;
   });
 
-  $('btn-entrar').addEventListener('click', () => {
+$('btn-entrar').addEventListener('click', () => {
     const nome = $('sel-funcionario').value;
     if (!nome) return;
     const f = estado.funcionarios.find(x => x.nome === nome);
     estado.funcionario = f;
+
+    // Se a URL não tem ?modo=operador e o usuário é coordenador, manda pra área do coordenador
+    const params = new URLSearchParams(window.location.search);
+    const modoForcado = params.get('modo');
+    if (f && String(f.funcao).toLowerCase() === 'coordenador' && modoForcado !== 'operador') {
+      try {
+        localStorage.setItem('btj_funcionario', JSON.stringify(f));
+        localStorage.setItem('btj_unidade', estado.unidade);
+      } catch(e) {}
+      window.location.href = 'coordenador.html';
+      return;
+    }
     entrarComoFuncionario();
   });
 
