@@ -296,6 +296,7 @@
         <span class="sub" id="hdr-contexto">·</span>
       </div>
       <div style="display:flex; gap:6px;">
+       <span id="badge-pendentes" class="pill pill-offline" style="display:none;">0 pendentes</span>
         <span id="hdr-net" class="pill pill-online">online</span>
         <button class="btn-link" onclick="goLogin()">sair</button>
       </div>
@@ -445,7 +446,48 @@
   };
 
   const $ = id => document.getElementById(id);
-
+// ===== IndexedDB (fila de mergulhos offline) =====
+  let db = null;
+  function abrirDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open('btj-mergulho', 1);
+      req.onupgradeneeded = e => {
+        const d = e.target.result;
+        if (!d.objectStoreNames.contains('pendentes')) {
+          d.createObjectStore('pendentes', { keyPath: 'id_local' });
+        }
+      };
+      req.onsuccess = e => { db = e.target.result; resolve(db); };
+      req.onerror = e => reject(e.target.error);
+    });
+  }
+  function dbSalvarPendente(reg) {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('pendentes', 'readwrite');
+      tx.objectStore('pendentes').put(reg);
+      tx.oncomplete = () => resolve();
+      tx.onerror = e => reject(e.target.error);
+    });
+  }
+  function dbListarPendentes() {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('pendentes', 'readonly');
+      const req = tx.objectStore('pendentes').getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = e => reject(e.target.error);
+    });
+  }
+  function dbRemoverPendente(id_local) {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('pendentes', 'readwrite');
+      tx.objectStore('pendentes').delete(id_local);
+      tx.oncomplete = () => resolve();
+      tx.onerror = e => reject(e.target.error);
+    });
+  }
+  function gerarIdLocal() {
+    return 'l_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+  }
   function toast(msg, erro) {
     const t = $('toast');
     t.textContent = msg;
@@ -828,7 +870,7 @@
     };
   }
 
-  async function enviar(payload) {
+async function enviar(payload) {
     if (estado.enviandoAgora) {
       toast('aguarde, salvando...', false);
       return;
@@ -843,34 +885,101 @@
     }
     btnsAcao.forEach(b => b.disabled = true);
 
-    try {
-      await fetch(API_URL, {
+    payload.id_local = gerarIdLocal();
+    payload.criado_em = new Date().toISOString();
+
+    let sucesso = false;
+    if (navigator.onLine) {
+      sucesso = await tentarEnviarComTimeout(payload, 8000);
+    }
+
+    if (!sucesso) {
+      try {
+        await dbSalvarPendente(payload);
+        toast(navigator.onLine ? 'salvo local · sincroniza em segundo plano' : 'sem internet · salvo local');
+      } catch (e) {
+        toast('ERRO crítico: não foi possível salvar', true);
+        restaurarBotoes(btnSalvar, btnsAcao);
+        estado.enviandoAgora = false;
+        return;
+      }
+    } else {
+      toast('mergulho salvo!');
+    }
+
+    setTimeout(() => {
+      restaurarBotoes(btnSalvar, btnsAcao);
+      estado.enviandoAgora = false;
+      atualizarBadgePendentes();
+      goMerg();
+    }, 1000);
+  }
+
+  function restaurarBotoes(btnSalvar, btnsAcao) {
+    if (btnSalvar) {
+      btnSalvar.disabled = false;
+      btnSalvar.innerHTML = 'finalizar e ir pro próximo';
+    }
+    btnsAcao.forEach(b => b.disabled = false);
+  }
+
+  function tentarEnviarComTimeout(payload, timeoutMs) {
+    return new Promise(resolve => {
+      const controller = new AbortController();
+      const tmid = setTimeout(() => {
+        controller.abort();
+        resolve(false);
+      }, timeoutMs);
+
+      fetch(API_URL, {
         method: 'POST',
         mode: 'no-cors',
         body: JSON.stringify(payload),
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        signal: controller.signal
+      }).then(() => {
+        clearTimeout(tmid);
+        resolve(true);
+      }).catch(() => {
+        clearTimeout(tmid);
+        resolve(false);
       });
-      toast('mergulho salvo!');
-      setTimeout(() => {
-        if (btnSalvar) {
-          btnSalvar.disabled = false;
-          btnSalvar.innerHTML = 'finalizar e ir pro próximo';
+    });
+  }
+
+  let sincronizandoFila = false;
+  async function sincronizarFila() {
+    if (sincronizandoFila || !navigator.onLine || !db) return;
+    sincronizandoFila = true;
+    try {
+      const pendentes = await dbListarPendentes();
+      for (const reg of pendentes) {
+        const ok = await tentarEnviarComTimeout(reg, 8000);
+        if (ok) {
+          await dbRemoverPendente(reg.id_local);
+        } else {
+          break;
         }
-        btnsAcao.forEach(b => b.disabled = false);
-        estado.enviandoAgora = false;
-        goMerg();
-      }, 1200);
-    } catch (e) {
-      if (btnSalvar) {
-        btnSalvar.disabled = false;
-        btnSalvar.innerHTML = 'finalizar e ir pro próximo';
       }
-      btnsAcao.forEach(b => b.disabled = false);
-      estado.enviandoAgora = false;
-      toast('erro ao salvar — tente de novo', true);
+    } finally {
+      sincronizandoFila = false;
+      atualizarBadgePendentes();
     }
   }
 
+  async function atualizarBadgePendentes() {
+    if (!db) return;
+    const pendentes = await dbListarPendentes();
+    const badge = $('badge-pendentes');
+    if (badge) {
+      if (pendentes.length > 0) {
+        badge.textContent = pendentes.length + ' pendente' + (pendentes.length > 1 ? 's' : '');
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  } 
   // ===== Online/offline =====
   function atualizarRede() {
     estado.online = navigator.onLine;
@@ -880,8 +989,11 @@
       p.className = 'pill ' + (estado.online ? 'pill-online' : 'pill-offline');
     }
   }
-  window.addEventListener('online', atualizarRede);
-  window.addEventListener('offline', atualizarRede);
+window.addEventListener('offline', atualizarRede);
+  window.addEventListener('online', () => {
+    atualizarRede();
+    sincronizarFila();
+  });
 
   // ===== Service Worker =====
   if ('serviceWorker' in navigator) {
@@ -891,6 +1003,15 @@
   }
 
   // ===== Init =====
+  abrirDB().then(() => {
+    atualizarBadgePendentes();
+    if (navigator.onLine) sincronizarFila();
+  }).catch(err => console.log('IndexedDB erro:', err));
+
+  setInterval(() => {
+    if (navigator.onLine) sincronizarFila();
+  }, 30000);
+
   carregarFuncionarios();
   atualizarRede();
 </script>
