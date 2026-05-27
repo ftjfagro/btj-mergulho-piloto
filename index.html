@@ -473,6 +473,8 @@
     unidade: 'ILHA',
     funcionario: null,
     mergulhador: null,
+    planoHoje: []
+    planoSemana: []
     funcionarios: [],
     lotes: [],
     tanqueAtivo: null,
@@ -685,6 +687,12 @@ $('btn-entrar').addEventListener('click', () => {
 function entrarComoFuncionario() {
     $('hdr-nome').textContent = estado.funcionario.nome;
     $('hdr-contexto').textContent = '· BTJ ' + estado.unidade + ' · ' + estado.funcionario.funcao;
+ // Carrega o plano do operador em background
+    if (String(estado.funcionario.funcao).toLowerCase() === 'operador') {
+      carregarPlanoOperador().then(() => {
+        if ($('tela-merg').style.display !== 'none') renderPlano();
+      });
+    }
     // recupera o último mergulhador escolhido
     try {
       const m = localStorage.getItem('btj_mergulhador');
@@ -699,6 +707,38 @@ function entrarComoFuncionario() {
   }
 
   // ===== Lotes com cache =====
+ function dataHojeBR() {
+    const d = new Date();
+    return String(d.getDate()).padStart(2,'0') + '/' +
+           String(d.getMonth()+1).padStart(2,'0') + '/' +
+           d.getFullYear();
+  }
+
+  function segundaDaSemanaFmt() {
+    const d = new Date();
+    const dia = d.getDay();
+    const diff = dia === 0 ? -6 : 1 - dia;
+    const seg = new Date(d);
+    seg.setDate(d.getDate() + diff);
+    return String(seg.getDate()).padStart(2,'0') + '/' +
+           String(seg.getMonth()+1).padStart(2,'0') + '/' +
+           seg.getFullYear();
+  }
+
+  async function carregarPlanoOperador() {
+    try {
+      const semana = segundaDaSemanaFmt();
+      const r = await fetch(API_URL + '?acao=plano_semana&operador=' + encodeURIComponent(estado.funcionario.nome) + '&semana_inicio=' + encodeURIComponent(semana));
+      const j = await r.json();
+      const todos = j.plano || [];
+      const hoje = dataHojeBR();
+      estado.planoHoje = todos.filter(p => p.dia === hoje);
+      estado.planoSemana = todos.filter(p => p.dia !== hoje);
+    } catch(e) {
+      estado.planoHoje = [];
+      estado.planoSemana = [];
+    }
+  }
   async function carregarLotes() {
     const chave = 'lotes_' + estado.unidade;
     const cache = cacheLer(chave);
@@ -728,7 +768,7 @@ function entrarComoFuncionario() {
     }
   }
 
-  function renderPlano(quandoAtualizado) {
+function renderPlano(quandoAtualizado) {
     if (!estado.lotes.length) {
       $('merg-conteudo').innerHTML = '<div class="loading">Nenhum lote F1 encontrado para ' + estado.unidade + '.</div>';
       return;
@@ -743,36 +783,55 @@ function entrarComoFuncionario() {
     const cacheLabel = quandoAtualizado ?
       `<div class="cache-info">dados atualizados ${quandoAtualizado}</div>` : '';
 
-    const html = [
-      `<p class="label">lotes F1 ativos · ${lotes.length} tanques · ordenado por sobrevivência</p>`,
-      cacheLabel
-    ];
+    const html = [];
 
+    // ===== SE TEM PLANO PRA HOJE, MOSTRAR EM DESTAQUE =====
+    if (estado.planoHoje && estado.planoHoje.length) {
+      const idsHoje = estado.planoHoje.map(p => p.id_tanque);
+      const lotesHoje = lotes.filter(lt => idsHoje.includes(lt.id_tanque));
+      html.push(`<p class="label" style="color:#0E2A47; font-weight:600;">📋 plano de hoje · ${lotesHoje.length} tanques</p>`);
+      lotesHoje.forEach(lt => html.push(renderItemLote(lt, true)));
+    }
+
+    // ===== TODOS OS LOTES F1 (com plano de hoje marcado) =====
+    const titulo = (estado.planoHoje && estado.planoHoje.length)
+      ? `todos os lotes F1 · ${lotes.length} tanques`
+      : `lotes F1 ativos · ${lotes.length} tanques · ordenado por sobrevivência`;
+    html.push(`<p class="label" style="margin-top:16px;">${titulo}</p>`);
+    html.push(cacheLabel);
+
+    const idsPlanoHoje = (estado.planoHoje || []).map(p => p.id_tanque);
     lotes.forEach(lt => {
-      const sobrev = parseFloat(String(lt.sobrevivencia).replace(',','.')) || 0;
-      const mort = parseInt(lt.mortalidade) || 0;
-      let cls = 'baixo', ico = '🟢';
-      if (sobrev < 70) { cls = 'critico'; ico = '🔴'; }
-      else if (sobrev < 85) { cls = 'alto'; ico = '⚠️'; }
-      else if (sobrev < 92) { cls = 'medio'; ico = '🟡'; }
-
-      const numTanque = (lt.id_tanque || '').match(/^(\d+)-/);
-      const num = numTanque ? numTanque[1] : lt.id_tanque;
-      const info = `${lt.codigo_lote} · ${lt.dias_em_fase}d · sobrev ${sobrev.toFixed(1)}% · ${mort} mortos`;
-
-      html.push(`
-        <div class="lista-tanque ${cls}" onclick='abrirTanque(${JSON.stringify(lt).replace(/'/g,"&#39;")})'>
-          <div class="lt-icone">${ico}</div>
-          <div class="lt-corpo">
-            <div class="lt-nome">${num} · ${lt.produto_origem || ''}</div>
-            <div class="lt-info">${info}</div>
-          </div>
-          <div class="lt-seta">›</div>
-        </div>
-      `);
+      const noPlano = idsPlanoHoje.includes(lt.id_tanque);
+      html.push(renderItemLote(lt, noPlano));
     });
 
     $('merg-conteudo').innerHTML = html.join('');
+  }
+
+  function renderItemLote(lt, destacarPlano) {
+    const sobrev = parseFloat(String(lt.sobrevivencia).replace(',','.')) || 0;
+    const mort = parseInt(lt.mortalidade) || 0;
+    let cls = 'baixo', ico = '🟢';
+    if (sobrev < 70) { cls = 'critico'; ico = '🔴'; }
+    else if (sobrev < 85) { cls = 'alto'; ico = '⚠️'; }
+    else if (sobrev < 92) { cls = 'medio'; ico = '🟡'; }
+
+    const numTanque = (lt.id_tanque || '').match(/^(\d+)-/);
+    const num = numTanque ? numTanque[1] : lt.id_tanque;
+    const info = `${lt.codigo_lote} · ${lt.dias_em_fase}d · sobrev ${sobrev.toFixed(1)}% · ${mort} mortos`;
+    const tagPlano = destacarPlano ? '<span style="font-size:10px; background:#0E2A47; color:white; padding:2px 6px; border-radius:999px; margin-left:6px;">PLANO</span>' : '';
+
+    return `
+      <div class="lista-tanque ${cls}" onclick='abrirTanque(${JSON.stringify(lt).replace(/'/g,"&#39;")})'>
+        <div class="lt-icone">${ico}</div>
+        <div class="lt-corpo">
+          <div class="lt-nome">${num} · ${lt.produto_origem || ''} ${tagPlano}</div>
+          <div class="lt-info">${info}</div>
+        </div>
+        <div class="lt-seta">›</div>
+      </div>
+    `;
   }
 
   function abrirTanque(lote) {
