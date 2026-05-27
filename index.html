@@ -217,4 +217,576 @@
 
   .voltar {
     display: inline-flex; align-items: center; gap: 6px;
-    background: n
+    background: none; border: none; color: #0E2A47;
+    font-size: 15px; padding: 4px 0; margin-bottom: 8px; font-weight: 500;
+  }
+  .voltar::before { content: "‹"; font-size: 22px; line-height: 1; }
+
+  .toast {
+    position: fixed;
+    bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #2E7D5B; color: white;
+    padding: 12px 24px; border-radius: 8px;
+    font-size: 14px; font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 1000; opacity: 0;
+    transition: opacity 0.2s; pointer-events: none;
+  }
+  .toast.visivel { opacity: 1; }
+  .toast.erro { background: #B23A2A; }
+
+  .loading {
+    text-align: center; padding: 24px;
+    color: #5C6B7A; font-size: 14px;
+  }
+  .spinner {
+    display: inline-block; width: 16px; height: 16px;
+    border: 2px solid #D6E0EA; border-top-color: #0E2A47;
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+    vertical-align: -3px; margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- TELA 1: LOGIN -->
+<div id="tela-login" class="login-wrap">
+  <div class="login-titulo">
+    <div class="logo-btj">
+      <span class="btj-text">BTJ</span>
+      <span class="aqua-text">AQUA</span>
+    </div>
+    <h1>BTJ Mergulho</h1>
+    <p>Sanidade de tanques · Identifique-se</p>
+  </div>
+
+  <div class="bloco">
+    <p class="label">Unidade</p>
+    <div class="opcoes-grid">
+      <button class="opcao-btn ativo" data-unidade="ILHA">ILHA</button>
+      <button class="opcao-btn" data-unidade="STC">STC</button>
+      <button class="opcao-btn" data-unidade="SUD">SUD</button>
+    </div>
+  </div>
+
+  <div class="bloco">
+    <p class="label">Quem é você?</p>
+    <select id="sel-funcionario">
+      <option value="">— carregando funcionários... —</option>
+    </select>
+  </div>
+
+  <button id="btn-entrar" class="btn-primario" disabled>Entrar</button>
+</div>
+
+<!-- TELA 2: PLANO DO OPERADOR -->
+<div id="tela-merg" style="display:none;">
+  <div class="header-card">
+    <div class="header-row">
+      <div class="header-info">
+        <span id="hdr-nome">—</span>
+        <span class="sub" id="hdr-contexto">·</span>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <span id="hdr-net" class="pill pill-online">online</span>
+        <button class="btn-link" onclick="goLogin()">sair</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="merg-conteudo">
+    <div class="loading"><span class="spinner"></span>carregando lotes F1 da ILHA...</div>
+  </div>
+</div>
+
+<!-- TELA 3: REGISTRO DO TANQUE -->
+<div id="tela-registro" style="display:none;">
+  <button class="voltar" onclick="goMerg()">voltar ao plano</button>
+  <h2 id="reg-titulo" style="margin:0 0 4px; font-size:20px; font-weight:600;">Tanque</h2>
+
+  <div id="reg-contexto" class="alerta info" style="margin-bottom:16px;">
+    <span class="alerta-ico">ℹ️</span>
+    <div id="reg-contexto-texto">carregando...</div>
+  </div>
+
+  <button id="btn-chegada" class="btn-primario" onclick="marcarChegada()">
+    📍 cheguei no tanque
+  </button>
+
+  <p class="label" style="margin-top:16px;">o que aconteceu?</p>
+
+  <button class="btn-secundario" onclick="goColeta()" style="display:flex; gap:10px; padding:18px; text-align:left;">
+    <span style="font-size:22px;">🐟</span>
+    <div style="flex:1;">
+      <div style="font-weight:600;">coletei peixe morto</div>
+      <div style="font-size:11px; color:#5C6B7A;">contável, estimativa ou desintegrado</div>
+    </div>
+  </button>
+
+  <button class="btn-secundario" onclick="abrirSemColeta()" style="display:flex; gap:10px; padding:18px; text-align:left;">
+    <span style="font-size:22px;">👁️</span>
+    <div style="flex:1;">
+      <div style="font-weight:600;">sem peixe, mas vi sintomas</div>
+      <div style="font-size:11px; color:#5C6B7A;">alerta precoce</div>
+    </div>
+  </button>
+
+  <button class="btn-secundario" onclick="registrarInspecaoOk()" style="display:flex; gap:10px; padding:18px; text-align:left;">
+    <span style="font-size:22px; color:#2E7D5B;">✓</span>
+    <div style="flex:1;">
+      <div style="font-weight:600;">inspeção sem alteração</div>
+      <div style="font-size:11px; color:#5C6B7A;">tanque verificado, sem ocorrência</div>
+    </div>
+  </button>
+</div>
+
+<!-- TELA 4: COLETA -->
+<div id="tela-coleta" style="display:none;">
+  <button class="voltar" onclick="goRegistro()">voltar</button>
+  <h2 id="col-titulo" style="margin:0 0 12px; font-size:18px; font-weight:600;">Coleta</h2>
+
+  <p class="label">tipo de coleta</p>
+
+  <button class="tipo-coleta-btn ativo" onclick="selecionarTipo(this,'contavel')">
+    <span class="tc-icone">🐟</span>
+    <div>
+      <div class="tc-titulo">Contável</div>
+      <div class="tc-sub">consigo contar os peixes inteiros</div>
+    </div>
+  </button>
+
+  <button class="tipo-coleta-btn" onclick="selecionarTipo(this,'estimativa')">
+    <span class="tc-icone">📊</span>
+    <div>
+      <div class="tc-titulo">Estimativa</div>
+      <div class="tc-sub">conto parte, o resto está desintegrado</div>
+    </div>
+  </button>
+
+  <button class="tipo-coleta-btn" onclick="selecionarTipo(this,'desintegrado')">
+    <span class="tc-icone">🌫️</span>
+    <div>
+      <div class="tc-titulo">Desintegrado / não-contável</div>
+      <div class="tc-sub">só pasta ou restos, sem peixe inteiro</div>
+    </div>
+  </button>
+
+  <div id="bloco-quantidade" class="bloco" style="margin-top:16px;">
+    <p class="label">quantidade contada (peixes inteiros)</p>
+    <input type="tel" inputmode="numeric" pattern="[0-9]*" id="inp-quantidade" placeholder="0" style="font-size:24px; font-weight:600; text-align:center;">
+  </div>
+
+  <div id="bloco-volume" class="bloco" style="display:none;">
+    <p class="label">volume aproximado do material desintegrado</p>
+    <div class="volume-grid">
+      <button class="volume-btn" onclick="selecionarVolume(this,'1/4 balde')">¼ balde</button>
+      <button class="volume-btn" onclick="selecionarVolume(this,'1/2 balde')">½ balde</button>
+      <button class="volume-btn" onclick="selecionarVolume(this,'1 balde')">1 balde</button>
+      <button class="volume-btn" onclick="selecionarVolume(this,'2 baldes')">2 baldes</button>
+      <button class="volume-btn" onclick="selecionarVolume(this,'1 tambor')">1 tambor</button>
+      <button class="volume-btn" onclick="selecionarVolume(this,'2+ tambores')">2+ tambores</button>
+    </div>
+  </div>
+
+  <p class="label" style="margin-top:8px;">sintomas observados</p>
+
+  <div class="sintoma-cat">sintomas bacterianos</div>
+  <div class="sintoma-item" data-sint="lesão tipo sela no dorso" data-cat="bacteriano"><div class="sintoma-check">✓</div><span>lesão tipo "sela" no dorso</span></div>
+  <div class="sintoma-item" data-sint="brânquias com necrose" data-cat="bacteriano"><div class="sintoma-check">✓</div><span>brânquias com necrose</span></div>
+  <div class="sintoma-item" data-sint="lesões cinza-amareladas na pele" data-cat="bacteriano"><div class="sintoma-check">✓</div><span>lesões cinza-amareladas na pele</span></div>
+  <div class="sintoma-item" data-sint="úlceras / opérculo furado" data-cat="bacteriano"><div class="sintoma-check">✓</div><span>úlceras / opérculo furado</span></div>
+
+  <div class="sintoma-cat">sintomas virais</div>
+  <div class="sintoma-item" data-sint="olhos estufados (exoftalmia)" data-cat="viral"><div class="sintoma-check">✓</div><span>olhos estufados (exoftalmia)</span></div>
+  <div class="sintoma-item" data-sint="peixes rodando / cegos" data-cat="viral"><div class="sintoma-check">✓</div><span>peixes rodando / cegos</span></div>
+  <div class="sintoma-item" data-sint="palidez branquial" data-cat="viral"><div class="sintoma-check">✓</div><span>palidez branquial</span></div>
+
+  <div class="sintoma-cat">outros</div>
+  <div class="sintoma-item" data-sint="manchas algodonosas (fungos)" data-cat="fungico"><div class="sintoma-check">✓</div><span>manchas algodonosas (fungos)</span></div>
+  <div class="sintoma-item" data-sint="asfixia / peixes na superfície" data-cat="fisico"><div class="sintoma-check">✓</div><span>asfixia / peixes na superfície</span></div>
+
+  <textarea id="inp-obs" placeholder="observação adicional (opcional)" style="margin-top:12px;"></textarea>
+
+  <button id="btn-salvar" class="btn-azul" onclick="salvarMergulho()" style="margin-top:12px;">
+    finalizar e ir pro próximo
+  </button>
+</div>
+
+<div id="toast" class="toast">salvo!</div>
+
+<script>
+  // ==========================================================
+  // BTJ Mergulho — frontend conectado ao Apps Script
+  // ==========================================================
+
+  const API_URL = 'https://script.google.com/macros/s/AKfycbyo3WF9Sd0LNFTX-UwuTfkPpiPyn-TAhyc5MTbNPeFgLSGkKPqq4rzfPeNNAbqNDotP/exec';
+
+  let estado = {
+    unidade: 'ILHA',
+    funcionario: null,
+    funcionarios: [],
+    lotes: [],
+    tanqueAtivo: null,
+    tipoColeta: 'contavel',
+    volumeSelecionado: null,
+    horaChegada: null,
+    coords: null,
+    online: navigator.onLine
+  };
+
+  const $ = id => document.getElementById(id);
+
+  function toast(msg, erro) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.className = 'toast visivel' + (erro ? ' erro' : '');
+    setTimeout(() => { t.className = 'toast' + (erro ? ' erro' : ''); }, 2200);
+  }
+
+  // ===== Navegação =====
+  const telas = ['tela-login','tela-merg','tela-registro','tela-coleta'];
+  function mostrar(id) {
+    telas.forEach(t => $(t).style.display = 'none');
+    $(id).style.display = 'block';
+    window.scrollTo(0,0);
+  }
+  function goLogin() { mostrar('tela-login'); }
+  function goMerg() { mostrar('tela-merg'); renderPlano(); }
+  function goRegistro() { mostrar('tela-registro'); }
+  function goColeta() { mostrar('tela-coleta'); }
+
+  // ===== API calls =====
+  async function apiGet(acao, params={}) {
+    const q = new URLSearchParams(Object.assign({acao}, params));
+    const r = await fetch(API_URL + '?' + q.toString());
+    return r.json();
+  }
+  async function apiPost(payload) {
+    // Apps Script doPost requer no-cors quando vem de navegador comum
+    const r = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: { 'Content-Type': 'text/plain' }
+    });
+    return r.json();
+  }
+
+  // ===== Login =====
+  document.querySelectorAll('.opcao-btn[data-unidade]').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.opcao-btn[data-unidade]').forEach(x => x.classList.remove('ativo'));
+      b.classList.add('ativo');
+      estado.unidade = b.dataset.unidade;
+      carregarFuncionarios();
+    });
+  });
+
+  $('sel-funcionario').addEventListener('change', () => {
+    $('btn-entrar').disabled = !$('sel-funcionario').value;
+  });
+
+  $('btn-entrar').addEventListener('click', () => {
+    const nome = $('sel-funcionario').value;
+    if (!nome) return;
+    const f = estado.funcionarios.find(x => x.nome === nome);
+    estado.funcionario = f;
+    entrarComoFuncionario();
+  });
+
+  async function carregarFuncionarios() {
+    $('sel-funcionario').innerHTML = '<option>— carregando... —</option>';
+    try {
+      const j = await apiGet('listar_funcionarios', { unidade: estado.unidade });
+      estado.funcionarios = j.funcionarios || [];
+      const opts = ['<option value="">— escolher —</option>'];
+      estado.funcionarios.forEach(f => {
+        opts.push(`<option value="${f.nome}">${f.nome} (${f.funcao})</option>`);
+      });
+      $('sel-funcionario').innerHTML = opts.join('');
+    } catch (e) {
+      $('sel-funcionario').innerHTML = '<option value="">erro ao carregar</option>';
+      toast('Erro ao carregar funcionários', true);
+    }
+  }
+
+  function entrarComoFuncionario() {
+    $('hdr-nome').textContent = estado.funcionario.nome;
+    $('hdr-contexto').textContent = '· BTJ ' + estado.unidade + ' · ' + estado.funcionario.funcao;
+    mostrar('tela-merg');
+    carregarLotesECardpos();
+  }
+
+  // ===== Plano do dia (mostra lotes F1) =====
+  async function carregarLotesECardpos() {
+    $('merg-conteudo').innerHTML = '<div class="loading"><span class="spinner"></span>carregando lotes F1 da ' + estado.unidade + '...</div>';
+    try {
+      const j = await apiGet('listar_lotes_f1', { unidade: estado.unidade });
+      estado.lotes = j.lotes || [];
+      renderPlano();
+    } catch (e) {
+      $('merg-conteudo').innerHTML = '<div class="alerta danger"><span class="alerta-ico">⚠️</span><div>Erro ao carregar lotes. Verifique a conexão.</div></div>';
+    }
+  }
+
+  function renderPlano() {
+    if (!estado.lotes.length) {
+      $('merg-conteudo').innerHTML = '<div class="loading">Nenhum lote F1 encontrado para ' + estado.unidade + '.</div>';
+      return;
+    }
+    // Ordenar por sobrevivência crescente (pior primeiro)
+    const lotes = estado.lotes.slice().sort((a,b) => {
+      const sa = parseFloat(String(a.sobrevivencia).replace(',','.')) || 100;
+      const sb = parseFloat(String(b.sobrevivencia).replace(',','.')) || 100;
+      return sa - sb;
+    });
+
+    const html = ['<p class="label">lotes F1 ativos · ' + lotes.length + ' tanques · ordenado por sobrevivência</p>'];
+
+    lotes.forEach(lt => {
+      const sobrev = parseFloat(String(lt.sobrevivencia).replace(',','.')) || 0;
+      const mort = parseInt(lt.mortalidade) || 0;
+      let cls = 'baixo', ico = '🟢';
+      if (sobrev < 70) { cls = 'critico'; ico = '🔴'; }
+      else if (sobrev < 85) { cls = 'alto'; ico = '⚠️'; }
+      else if (sobrev < 92) { cls = 'medio'; ico = '🟡'; }
+
+      const numTanque = (lt.id_tanque || '').match(/^(\d+)-/);
+      const num = numTanque ? numTanque[1] : lt.id_tanque;
+      const info = `${lt.codigo_lote} · ${lt.dias_em_fase}d · sobrev ${sobrev.toFixed(1)}% · ${mort} mortos`;
+
+      html.push(`
+        <div class="lista-tanque ${cls}" onclick="abrirTanque(${JSON.stringify(lt).replace(/"/g,'&quot;')})">
+          <div class="lt-icone">${ico}</div>
+          <div class="lt-corpo">
+            <div class="lt-nome">${num} · ${lt.produto_origem || ''}</div>
+            <div class="lt-info">${info}</div>
+          </div>
+          <div class="lt-seta">›</div>
+        </div>
+      `);
+    });
+
+    $('merg-conteudo').innerHTML = html.join('');
+  }
+
+  function abrirTanque(lote) {
+    estado.tanqueAtivo = lote;
+    estado.horaChegada = null;
+    estado.coords = null;
+    estado.tipoColeta = 'contavel';
+    estado.volumeSelecionado = null;
+
+    const numTanque = (lote.id_tanque || '').match(/^(\d+)-/);
+    const num = numTanque ? numTanque[1] : lote.id_tanque;
+    $('reg-titulo').textContent = 'Tanque ' + num;
+    $('col-titulo').textContent = 'Tanque ' + num + ' · coleta';
+
+    const sobrev = parseFloat(String(lote.sobrevivencia).replace(',','.')) || 0;
+    const isCritico = sobrev < 70;
+    $('reg-contexto').className = 'alerta ' + (isCritico ? 'danger' : 'info');
+    $('reg-contexto-texto').innerHTML = `
+      <strong style="font-weight:600;">${lote.codigo_lote}</strong><br>
+      ${lote.dias_em_fase} dias em F1 · sobrev ${sobrev.toFixed(1)}% · ${lote.mortalidade} mortos<br>
+      <span style="font-size:11px;">peso ${String(lote.peso_medio_atual).split(',')[0]}g · ${lote.produto_origem} · ${lote.fornecedor || '—'}</span>
+      ${lote.tags_tanque && lote.tags_tanque !== '-' ? '<br><span style="color:#B23A2A; font-weight:500;">⚠ ' + lote.tags_tanque + '</span>' : ''}
+    `;
+
+    // resetar botão chegada
+    $('btn-chegada').innerHTML = '📍 cheguei no tanque';
+    $('btn-chegada').style.background = '#0E2A47';
+    $('btn-chegada').disabled = false;
+
+    // resetar coleta
+    $('inp-quantidade').value = '';
+    $('inp-obs').value = '';
+    document.querySelectorAll('.sintoma-item').forEach(s => s.classList.remove('checked'));
+    document.querySelectorAll('.volume-btn').forEach(b => b.classList.remove('ativo'));
+    document.querySelectorAll('.tipo-coleta-btn').forEach((b,i) => {
+      b.classList.toggle('ativo', i === 0);
+    });
+    $('bloco-quantidade').style.display = 'block';
+    $('bloco-volume').style.display = 'none';
+
+    mostrar('tela-registro');
+  }
+
+  // ===== GPS =====
+  function marcarChegada() {
+    if (!navigator.geolocation) {
+      toast('GPS não disponível neste dispositivo', true);
+      registrarChegadaSemGPS();
+      return;
+    }
+    $('btn-chegada').innerHTML = '<span class="spinner"></span> obtendo GPS...';
+    $('btn-chegada').disabled = true;
+
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        estado.coords = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          precisao: pos.coords.accuracy
+        };
+        registrarChegadaSemGPS();
+        toast('Chegada registrada · GPS ok');
+      },
+      err => {
+        estado.coords = { lat: '', lng: '', precisao: '' };
+        registrarChegadaSemGPS();
+        toast('Chegada registrada · sem GPS');
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  }
+
+  function registrarChegadaSemGPS() {
+    estado.horaChegada = new Date();
+    const hh = String(estado.horaChegada.getHours()).padStart(2,'0');
+    const mm = String(estado.horaChegada.getMinutes()).padStart(2,'0');
+    $('btn-chegada').innerHTML = '✓ chegou às ' + hh + ':' + mm;
+    $('btn-chegada').style.background = '#2E7D5B';
+    $('btn-chegada').disabled = true;
+  }
+
+  // ===== Sintomas =====
+  document.querySelectorAll('.sintoma-item').forEach(item => {
+    item.addEventListener('click', () => item.classList.toggle('checked'));
+  });
+
+  // ===== Tipo de coleta =====
+  function selecionarTipo(btn, tipo) {
+    document.querySelectorAll('.tipo-coleta-btn').forEach(b => b.classList.remove('ativo'));
+    btn.classList.add('ativo');
+    estado.tipoColeta = tipo;
+    const q = $('bloco-quantidade');
+    const v = $('bloco-volume');
+    if (tipo === 'contavel') { q.style.display = 'block'; v.style.display = 'none'; }
+    else if (tipo === 'estimativa') { q.style.display = 'block'; v.style.display = 'block'; }
+    else { q.style.display = 'none'; v.style.display = 'block'; }
+  }
+
+  function selecionarVolume(btn, valor) {
+    document.querySelectorAll('.volume-btn').forEach(b => b.classList.remove('ativo'));
+    btn.classList.add('ativo');
+    estado.volumeSelecionado = valor;
+  }
+
+  // ===== Ações finais =====
+  function abrirSemColeta() {
+    // mesma tela de coleta, mas sem campo de quantidade
+    selecionarTipo(document.querySelector('.tipo-coleta-btn'), 'contavel');
+    estado.tipoColeta = 'sintomas_sem_coleta';
+    $('bloco-quantidade').style.display = 'none';
+    $('bloco-volume').style.display = 'none';
+    document.querySelectorAll('.tipo-coleta-btn').forEach(b => b.style.display = 'none');
+    goColeta();
+  }
+
+  async function registrarInspecaoOk() {
+    if (!estado.horaChegada) {
+      toast('Marque chegada no tanque primeiro', true);
+      return;
+    }
+    const payload = montarPayload('inspecao_ok');
+    enviar(payload);
+  }
+
+  async function salvarMergulho() {
+    if (!estado.horaChegada) {
+      toast('Marque chegada primeiro', true);
+      return;
+    }
+    let tipo = 'coleta_' + estado.tipoColeta;
+    if (estado.tipoColeta === 'sintomas_sem_coleta') tipo = 'sintomas_sem_coleta';
+
+    const qtd = $('inp-quantidade').value;
+    if ((estado.tipoColeta === 'contavel' || estado.tipoColeta === 'estimativa') && !qtd) {
+      toast('Informe a quantidade contada', true);
+      return;
+    }
+
+    const sintomas = [];
+    document.querySelectorAll('.sintoma-item.checked').forEach(s => {
+      sintomas.push({ sintoma: s.dataset.sint, categoria: s.dataset.cat });
+    });
+
+    const payload = montarPayload(tipo, qtd, sintomas);
+    // restaurar botões de tipo (caso veio do "sem coleta")
+    document.querySelectorAll('.tipo-coleta-btn').forEach(b => b.style.display = '');
+    enviar(payload);
+  }
+
+  function montarPayload(tipo, qtd, sintomas) {
+    const lote = estado.tanqueAtivo;
+    const agora = new Date();
+    const data = String(agora.getDate()).padStart(2,'0') + '/' +
+                 String(agora.getMonth()+1).padStart(2,'0') + '/' +
+                 agora.getFullYear();
+    const hh = String(estado.horaChegada.getHours()).padStart(2,'0') + ':' +
+               String(estado.horaChegada.getMinutes()).padStart(2,'0') + ':' +
+               String(estado.horaChegada.getSeconds()).padStart(2,'0');
+    const hf = String(agora.getHours()).padStart(2,'0') + ':' +
+               String(agora.getMinutes()).padStart(2,'0') + ':' +
+               String(agora.getSeconds()).padStart(2,'0');
+    return {
+      acao: 'registrar_mergulho',
+      id_plano: '',
+      id_tanque: lote.id_tanque,
+      id_lote: lote.id_lote,
+      operador: estado.funcionario.nome,
+      data: data,
+      hora_chegada: hh,
+      hora_finalizou: hf,
+      lat: estado.coords ? estado.coords.lat : '',
+      lng: estado.coords ? estado.coords.lng : '',
+      gps_precisao_m: estado.coords ? estado.coords.precisao : '',
+      gps_distancia_m: '',
+      tipo: tipo,
+      qtd_coletada: qtd || '',
+      volume_estimado: estado.volumeSelecionado || '',
+      observacao: $('inp-obs') ? $('inp-obs').value : '',
+      condicao_agua: '',
+      cobertura_varredura: '',
+      sintomas: sintomas || []
+    };
+  }
+
+  async function enviar(payload) {
+    try {
+      // O Apps Script com fetch e Content-Type text/plain evita o preflight CORS
+      await fetch(API_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+      });
+      toast('Mergulho salvo!');
+      // Volta pro plano e recarrega
+      setTimeout(() => {
+        goMerg();
+      }, 800);
+    } catch (e) {
+      toast('Erro ao salvar', true);
+    }
+  }
+
+  // ===== Online/offline =====
+  function atualizarRede() {
+    estado.online = navigator.onLine;
+    const p = $('hdr-net');
+    if (p) {
+      p.textContent = estado.online ? 'online' : 'sem sinal';
+      p.className = 'pill ' + (estado.online ? 'pill-online' : 'pill-offline');
+    }
+  }
+  window.addEventListener('online', atualizarRede);
+  window.addEventListener('offline', atualizarRede);
+
+  // ===== Inicialização =====
+  carregarFuncionarios();
+  atualizarRede();
+</script>
+
+</body>
+</html>
