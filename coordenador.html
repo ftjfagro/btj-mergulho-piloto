@@ -729,10 +729,26 @@
     }
 
     let ordenados;
-    if (estado.ordem === 'rota') {
-      ordenados = estado.lotes.slice().sort((a,b) => (a.numero_ordem||999) - (b.numero_ordem||999));
-      const html = ['<div class="grupo-label">📍 ordem por número do tanque</div>'];
-      ordenados.forEach(lt => html.push(itemHtml(lt)));
+if (estado.ordem === 'rota') {
+      ordenados = estado.lotes.slice().sort((a,b) => {
+        const la = extrairNumLinha(a.linha_fisica);
+        const lb = extrairNumLinha(b.linha_fisica);
+        if (la !== lb) return la - lb;
+        const sa = parseInt(a.sequencia_linha) || 999;
+        const sb = parseInt(b.sequencia_linha) || 999;
+        return sa - sb;
+      });
+      // Agrupa por linha física
+      const html = [];
+      let linhaAtual = null;
+      ordenados.forEach(lt => {
+        const linha = lt.linha_fisica || '—';
+        if (linha !== linhaAtual) {
+          linhaAtual = linha;
+          html.push(`<div class="grupo-label">📍 ${linha}</div>`);
+        }
+        html.push(itemHtmlRota(lt));
+      });
       $('lista-tanques').innerHTML = html.join('');
     } else {
       // biosseg: saudavel → janela_viral → suspeito → viral_confirmado
@@ -755,7 +771,29 @@
       $('lista-tanques').innerHTML = html.join('');
     }
   }
+function extrairNumLinha(linhaFisica) {
+    // ex: "L6 ILHA" → 6, "L3 ILHA" → 3
+    if (!linhaFisica) return 999;
+    const m = String(linhaFisica).match(/L(\d+)/i);
+    return m ? parseInt(m[1]) : 999;
+  }
 
+  function itemHtmlRota(lt) {
+    const m = lt.id_tanque.match(/^(\d+)-/);
+    const num = m ? m[1] : lt.id_tanque;
+    const sel = estado.selecionados.has(lt.id_tanque) ? 'selecionado' : '';
+    const check = estado.selecionados.has(lt.id_tanque) ? '✓' : '';
+    const sobrev = parseFloat(String(lt.sobrevivencia).replace(',','.')) || 0;
+    const pos = lt.sequencia_linha ? `pos ${lt.sequencia_linha} · ` : '';
+    return `
+      <div class="item-selecao ${sel}" onclick="toggleTanque('${lt.id_tanque}')">
+        <div class="check">${check}</div>
+        <span class="ico-grp">${iconGrupo(lt.grupo_biosseguranca)}</span>
+        <span class="num">${num}</span>
+        <span class="desc">${pos}${lt.dias_em_fase}d · sobrev ${sobrev.toFixed(1)}%</span>
+      </div>
+    `;
+  }
   function itemHtml(lt) {
     const m = lt.id_tanque.match(/^(\\d+)-/);
     const num = m ? m[1] : lt.id_tanque;
