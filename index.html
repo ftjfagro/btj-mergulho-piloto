@@ -27,7 +27,7 @@
     margin: 0 auto;
   }
   input, button, textarea, select { font-family: inherit; }
-  input[type="text"], input[type="number"], textarea, select {
+  input[type="text"], input[type="tel"], input[type="number"], textarea, select {
     width: 100%;
     padding: 14px;
     font-size: 16px;
@@ -76,7 +76,6 @@
   }
   .pill-online { background: #DFF4E6; color: #2E7D5B; }
   .pill-offline { background: #FBE9D6; color: #8B5A00; }
-  .pill-proto { background: #FBE9E5; color: #B23A2A; font-size: 10px; }
 
   .btn-link {
     font-size: 12px;
@@ -192,7 +191,6 @@
     border: 2px solid #0E2A47;
     padding: 13px 7px;
   }
-  .opcao-btn .sub { font-size: 10px; color: #5C6B7A; margin-top: 2px; }
 
   .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
   .stat-card {
@@ -326,6 +324,45 @@
     font-weight: 600;
   }
 
+  .tipo-coleta-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: 1.5px solid #D6E0EA;
+    background: #fff;
+    text-align: left;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #0E2A47;
+  }
+  .tipo-coleta-btn.ativo {
+    border: 2px solid #0E2A47;
+    background: #D6E8F4;
+    padding: 13px;
+  }
+  .tipo-coleta-btn .tc-icone { font-size: 24px; flex-shrink: 0; }
+  .tipo-coleta-btn .tc-titulo { font-size: 15px; font-weight: 600; }
+  .tipo-coleta-btn .tc-sub { font-size: 11px; color: #5C6B7A; margin-top: 2px; }
+
+  .volume-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .volume-btn {
+    padding: 12px 8px;
+    border: 1.5px solid #D6E0EA;
+    background: #fff;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #0E2A47;
+    font-weight: 500;
+    text-align: center;
+  }
+  .volume-btn.ativo {
+    background: #D6E8F4;
+    border: 2px solid #0E2A47;
+    padding: 11px 7px;
+  }
+
   .timeline {
     position: relative;
     padding-left: 24px;
@@ -400,9 +437,7 @@
 
 <div class="proto-badge">PROTÓTIPO</div>
 
-<!-- ====================================================== -->
-<!-- TELA 1: LOGIN                                            -->
-<!-- ====================================================== -->
+<!-- TELA 1: LOGIN -->
 <div id="tela-login" class="login-wrap">
   <div class="login-titulo">
     <div class="logo-btj">
@@ -436,9 +471,7 @@
   <button id="btn-entrar" class="btn-primario" disabled>Entrar</button>
 </div>
 
-<!-- ====================================================== -->
-<!-- TELA 2: DASHBOARD DO COORDENADOR                         -->
-<!-- ====================================================== -->
+<!-- TELA 2: DASHBOARD DO COORDENADOR -->
 <div id="tela-coord" style="display:none;">
   <div class="header-card">
     <div class="header-row">
@@ -550,9 +583,7 @@
   </button>
 </div>
 
-<!-- ====================================================== -->
-<!-- TELA 3: MONTAR PLANO                                     -->
-<!-- ====================================================== -->
+<!-- TELA 3: MONTAR PLANO -->
 <div id="tela-plano" style="display:none;">
   <button class="voltar" onclick="goCoord()">voltar</button>
   <h2 style="margin:0 0 16px; font-size:18px; font-weight:600;">Plano de mergulho</h2>
@@ -606,9 +637,7 @@
   </button>
 </div>
 
-<!-- ====================================================== -->
-<!-- TELA 4: PLANO DO MERGULHADOR                             -->
-<!-- ====================================================== -->
+<!-- TELA 4: PLANO DO MERGULHADOR -->
 <div id="tela-merg" style="display:none;">
   <div class="header-card">
     <div class="header-row">
@@ -692,9 +721,7 @@
   </button>
 </div>
 
-<!-- ====================================================== -->
-<!-- TELA 5: REGISTRO DO TANQUE                               -->
-<!-- ====================================================== -->
+<!-- TELA 5: REGISTRO DO TANQUE -->
 <div id="tela-registro" style="display:none;">
   <button class="voltar" onclick="goMerg()">voltar ao plano</button>
   <h2 style="margin:0 0 4px; font-size:20px; font-weight:600;">Tanque 130</h2>
@@ -717,7 +744,7 @@
     <span style="font-size:22px;">🐟</span>
     <div style="flex:1;">
       <div style="font-weight:600;">coletei peixe morto</div>
-      <div style="font-size:11px; color:#5C6B7A;">informo quantidade e sintomas</div>
+      <div style="font-size:11px; color:#5C6B7A;">contável, estimativa ou desintegrado</div>
     </div>
   </button>
 
@@ -749,19 +776,57 @@
   </div>
 </div>
 
-<!-- ====================================================== -->
-<!-- TELA 6: COLETA (QUANTIDADE + SINTOMAS)                   -->
-<!-- ====================================================== -->
+<!-- TELA 6: COLETA (TIPO + QUANTIDADE + SINTOMAS) -->
 <div id="tela-coleta" style="display:none;">
   <button class="voltar" onclick="goRegistro()">voltar</button>
   <h2 style="margin:0 0 12px; font-size:18px; font-weight:600;">Tanque 130 · coleta</h2>
 
-  <div class="bloco">
-    <p class="label">quantidade coletada</p>
-    <input type="number" value="886" style="font-size:22px; font-weight:600; text-align:center;">
+  <p class="label">tipo de coleta</p>
+
+  <button class="tipo-coleta-btn ativo" onclick="selecionarTipo(this, 'contavel')">
+    <span class="tc-icone">🐟</span>
+    <div>
+      <div class="tc-titulo">Contável</div>
+      <div class="tc-sub">consigo contar os peixes inteiros</div>
+    </div>
+  </button>
+
+  <button class="tipo-coleta-btn" onclick="selecionarTipo(this, 'estimativa')">
+    <span class="tc-icone">📊</span>
+    <div>
+      <div class="tc-titulo">Estimativa</div>
+      <div class="tc-sub">conto parte, o resto está desintegrado</div>
+    </div>
+  </button>
+
+  <button class="tipo-coleta-btn" onclick="selecionarTipo(this, 'desintegrado')">
+    <span class="tc-icone">🌫️</span>
+    <div>
+      <div class="tc-titulo">Desintegrado / não-contável</div>
+      <div class="tc-sub">só pasta ou restos, sem peixe inteiro</div>
+    </div>
+  </button>
+
+  <!-- Bloco que aparece para contável e estimativa -->
+  <div id="bloco-quantidade" class="bloco" style="margin-top:16px;">
+    <p class="label">quantidade contada (peixes inteiros)</p>
+    <input type="tel" inputmode="numeric" pattern="[0-9]*" id="inp-quantidade" value="886" placeholder="0" style="font-size:24px; font-weight:600; text-align:center;">
   </div>
 
-  <p class="label">sintomas observados</p>
+  <!-- Bloco que aparece para estimativa e desintegrado -->
+  <div id="bloco-volume" class="bloco" style="display:none;">
+    <p class="label">volume aproximado do material desintegrado</p>
+    <div class="volume-grid">
+      <button class="volume-btn" onclick="selecionarVolume(this)">¼ balde</button>
+      <button class="volume-btn" onclick="selecionarVolume(this)">½ balde</button>
+      <button class="volume-btn" onclick="selecionarVolume(this)">1 balde</button>
+      <button class="volume-btn" onclick="selecionarVolume(this)">2 baldes</button>
+      <button class="volume-btn" onclick="selecionarVolume(this)">1 tambor</button>
+      <button class="volume-btn" onclick="selecionarVolume(this)">2+ tambores</button>
+    </div>
+  </div>
+
+  <p class="label" style="margin-top:8px;">sintomas observados</p>
 
   <div class="sintoma-cat">sintomas bacterianos</div>
   <div class="sintoma-item checked">
@@ -817,9 +882,7 @@
   </button>
 </div>
 
-<!-- ====================================================== -->
-<!-- TELA 7: HISTÓRICO DO TANQUE                              -->
-<!-- ====================================================== -->
+<!-- TELA 7: HISTÓRICO DO TANQUE -->
 <div id="tela-historico" style="display:none;">
   <button class="voltar" onclick="goCoord()">voltar</button>
   <h2 style="margin:0 0 12px; font-size:18px; font-weight:600;">Tanque 130 · histórico</h2>
@@ -888,7 +951,6 @@
   function goColeta() { mostrar('tela-coleta'); }
   function goHistorico() { mostrar('tela-historico'); }
 
-  // Login
   document.querySelectorAll('.opcao-btn[data-unidade]').forEach(b => {
     b.addEventListener('click', () => {
       document.querySelectorAll('.opcao-btn[data-unidade]').forEach(x => x.classList.remove('ativo'));
@@ -907,16 +969,36 @@
     else goMerg();
   });
 
-  // Sintomas: toggle checkbox visual
   document.querySelectorAll('.sintoma-item').forEach(item => {
     item.addEventListener('click', () => item.classList.toggle('checked'));
   });
 
-  // Marcar chegada
   function marcarChegada(btn) {
     btn.innerHTML = '✓ chegou às ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) + ' — GPS ok';
     btn.style.background = '#2E7D5B';
     btn.disabled = true;
+  }
+
+  function selecionarTipo(btn, tipo) {
+    document.querySelectorAll('.tipo-coleta-btn').forEach(b => b.classList.remove('ativo'));
+    btn.classList.add('ativo');
+    const blocoQtd = document.getElementById('bloco-quantidade');
+    const blocoVol = document.getElementById('bloco-volume');
+    if (tipo === 'contavel') {
+      blocoQtd.style.display = 'block';
+      blocoVol.style.display = 'none';
+    } else if (tipo === 'estimativa') {
+      blocoQtd.style.display = 'block';
+      blocoVol.style.display = 'block';
+    } else {
+      blocoQtd.style.display = 'none';
+      blocoVol.style.display = 'block';
+    }
+  }
+
+  function selecionarVolume(btn) {
+    document.querySelectorAll('.volume-btn').forEach(b => b.classList.remove('ativo'));
+    btn.classList.add('ativo');
   }
 </script>
 
