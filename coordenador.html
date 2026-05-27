@@ -180,6 +180,37 @@
     background: #F8FAFC; border-radius: 6px;
     font-size: 13px;
   }
+ .tanque-card {
+    border: 1px solid #D6E0EA; border-radius: 8px;
+    padding: 10px 12px; margin-bottom: 6px;
+    background: #fff;
+  }
+  .tanque-card.card-viral {
+    border: 2px solid #A32D2D;
+    background: #FBE9E5;
+    padding: 9px 11px;
+  }
+  .tanque-card.card-alerta {
+    border-left: 4px solid #BA7517;
+  }
+  .tanque-card.card-saudavel {
+    border-left: 4px solid #5DCAA5;
+  }
+  .tanque-card-row1 {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 4px;
+  }
+  .tanque-card-row1 .ico { font-size: 16px; flex-shrink: 0; }
+  .tanque-card-row1 .num {
+    font-size: 14px; font-weight: 600; flex: 1;
+    color: #0E2A47;
+  }
+  .tanque-card.card-viral .tanque-card-row1 .num { color: #501313; }
+  .tanque-card-row2 {
+    font-size: 11px; color: #5C6B7A;
+    padding-left: 24px;
+  }
+  .tanque-card.card-viral .tanque-card-row2 { color: #791F1F; }
   .tanque-mini .ico { font-size: 14px; }
   .tanque-mini .num { font-weight: 600; }
   .tanque-mini .desc { flex: 1; color: #5C6B7A; font-size: 11px; }
@@ -623,23 +654,34 @@
             </div>
             <button class="dia-add" onclick="abrirSelecao('${dataStr}')">+ add</button>
           </div>
-          ${itens.length ? itens.map(it => {
+${itens.length ? itens.map(it => {
             const lt = estado.lotes.find(l => l.id_tanque === it.id_tanque);
             const grp = lt ? lt.grupo_biosseguranca : 'saudavel';
             const ico = iconGrupo(grp);
             const m = it.id_tanque.match(/^(\\d+)-/);
             const num = m ? m[1] : it.id_tanque;
-            const desc = lt ? `${lt.codigo_lote} · ${lt.dias_em_fase}d · sobrev ${parseFloat(String(lt.sobrevivencia).replace(',','.')).toFixed(1)}%` : '';
+            const sobrev = lt ? parseFloat(String(lt.sobrevivencia).replace(',','.')) || 0 : 0;
+            const mortes = lt ? (parseInt(lt.mortalidade) || 0) : 0;
+            const codigoLote = lt ? lt.codigo_lote : '';
+            const produto = lt ? (lt.produto_origem || '') : '';
+            const dias = lt ? lt.dias_em_fase : '';
+            let classe = 'card-saudavel';
+            if (grp === 'viral_confirmado') classe = 'card-viral';
+            else if (grp === 'janela_viral' || grp === 'suspeito') classe = 'card-alerta';
             return `
-              <div class="tanque-mini">
-                <span class="ico">${ico}</span>
-                <span class="num">${num}</span>
-                <span class="desc">${desc}</span>
-                <button class="remover" onclick="removerTanque('${dataStr}','${it.id_tanque}')">×</button>
+              <div class="tanque-card ${classe}">
+                <div class="tanque-card-row1">
+                  <span class="ico">${ico}</span>
+                  <span class="num">${num} · ${produto}</span>
+                  <button class="remover" onclick="removerTanque('${dataStr}','${it.id_tanque}')">×</button>
+                </div>
+                <div class="tanque-card-row2">
+                  ${codigoLote} · ${dias}d · sobrev ${sobrev.toFixed(1)}% · ${mortes} mortos
+                </div>
               </div>
             `;
           }).join('') : '<div class="dia-vazio">— nenhum tanque planejado —</div>'}
-        </div>
+          </div>
       `);
     }
     $('plano-conteudo').innerHTML = html.join('');
