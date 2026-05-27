@@ -188,7 +188,23 @@
     font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
     color: #8A99A8; margin: 12px 0 6px; font-weight: 600;
   }
-
+.sint-toggle {
+    width: 100%; padding: 12px 14px;
+    background: #F2F6FA; border: 1px solid #D6E0EA;
+    border-radius: 8px; margin-bottom: 6px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 14px; font-weight: 500; color: #0E2A47;
+    cursor: pointer;
+  }
+  .sint-toggle .contagem {
+    font-size: 11px; padding: 2px 8px;
+    background: #A32D2D; color: white;
+    border-radius: 999px; font-weight: 600;
+    margin-left: auto; margin-right: 8px;
+  }
+  .sint-toggle .seta { font-size: 14px; color: #5C6B7A; }
+  .sint-grupo { display: none; }
+  .sint-grupo.aberto { display: block; }
   .tipo-coleta-btn {
     width: 100%; padding: 14px;
     border-radius: 8px;
@@ -403,21 +419,32 @@
   </div>
 
   <p class="label" style="margin-top:8px;">sintomas observados</p>
-
-  <div class="sintoma-cat">sintomas bacterianos</div>
-  <div class="sintoma-item" data-sint="lesão tipo sela no dorso" data-cat="bacteriano"><div class="sintoma-check">✓</div><span>lesão tipo "sela" no dorso</span></div>
-  <div class="sintoma-item" data-sint="brânquias com necrose" data-cat="bacteriano"><div class="sintoma-check">✓</div><span>brânquias com necrose</span></div>
-  <div class="sintoma-item" data-sint="lesões cinza-amareladas na pele" data-cat="bacteriano"><div class="sintoma-check">✓</div><span>lesões cinza-amareladas na pele</span></div>
-  <div class="sintoma-item" data-sint="úlceras / opérculo furado" data-cat="bacteriano"><div class="sintoma-check">✓</div><span>úlceras / opérculo furado</span></div>
-
-  <div class="sintoma-cat">sintomas virais</div>
+<div class="sintoma-cat">sintomas virais</div>
   <div class="sintoma-item" data-sint="olhos estufados (exoftalmia)" data-cat="viral"><div class="sintoma-check">✓</div><span>olhos estufados (exoftalmia)</span></div>
   <div class="sintoma-item" data-sint="peixes rodando / cegos" data-cat="viral"><div class="sintoma-check">✓</div><span>peixes rodando / cegos</span></div>
   <div class="sintoma-item" data-sint="palidez branquial" data-cat="viral"><div class="sintoma-check">✓</div><span>palidez branquial</span></div>
 
-  <div class="sintoma-cat">outros</div>
-  <div class="sintoma-item" data-sint="manchas algodonosas (fungos)" data-cat="fungico"><div class="sintoma-check">✓</div><span>manchas algodonosas (fungos)</span></div>
-  <div class="sintoma-item" data-sint="asfixia / peixes na superfície" data-cat="fisico"><div class="sintoma-check">✓</div><span>asfixia / peixes na superfície</span></div>
+  <button type="button" class="sint-toggle" onclick="toggleGrupo('grp-bact', this)">
+    <span>+ sintomas bacterianos</span>
+    <span class="contagem" id="cnt-bact" style="display:none;">0</span>
+    <span class="seta">▼</span>
+  </button>
+  <div class="sint-grupo" id="grp-bact">
+    <div class="sintoma-item" data-sint="lesão tipo sela no dorso" data-cat="bacteriano"><div class="sintoma-check">✓</div><span>lesão tipo "sela" no dorso</span></div>
+    <div class="sintoma-item" data-sint="brânquias com necrose" data-cat="bacteriano"><div class="sintoma-check">✓</div><span>brânquias com necrose</span></div>
+    <div class="sintoma-item" data-sint="lesões cinza-amareladas na pele" data-cat="bacteriano"><div class="sintoma-check">✓</div><span>lesões cinza-amareladas na pele</span></div>
+    <div class="sintoma-item" data-sint="úlceras / opérculo furado" data-cat="bacteriano"><div class="sintoma-check">✓</div><span>úlceras / opérculo furado</span></div>
+  </div>
+
+  <button type="button" class="sint-toggle" onclick="toggleGrupo('grp-outros', this)">
+    <span>+ outros sintomas (fungos, físicos)</span>
+    <span class="contagem" id="cnt-outros" style="display:none;">0</span>
+    <span class="seta">▼</span>
+  </button>
+  <div class="sint-grupo" id="grp-outros">
+    <div class="sintoma-item" data-sint="manchas algodonosas (fungos)" data-cat="fungico"><div class="sintoma-check">✓</div><span>manchas algodonosas (fungos)</span></div>
+    <div class="sintoma-item" data-sint="asfixia / peixes na superfície" data-cat="fisico"><div class="sintoma-check">✓</div><span>asfixia / peixes na superfície</span></div>
+  </div>
 
   <textarea id="inp-obs" placeholder="observação adicional (opcional)" style="margin-top:12px;"></textarea>
 
@@ -765,6 +792,13 @@ function entrarComoFuncionario() {
     $('inp-quantidade').value = '';
     $('inp-obs').value = '';
     document.querySelectorAll('.sintoma-item').forEach(s => s.classList.remove('checked'));
+   // fecha os grupos colapsáveis e zera contadores
+    document.querySelectorAll('.sint-grupo').forEach(g => g.classList.remove('aberto'));
+    document.querySelectorAll('.sint-toggle .seta').forEach(s => s.textContent = '▼');
+    document.querySelectorAll('.sint-toggle span:first-child').forEach(s => {
+      s.textContent = s.textContent.replace('− ', '+ ');
+    });
+    atualizarContadores();
     document.querySelectorAll('.volume-btn').forEach(b => b.classList.remove('ativo'));
     document.querySelectorAll('.tipo-coleta-btn').forEach((b,i) => {
       b.classList.toggle('ativo', i === 0);
@@ -819,28 +853,31 @@ function entrarComoFuncionario() {
   }
 
   // ===== Sintomas =====
+ 
   document.querySelectorAll('.sintoma-item').forEach(item => {
-    item.addEventListener('click', () => item.classList.toggle('checked'));
+    item.addEventListener('click', () => {
+      item.classList.toggle('checked');
+      atualizarContadores();
+    });
   });
 
-  // ===== Tipo de coleta =====
-  function selecionarTipo(btn, tipo) {
-    document.querySelectorAll('.tipo-coleta-btn').forEach(b => b.classList.remove('ativo'));
-    btn.classList.add('ativo');
-    estado.tipoColeta = tipo;
-    const q = $('bloco-quantidade');
-    const v = $('bloco-volume');
-    if (tipo === 'contavel') { q.style.display = 'block'; v.style.display = 'none'; }
-    else if (tipo === 'estimativa') { q.style.display = 'block'; v.style.display = 'block'; }
-    else { q.style.display = 'none'; v.style.display = 'block'; }
+  function toggleGrupo(idGrupo, btn) {
+    const g = $(idGrupo);
+    g.classList.toggle('aberto');
+    const aberto = g.classList.contains('aberto');
+    const seta = btn.querySelector('.seta');
+    if (seta) seta.textContent = aberto ? '▲' : '▼';
+    const sinal = btn.querySelector('span');
+    if (sinal) sinal.textContent = sinal.textContent.replace(aberto ? '+ ' : '− ', aberto ? '− ' : '+ ');
   }
 
-  function selecionarVolume(btn, valor) {
-    document.querySelectorAll('.volume-btn').forEach(b => b.classList.remove('ativo'));
-    btn.classList.add('ativo');
-    estado.volumeSelecionado = valor;
+  function atualizarContadores() {
+    const bact = document.querySelectorAll('#grp-bact .sintoma-item.checked').length;
+    const outros = document.querySelectorAll('#grp-outros .sintoma-item.checked').length;
+    const cb = $('cnt-bact'), co = $('cnt-outros');
+    if (cb) { cb.textContent = bact; cb.style.display = bact > 0 ? 'inline-block' : 'none'; }
+    if (co) { co.textContent = outros; co.style.display = outros > 0 ? 'inline-block' : 'none'; }
   }
-
   // ===== Ações finais =====
   function abrirSemColeta() {
     selecionarTipo(document.querySelector('.tipo-coleta-btn'), 'contavel');
