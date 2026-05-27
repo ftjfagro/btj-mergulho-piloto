@@ -7,6 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="BTJ Mergulho">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>BTJ Mergulho</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -73,7 +75,6 @@
   }
 
   .bloco { margin-bottom: 16px; }
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
   .btn-primario {
     width: 100%; padding: 18px;
@@ -145,8 +146,6 @@
   .lista-tanque.alto { border-left: 4px solid #A32D2D; }
   .lista-tanque.medio { border-left: 4px solid #BA7517; }
   .lista-tanque.baixo { border-left: 4px solid #5DCAA5; }
-  .lista-tanque.concluido { background: #F2F6FA; opacity: 0.7; }
-  .lista-tanque.concluido .lt-nome { text-decoration: line-through; }
   .lt-icone { font-size: 18px; flex-shrink: 0; width: 22px; text-align: center; }
   .lt-corpo { flex: 1; min-width: 0; }
   .lt-nome { font-size: 15px; font-weight: 500; }
@@ -231,6 +230,7 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     z-index: 1000; opacity: 0;
     transition: opacity 0.2s; pointer-events: none;
+    max-width: 90vw; text-align: center;
   }
   .toast.visivel { opacity: 1; }
   .toast.erro { background: #B23A2A; }
@@ -246,6 +246,12 @@
     vertical-align: -3px; margin-right: 6px;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  .cache-info {
+    font-size: 10px; color: #8A99A8;
+    text-align: center; padding: 4px;
+    margin-top: -4px;
+  }
 </style>
 </head>
 <body>
@@ -273,8 +279,9 @@
   <div class="bloco">
     <p class="label">Quem é você?</p>
     <select id="sel-funcionario">
-      <option value="">— carregando funcionários... —</option>
+      <option value="">— carregando... —</option>
     </select>
+    <div id="cache-info-func" class="cache-info"></div>
   </div>
 
   <button id="btn-entrar" class="btn-primario" disabled>Entrar</button>
@@ -296,7 +303,7 @@
   </div>
 
   <div id="merg-conteudo">
-    <div class="loading"><span class="spinner"></span>carregando lotes F1 da ILHA...</div>
+    <div class="loading"><span class="spinner"></span>carregando lotes F1...</div>
   </div>
 </div>
 
@@ -417,10 +424,11 @@
 
 <script>
   // ==========================================================
-  // BTJ Mergulho — frontend conectado ao Apps Script
+  // BTJ Mergulho — v2 com cache + service worker
   // ==========================================================
 
   const API_URL = 'https://script.google.com/macros/s/AKfycbyo3WF9Sd0LNFTX-UwuTfkPpiPyn-TAhyc5MTbNPeFgLSGkKPqq4rzfPeNNAbqNDotP/exec';
+  const CACHE_TTL_MIN = 60; // minutos pra considerar cache válido
 
   let estado = {
     unidade: 'ILHA',
@@ -432,7 +440,8 @@
     volumeSelecionado: null,
     horaChegada: null,
     coords: null,
-    online: navigator.onLine
+    online: navigator.onLine,
+    enviandoAgora: false
   };
 
   const $ = id => document.getElementById(id);
@@ -441,7 +450,35 @@
     const t = $('toast');
     t.textContent = msg;
     t.className = 'toast visivel' + (erro ? ' erro' : '');
-    setTimeout(() => { t.className = 'toast' + (erro ? ' erro' : ''); }, 2200);
+    setTimeout(() => { t.className = 'toast' + (erro ? ' erro' : ''); }, 2500);
+  }
+
+  // ===== Cache local (localStorage) =====
+  function cacheSalvar(chave, dados) {
+    try {
+      localStorage.setItem('btj_' + chave, JSON.stringify({
+        dados: dados,
+        em: Date.now()
+      }));
+    } catch (e) { /* localStorage cheio - ignora */ }
+  }
+
+  function cacheLer(chave) {
+    try {
+      const raw = localStorage.getItem('btj_' + chave);
+      if (!raw) return null;
+      const obj = JSON.parse(raw);
+      return obj;
+    } catch (e) { return null; }
+  }
+
+  function tempoCacheStr(em) {
+    const min = Math.floor((Date.now() - em) / 60000);
+    if (min < 1) return 'agora';
+    if (min < 60) return min + ' min atrás';
+    const h = Math.floor(min / 60);
+    if (h < 24) return h + 'h atrás';
+    return Math.floor(h / 24) + ' dias atrás';
   }
 
   // ===== Navegação =====
@@ -456,23 +493,14 @@
   function goRegistro() { mostrar('tela-registro'); }
   function goColeta() { mostrar('tela-coleta'); }
 
-  // ===== API calls =====
+  // ===== API =====
   async function apiGet(acao, params={}) {
     const q = new URLSearchParams(Object.assign({acao}, params));
     const r = await fetch(API_URL + '?' + q.toString());
     return r.json();
   }
-  async function apiPost(payload) {
-    // Apps Script doPost requer no-cors quando vem de navegador comum
-    const r = await fetch(API_URL, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-      headers: { 'Content-Type': 'text/plain' }
-    });
-    return r.json();
-  }
 
-  // ===== Login =====
+  // ===== Login: carrega funcionários com cache =====
   document.querySelectorAll('.opcao-btn[data-unidade]').forEach(b => {
     b.addEventListener('click', () => {
       document.querySelectorAll('.opcao-btn[data-unidade]').forEach(x => x.classList.remove('ativo'));
@@ -495,53 +523,108 @@
   });
 
   async function carregarFuncionarios() {
-    $('sel-funcionario').innerHTML = '<option>— carregando... —</option>';
-    try {
-      const j = await apiGet('listar_funcionarios', { unidade: estado.unidade });
-      estado.funcionarios = j.funcionarios || [];
-      const opts = ['<option value="">— escolher —</option>'];
-      estado.funcionarios.forEach(f => {
-        opts.push(`<option value="${f.nome}">${f.nome} (${f.funcao})</option>`);
-      });
-      $('sel-funcionario').innerHTML = opts.join('');
-    } catch (e) {
-      $('sel-funcionario').innerHTML = '<option value="">erro ao carregar</option>';
-      toast('Erro ao carregar funcionários', true);
+    const chave = 'func_' + estado.unidade;
+    const cache = cacheLer(chave);
+
+    // Carrega do cache primeiro (instantâneo)
+    if (cache && cache.dados && cache.dados.length) {
+      estado.funcionarios = cache.dados;
+      renderFuncionarios();
+      $('cache-info-func').textContent = 'cache local · atualizado ' + tempoCacheStr(cache.em);
+    } else {
+      $('sel-funcionario').innerHTML = '<option>— carregando... —</option>';
     }
+
+    // Tenta atualizar em segundo plano (se online)
+    if (estado.online) {
+      try {
+        const j = await apiGet('listar_funcionarios', { unidade: estado.unidade });
+        if (j.funcionarios && j.funcionarios.length) {
+          estado.funcionarios = j.funcionarios;
+          cacheSalvar(chave, j.funcionarios);
+          renderFuncionarios();
+          $('cache-info-func').textContent = 'atualizado agora';
+        }
+      } catch (e) {
+        if (!cache) {
+          $('sel-funcionario').innerHTML = '<option value="">erro de conexão</option>';
+          toast('Sem conexão e sem cache. Conecte e tente de novo.', true);
+        } else {
+          $('cache-info-func').textContent = 'offline · usando cache de ' + tempoCacheStr(cache.em);
+        }
+      }
+    } else if (!cache) {
+      $('sel-funcionario').innerHTML = '<option value="">sem internet e sem cache</option>';
+      toast('Sem conexão. Conecte ao menos uma vez para usar offline.', true);
+    } else {
+      $('cache-info-func').textContent = 'offline · usando cache de ' + tempoCacheStr(cache.em);
+    }
+  }
+
+  function renderFuncionarios() {
+    const opts = ['<option value="">— escolher —</option>'];
+    estado.funcionarios.forEach(f => {
+      opts.push(`<option value="${f.nome}">${f.nome} (${f.funcao})</option>`);
+    });
+    $('sel-funcionario').innerHTML = opts.join('');
   }
 
   function entrarComoFuncionario() {
     $('hdr-nome').textContent = estado.funcionario.nome;
     $('hdr-contexto').textContent = '· BTJ ' + estado.unidade + ' · ' + estado.funcionario.funcao;
     mostrar('tela-merg');
-    carregarLotesECardpos();
+    carregarLotes();
   }
 
-  // ===== Plano do dia (mostra lotes F1) =====
-  async function carregarLotesECardpos() {
-    $('merg-conteudo').innerHTML = '<div class="loading"><span class="spinner"></span>carregando lotes F1 da ' + estado.unidade + '...</div>';
-    try {
-      const j = await apiGet('listar_lotes_f1', { unidade: estado.unidade });
-      estado.lotes = j.lotes || [];
-      renderPlano();
-    } catch (e) {
-      $('merg-conteudo').innerHTML = '<div class="alerta danger"><span class="alerta-ico">⚠️</span><div>Erro ao carregar lotes. Verifique a conexão.</div></div>';
+  // ===== Lotes com cache =====
+  async function carregarLotes() {
+    const chave = 'lotes_' + estado.unidade;
+    const cache = cacheLer(chave);
+
+    if (cache && cache.dados && cache.dados.length) {
+      estado.lotes = cache.dados;
+      renderPlano(tempoCacheStr(cache.em));
+    } else {
+      $('merg-conteudo').innerHTML = '<div class="loading"><span class="spinner"></span>carregando lotes F1...</div>';
+    }
+
+    if (estado.online) {
+      try {
+        const j = await apiGet('listar_lotes_f1', { unidade: estado.unidade });
+        if (j.lotes && j.lotes.length) {
+          estado.lotes = j.lotes;
+          cacheSalvar(chave, j.lotes);
+          renderPlano('agora');
+        }
+      } catch (e) {
+        if (!cache) {
+          $('merg-conteudo').innerHTML = '<div class="alerta danger"><span class="alerta-ico">⚠️</span><div>Sem conexão e sem cache. Conecte e tente de novo.</div></div>';
+        }
+      }
+    } else if (!cache) {
+      $('merg-conteudo').innerHTML = '<div class="alerta warn"><span class="alerta-ico">📡</span><div>Sem internet e sem cache local. Conecte ao menos uma vez para carregar os lotes.</div></div>';
     }
   }
 
-  function renderPlano() {
+  function renderPlano(quandoAtualizado) {
     if (!estado.lotes.length) {
       $('merg-conteudo').innerHTML = '<div class="loading">Nenhum lote F1 encontrado para ' + estado.unidade + '.</div>';
       return;
     }
-    // Ordenar por sobrevivência crescente (pior primeiro)
+
     const lotes = estado.lotes.slice().sort((a,b) => {
       const sa = parseFloat(String(a.sobrevivencia).replace(',','.')) || 100;
       const sb = parseFloat(String(b.sobrevivencia).replace(',','.')) || 100;
       return sa - sb;
     });
 
-    const html = ['<p class="label">lotes F1 ativos · ' + lotes.length + ' tanques · ordenado por sobrevivência</p>'];
+    const cacheLabel = quandoAtualizado ?
+      `<div class="cache-info">dados atualizados ${quandoAtualizado}</div>` : '';
+
+    const html = [
+      `<p class="label">lotes F1 ativos · ${lotes.length} tanques · ordenado por sobrevivência</p>`,
+      cacheLabel
+    ];
 
     lotes.forEach(lt => {
       const sobrev = parseFloat(String(lt.sobrevivencia).replace(',','.')) || 0;
@@ -556,7 +639,7 @@
       const info = `${lt.codigo_lote} · ${lt.dias_em_fase}d · sobrev ${sobrev.toFixed(1)}% · ${mort} mortos`;
 
       html.push(`
-        <div class="lista-tanque ${cls}" onclick="abrirTanque(${JSON.stringify(lt).replace(/"/g,'&quot;')})">
+        <div class="lista-tanque ${cls}" onclick='abrirTanque(${JSON.stringify(lt).replace(/'/g,"&#39;")})'>
           <div class="lt-icone">${ico}</div>
           <div class="lt-corpo">
             <div class="lt-nome">${num} · ${lt.produto_origem || ''}</div>
@@ -592,18 +675,17 @@
       ${lote.tags_tanque && lote.tags_tanque !== '-' ? '<br><span style="color:#B23A2A; font-weight:500;">⚠ ' + lote.tags_tanque + '</span>' : ''}
     `;
 
-    // resetar botão chegada
     $('btn-chegada').innerHTML = '📍 cheguei no tanque';
     $('btn-chegada').style.background = '#0E2A47';
     $('btn-chegada').disabled = false;
 
-    // resetar coleta
     $('inp-quantidade').value = '';
     $('inp-obs').value = '';
     document.querySelectorAll('.sintoma-item').forEach(s => s.classList.remove('checked'));
     document.querySelectorAll('.volume-btn').forEach(b => b.classList.remove('ativo'));
     document.querySelectorAll('.tipo-coleta-btn').forEach((b,i) => {
       b.classList.toggle('ativo', i === 0);
+      b.style.display = '';
     });
     $('bloco-quantidade').style.display = 'block';
     $('bloco-volume').style.display = 'none';
@@ -634,9 +716,13 @@
       err => {
         estado.coords = { lat: '', lng: '', precisao: '' };
         registrarChegadaSemGPS();
-        toast('Chegada registrada · sem GPS');
+        let motivo = 'sem GPS';
+        if (err.code === 1) motivo = 'GPS bloqueado — autorize no navegador';
+        else if (err.code === 2) motivo = 'sinal GPS indisponível';
+        else if (err.code === 3) motivo = 'GPS demorou demais';
+        toast('Chegada · ' + motivo, true);
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   }
 
@@ -674,7 +760,6 @@
 
   // ===== Ações finais =====
   function abrirSemColeta() {
-    // mesma tela de coleta, mas sem campo de quantidade
     selecionarTipo(document.querySelector('.tipo-coleta-btn'), 'contavel');
     estado.tipoColeta = 'sintomas_sem_coleta';
     $('bloco-quantidade').style.display = 'none';
@@ -684,19 +769,13 @@
   }
 
   async function registrarInspecaoOk() {
-    if (!estado.horaChegada) {
-      toast('Marque chegada no tanque primeiro', true);
-      return;
-    }
-    const payload = montarPayload('inspecao_ok');
-    enviar(payload);
+    if (!estado.horaChegada) { toast('Marque chegada no tanque primeiro', true); return; }
+    enviar(montarPayload('inspecao_ok'));
   }
 
   async function salvarMergulho() {
-    if (!estado.horaChegada) {
-      toast('Marque chegada primeiro', true);
-      return;
-    }
+    if (!estado.horaChegada) { toast('Marque chegada primeiro', true); return; }
+
     let tipo = 'coleta_' + estado.tipoColeta;
     if (estado.tipoColeta === 'sintomas_sem_coleta') tipo = 'sintomas_sem_coleta';
 
@@ -711,10 +790,7 @@
       sintomas.push({ sintoma: s.dataset.sint, categoria: s.dataset.cat });
     });
 
-    const payload = montarPayload(tipo, qtd, sintomas);
-    // restaurar botões de tipo (caso veio do "sem coleta")
-    document.querySelectorAll('.tipo-coleta-btn').forEach(b => b.style.display = '');
-    enviar(payload);
+    enviar(montarPayload(tipo, qtd, sintomas));
   }
 
   function montarPayload(tipo, qtd, sintomas) {
@@ -751,16 +827,14 @@
       sintomas: sintomas || []
     };
   }
-let enviandoAgora = false;
 
   async function enviar(payload) {
-    if (enviandoAgora) {
+    if (estado.enviandoAgora) {
       toast('aguarde, salvando...', false);
       return;
     }
-    enviandoAgora = true;
+    estado.enviandoAgora = true;
 
-    // Desabilita todos os botões de ação pra evitar duplicidade
     const btnSalvar = $('btn-salvar');
     const btnsAcao = document.querySelectorAll('#tela-registro .btn-secundario, #tela-coleta .btn-azul');
     if (btnSalvar) {
@@ -777,30 +851,25 @@ let enviandoAgora = false;
         headers: { 'Content-Type': 'text/plain;charset=utf-8' }
       });
       toast('mergulho salvo!');
-
-      // pequeno delay pra usuário ver o toast, depois volta
       setTimeout(() => {
-        // restaura botões antes de voltar
         if (btnSalvar) {
           btnSalvar.disabled = false;
           btnSalvar.innerHTML = 'finalizar e ir pro próximo';
         }
         btnsAcao.forEach(b => b.disabled = false);
-        enviandoAgora = false;
+        estado.enviandoAgora = false;
         goMerg();
       }, 1200);
     } catch (e) {
-      // erro: libera botões pra tentar de novo
       if (btnSalvar) {
         btnSalvar.disabled = false;
         btnSalvar.innerHTML = 'finalizar e ir pro próximo';
       }
       btnsAcao.forEach(b => b.disabled = false);
-      enviandoAgora = false;
+      estado.enviandoAgora = false;
       toast('erro ao salvar — tente de novo', true);
     }
   }
-  
 
   // ===== Online/offline =====
   function atualizarRede() {
@@ -814,7 +883,14 @@ let enviandoAgora = false;
   window.addEventListener('online', atualizarRede);
   window.addEventListener('offline', atualizarRede);
 
-  // ===== Inicialização =====
+  // ===== Service Worker =====
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW erro:', err));
+    });
+  }
+
+  // ===== Init =====
   carregarFuncionarios();
   atualizarRede();
 </script>
