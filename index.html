@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="BTJ Mergulho">
-<title>BTJ Mergulho · Protótipo</title>
+<title>BTJ Mergulho</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -45,7 +45,6 @@
   }
   button { cursor: pointer; -webkit-appearance: none; appearance: none; }
   .label { font-size: 12px; color: #5C6B7A; margin: 0 0 6px; }
-  .label-dica { font-size: 11px; color: #8A99A8; }
 
   .header-card {
     background: #D6E8F4;
@@ -54,124 +53,73 @@
     margin-bottom: 16px;
   }
   .header-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
   }
   .header-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 15px;
-    font-weight: 600;
-    color: #0E2A47;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 15px; font-weight: 600; color: #0E2A47;
   }
   .header-info .sub { font-size: 12px; color: #5C6B7A; font-weight: 400; }
   .pill {
-    font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-weight: 500;
+    font-size: 11px; padding: 4px 10px; border-radius: 999px; font-weight: 500;
   }
   .pill-online { background: #DFF4E6; color: #2E7D5B; }
   .pill-offline { background: #FBE9D6; color: #8B5A00; }
 
   .btn-link {
-    font-size: 12px;
-    padding: 6px 10px;
-    border: 1px solid #D6E0EA;
-    background: #fff;
-    border-radius: 999px;
-    color: #5C6B7A;
+    font-size: 12px; padding: 6px 10px;
+    border: 1px solid #D6E0EA; background: #fff;
+    border-radius: 999px; color: #5C6B7A;
   }
 
   .bloco { margin-bottom: 16px; }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
   .btn-primario {
-    width: 100%;
-    padding: 18px;
-    background: #0E2A47;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 17px;
-    font-weight: 600;
+    width: 100%; padding: 18px;
+    background: #0E2A47; color: white;
+    border: none; border-radius: 8px;
+    font-size: 17px; font-weight: 600;
     margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
   }
   .btn-primario:active { background: #061833; transform: scale(0.99); }
   .btn-primario:disabled { opacity: 0.35; }
 
   .btn-azul {
-    width: 100%;
-    padding: 18px;
-    background: #3FA0D6;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 17px;
-    font-weight: 600;
-    margin-bottom: 10px;
+    width: 100%; padding: 18px;
+    background: #3FA0D6; color: white;
+    border: none; border-radius: 8px;
+    font-size: 17px; font-weight: 600; margin-bottom: 10px;
   }
   .btn-azul:active { background: #2A85B8; transform: scale(0.99); }
   .btn-azul:disabled { opacity: 0.35; }
 
   .btn-secundario {
-    width: 100%;
-    padding: 14px;
-    background: #fff;
-    color: #0E2A47;
-    border: 1.5px solid #D6E0EA;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 500;
-    margin-bottom: 10px;
+    width: 100%; padding: 14px;
+    background: #fff; color: #0E2A47;
+    border: 1.5px solid #D6E0EA; border-radius: 8px;
+    font-size: 15px; font-weight: 500; margin-bottom: 10px;
   }
   .btn-secundario:active { background: #F2F6FA; }
-
-  .btn-perigo {
-    width: 100%;
-    padding: 14px;
-    background: #fff;
-    color: #B23A2A;
-    border: 1.5px solid #B23A2A;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-  }
 
   .login-wrap { max-width: 500px; margin: 0 auto; padding: 10px 0; }
   .login-titulo { text-align: center; margin: 24px 0 24px; }
   .login-titulo .logo-btj {
     width: 110px; height: 110px;
-    background: #0E2A47;
-    border-radius: 12px;
+    background: #0E2A47; border-radius: 12px;
     margin: 0 auto 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    color: white;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; color: white;
   }
   .login-titulo .logo-btj .btj-text {
-    border: 3px solid white;
-    padding: 6px 14px;
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: 1px;
-    border-radius: 4px;
-    line-height: 1;
+    border: 3px solid white; padding: 6px 14px;
+    font-size: 22px; font-weight: 800; letter-spacing: 1px;
+    border-radius: 4px; line-height: 1;
   }
   .login-titulo .logo-btj .aqua-text {
-    font-size: 11px;
-    margin-top: 6px;
-    letter-spacing: 3px;
-    font-weight: 600;
+    font-size: 11px; margin-top: 6px;
+    letter-spacing: 3px; font-weight: 600;
   }
   .login-titulo h1 { font-size: 20px; margin: 4px 0 2px; color: #0E2A47; font-weight: 600; }
   .login-titulo p { font-size: 13px; color: #5C6B7A; margin: 0; }
@@ -179,82 +127,20 @@
   .opcoes-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
   .opcao-btn {
     padding: 14px 8px;
-    border: 1px solid #D6E0EA;
-    border-radius: 8px;
-    background: #fff;
-    font-size: 14px;
-    color: #0E2A47;
-    font-weight: 500;
+    border: 1px solid #D6E0EA; border-radius: 8px;
+    background: #fff; font-size: 14px; color: #0E2A47; font-weight: 500;
   }
   .opcao-btn.ativo {
-    background: #D6E8F4;
-    border: 2px solid #0E2A47;
-    padding: 13px 7px;
+    background: #D6E8F4; border: 2px solid #0E2A47; padding: 13px 7px;
   }
-
-  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-  .stat-card {
-    background: #F2F6FA;
-    border-radius: 8px;
-    padding: 10px 12px;
-  }
-  .stat-card.danger { background: #FBE9E5; }
-  .stat-card.warn { background: #FBE9D6; }
-  .stat-card .stat-lbl { font-size: 11px; color: #5C6B7A; }
-  .stat-card .stat-num { font-size: 22px; font-weight: 600; }
-  .stat-card.danger .stat-num { color: #501313; }
-  .stat-card.warn .stat-num { color: #633806; }
-
-  .croqui {
-    background: #F2F6FA;
-    border-radius: 8px;
-    padding: 12px;
-    margin-bottom: 12px;
-  }
-  .croqui-linha {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 8px;
-  }
-  .croqui-lbl {
-    font-size: 11px;
-    color: #5C6B7A;
-    min-width: 38px;
-    font-weight: 500;
-  }
-  .croqui-tq {
-    width: 22px; height: 22px;
-    border-radius: 3px;
-    background: #5DCAA5;
-  }
-  .croqui-tq.med { background: #BA7517; }
-  .croqui-tq.alt { background: #A32D2D; }
-  .croqui-tq.sel { border: 2px solid #0E2A47; outline: 1px solid #fff; }
-  .croqui-tq.click { cursor: pointer; }
-  .croqui-legenda {
-    display: flex; gap: 12px;
-    font-size: 10px; color: #5C6B7A;
-    margin-top: 8px; padding-top: 8px;
-    border-top: 1px solid #D6E0EA;
-  }
-  .croqui-legenda .leg-item { display: flex; align-items: center; gap: 4px; }
-  .croqui-legenda .leg-dot { width: 10px; height: 10px; border-radius: 2px; }
 
   .lista-tanque {
-    border: 1px solid #D6E0EA;
-    border-radius: 8px;
-    padding: 12px;
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #fff;
+    border: 1px solid #D6E0EA; border-radius: 8px;
+    padding: 12px; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 10px; background: #fff;
   }
   .lista-tanque.critico {
-    background: #FBE9E5;
-    border: 2px solid #A32D2D;
-    padding: 11px;
+    background: #FBE9E5; border: 2px solid #A32D2D; padding: 11px;
   }
   .lista-tanque.alto { border-left: 4px solid #A32D2D; }
   .lista-tanque.medio { border-left: 4px solid #BA7517; }
@@ -270,13 +156,9 @@
   .lt-seta { color: #8A99A8; font-size: 20px; }
 
   .alerta {
-    padding: 10px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    margin-bottom: 12px;
-    display: flex;
-    gap: 8px;
-    align-items: flex-start;
+    padding: 10px 12px; border-radius: 8px;
+    font-size: 12px; margin-bottom: 12px;
+    display: flex; gap: 8px; align-items: flex-start;
   }
   .alerta.info { background: #D6E8F4; color: #0E2A47; }
   .alerta.warn { background: #FBE9D6; color: #633806; }
@@ -284,63 +166,39 @@
   .alerta-ico { flex-shrink: 0; font-size: 16px; }
 
   .sintoma-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    display: flex; align-items: center; gap: 10px;
     padding: 11px 12px;
-    border: 1px solid #D6E0EA;
-    border-radius: 8px;
-    margin-bottom: 6px;
-    background: #fff;
-    font-size: 14px;
+    border: 1px solid #D6E0EA; border-radius: 8px;
+    margin-bottom: 6px; background: #fff; font-size: 14px;
   }
   .sintoma-item.checked {
-    border: 1.5px solid #A32D2D;
-    background: #FBE9E5;
-    color: #501313;
-    font-weight: 500;
+    border: 1.5px solid #A32D2D; background: #FBE9E5;
+    color: #501313; font-weight: 500;
   }
   .sintoma-check {
     width: 20px; height: 20px;
-    border: 1.5px solid #B0BDC9;
-    border-radius: 4px;
+    border: 1.5px solid #B0BDC9; border-radius: 4px;
     flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: white;
   }
   .sintoma-item.checked .sintoma-check {
-    background: #A32D2D;
-    border-color: #A32D2D;
+    background: #A32D2D; border-color: #A32D2D;
   }
   .sintoma-cat {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #8A99A8;
-    margin: 12px 0 6px;
-    font-weight: 600;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+    color: #8A99A8; margin: 12px 0 6px; font-weight: 600;
   }
 
   .tipo-coleta-btn {
-    width: 100%;
-    padding: 14px;
+    width: 100%; padding: 14px;
     border-radius: 8px;
-    border: 1.5px solid #D6E0EA;
-    background: #fff;
-    text-align: left;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: #0E2A47;
+    border: 1.5px solid #D6E0EA; background: #fff;
+    text-align: left; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 12px; color: #0E2A47;
   }
   .tipo-coleta-btn.ativo {
-    border: 2px solid #0E2A47;
-    background: #D6E8F4;
-    padding: 13px;
+    border: 2px solid #0E2A47; background: #D6E8F4; padding: 13px;
   }
   .tipo-coleta-btn .tc-icone { font-size: 24px; flex-shrink: 0; }
   .tipo-coleta-btn .tc-titulo { font-size: 15px; font-weight: 600; }
@@ -349,658 +207,14 @@
   .volume-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .volume-btn {
     padding: 12px 8px;
-    border: 1.5px solid #D6E0EA;
-    background: #fff;
+    border: 1.5px solid #D6E0EA; background: #fff;
     border-radius: 8px;
-    font-size: 14px;
-    color: #0E2A47;
-    font-weight: 500;
-    text-align: center;
+    font-size: 14px; color: #0E2A47; font-weight: 500; text-align: center;
   }
   .volume-btn.ativo {
-    background: #D6E8F4;
-    border: 2px solid #0E2A47;
-    padding: 11px 7px;
-  }
-
-  .timeline {
-    position: relative;
-    padding-left: 24px;
-    border-left: 2px solid #D6E0EA;
-    margin-top: 8px;
-  }
-  .timeline-item {
-    position: relative;
-    padding-bottom: 16px;
-  }
-  .timeline-dot {
-    position: absolute;
-    left: -32px;
-    top: 2px;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: #5DCAA5;
-    border: 2px solid #fff;
-  }
-  .timeline-dot.warn { background: #BA7517; }
-  .timeline-dot.danger { background: #A32D2D; }
-  .timeline-dot.neutral { background: #8A99A8; }
-  .timeline-titulo { font-size: 13px; font-weight: 600; }
-  .timeline-sub { font-size: 11px; color: #5C6B7A; margin-top: 2px; }
-  .timeline-titulo.danger { color: #501313; }
-
-  .tag {
-    display: inline-block;
-    padding: 3px 8px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 500;
-    background: #FBE9E5;
-    color: #501313;
-  }
-  .tag.x {
-    background: #fff;
-    border: 1px solid #D6E0EA;
-    color: #0E2A47;
+    background: #D6E8F4; border: 2px solid #0E2A47; padding: 11px 7px;
   }
 
   .voltar {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: none;
-    border: none;
-    color: #0E2A47;
-    font-size: 15px;
-    padding: 4px 0;
-    margin-bottom: 8px;
-    font-weight: 500;
-  }
-  .voltar::before { content: "‹"; font-size: 22px; line-height: 1; }
-
-  .proto-badge {
-    position: fixed;
-    top: 8px; right: 8px;
-    background: #B23A2A;
-    color: white;
-    padding: 4px 10px;
-    font-size: 10px;
-    font-weight: 600;
-    border-radius: 999px;
-    z-index: 1000;
-    letter-spacing: 0.5px;
-  }
-</style>
-</head>
-<body>
-
-<div class="proto-badge">PROTÓTIPO</div>
-
-<!-- TELA 1: LOGIN -->
-<div id="tela-login" class="login-wrap">
-  <div class="login-titulo">
-    <div class="logo-btj">
-      <span class="btj-text">BTJ</span>
-      <span class="aqua-text">AQUA</span>
-    </div>
-    <h1>BTJ Mergulho</h1>
-    <p>Sanidade de tanques · Identifique-se</p>
-  </div>
-
-  <div class="bloco">
-    <p class="label">Unidade</p>
-    <div class="opcoes-grid">
-      <button class="opcao-btn ativo" data-unidade="ILHA">ILHA</button>
-      <button class="opcao-btn" data-unidade="STC">STC</button>
-      <button class="opcao-btn" data-unidade="SUD">SUD</button>
-    </div>
-  </div>
-
-  <div class="bloco">
-    <p class="label">Quem é você?</p>
-    <select id="sel-funcionario">
-      <option value="">— escolher —</option>
-      <option value="lucas-coord">Lucas Coelho (coordenador)</option>
-      <option value="pexeiro-merg">Pexeiro (mergulhador)</option>
-      <option value="hugo-merg">Hugo Amorim (mergulhador)</option>
-      <option value="vet">Médico veterinário</option>
-    </select>
-  </div>
-
-  <button id="btn-entrar" class="btn-primario" disabled>Entrar</button>
-</div>
-
-<!-- TELA 2: DASHBOARD DO COORDENADOR -->
-<div id="tela-coord" style="display:none;">
-  <div class="header-card">
-    <div class="header-row">
-      <div class="header-info">
-        BTJ ILHA <span class="sub">· Lucas · 26/05</span>
-      </div>
-      <div style="display:flex; gap:6px;">
-        <span class="pill pill-online">online</span>
-        <button class="btn-link" onclick="goLogin()">sair</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="stat-grid">
-    <div class="stat-card danger">
-      <div class="stat-lbl">alto risco</div>
-      <div class="stat-num">21</div>
-    </div>
-    <div class="stat-card warn">
-      <div class="stat-lbl">médio</div>
-      <div class="stat-num">4</div>
-    </div>
-  </div>
-
-  <p class="label">croqui da unidade · toque num tanque</p>
-  <div class="croqui">
-    <div class="croqui-linha">
-      <span class="croqui-lbl">L1</span>
-      <div class="croqui-tq"></div><div class="croqui-tq"></div><div class="croqui-tq"></div>
-      <div class="croqui-tq med"></div><div class="croqui-tq"></div><div class="croqui-tq"></div>
-      <div class="croqui-tq"></div>
-    </div>
-    <div class="croqui-linha">
-      <span class="croqui-lbl">L3</span>
-      <div class="croqui-tq"></div><div class="croqui-tq alt"></div><div class="croqui-tq"></div>
-      <div class="croqui-tq med"></div><div class="croqui-tq"></div><div class="croqui-tq"></div>
-      <div class="croqui-tq alt"></div>
-    </div>
-    <div class="croqui-linha">
-      <span class="croqui-lbl">L4</span>
-      <div class="croqui-tq alt"></div><div class="croqui-tq alt"></div><div class="croqui-tq alt"></div>
-      <div class="croqui-tq med"></div><div class="croqui-tq"></div><div class="croqui-tq"></div>
-      <div class="croqui-tq"></div>
-    </div>
-    <div class="croqui-linha">
-      <span class="croqui-lbl">L6</span>
-      <div class="croqui-tq alt"></div><div class="croqui-tq alt"></div><div class="croqui-tq alt"></div>
-      <div class="croqui-tq alt"></div>
-      <div class="croqui-tq alt sel click" onclick="goHistorico()" title="130"></div>
-      <div class="croqui-tq med"></div><div class="croqui-tq"></div>
-    </div>
-    <div class="croqui-linha">
-      <span class="croqui-lbl">L7</span>
-      <div class="croqui-tq"></div><div class="croqui-tq"></div><div class="croqui-tq"></div>
-      <div class="croqui-tq med"></div><div class="croqui-tq"></div><div class="croqui-tq"></div>
-    </div>
-    <div class="croqui-legenda">
-      <div class="leg-item"><div class="leg-dot" style="background:#A32D2D"></div>alto</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#BA7517"></div>médio</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#5DCAA5"></div>baixo</div>
-    </div>
-  </div>
-
-  <p class="label">fila de prioridade · top 5</p>
-
-  <div class="lista-tanque critico" onclick="goHistorico()">
-    <div class="lt-icone">🔴</div>
-    <div class="lt-corpo">
-      <div class="lt-nome">130 · L6 pos 8</div>
-      <div class="lt-info">123d sem mergulho · 1.969 mortes 7d</div>
-    </div>
-    <div class="lt-seta">›</div>
-  </div>
-  <div class="lista-tanque alto">
-    <div class="lt-icone">⚠️</div>
-    <div class="lt-corpo">
-      <div class="lt-nome">059 · L4 pos 2</div>
-      <div class="lt-info">34d sem mergulho · 323 mortes 7d</div>
-    </div>
-    <div class="lt-seta">›</div>
-  </div>
-  <div class="lista-tanque alto">
-    <div class="lt-icone">⚠️</div>
-    <div class="lt-corpo">
-      <div class="lt-nome">122 · L4 pos 3</div>
-      <div class="lt-info">82d sem mergulho · 296 mortes 7d</div>
-    </div>
-    <div class="lt-seta">›</div>
-  </div>
-  <div class="lista-tanque alto">
-    <div class="lt-icone">⚠️</div>
-    <div class="lt-corpo">
-      <div class="lt-nome">087 · L6 pos 4</div>
-      <div class="lt-info">53d sem mergulho · 295 mortes 7d</div>
-    </div>
-    <div class="lt-seta">›</div>
-  </div>
-  <div class="lista-tanque alto">
-    <div class="lt-icone">⚠️</div>
-    <div class="lt-corpo">
-      <div class="lt-nome">135 · L4 pos 5</div>
-      <div class="lt-info">71d sem mergulho · 250 mortes 7d</div>
-    </div>
-    <div class="lt-seta">›</div>
-  </div>
-
-  <button class="btn-primario" onclick="goPlano()" style="margin-top:16px;">
-    + montar plano de mergulho
-  </button>
-</div>
-
-<!-- TELA 3: MONTAR PLANO -->
-<div id="tela-plano" style="display:none;">
-  <button class="voltar" onclick="goCoord()">voltar</button>
-  <h2 style="margin:0 0 16px; font-size:18px; font-weight:600;">Plano de mergulho</h2>
-
-  <div class="grid-2 bloco">
-    <div>
-      <p class="label">data</p>
-      <input type="text" value="27/05/2026" readonly>
-    </div>
-    <div>
-      <p class="label">mergulhador</p>
-      <select>
-        <option>Pexeiro</option>
-        <option>Hugo</option>
-      </select>
-    </div>
-  </div>
-
-  <p class="label">sugestão automática · gatilho 100 mortes/dia</p>
-  <div style="background:#F2F6FA; border-radius:8px; padding:12px; margin-bottom:12px;">
-    <div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;">
-      <span class="tag">130</span><span class="tag">059</span><span class="tag">122</span>
-      <span class="tag">087</span><span class="tag">135</span><span class="tag">133</span>
-      <span class="tag">086</span><span class="tag" style="background:#fff; color:#5C6B7A;">+ 13</span>
-    </div>
-    <button class="btn-secundario" style="margin:0; padding:10px; font-size:13px;">
-      aceitar sugestão (21 tanques)
-    </button>
-  </div>
-
-  <p class="label">selecionados manualmente · 8 tanques</p>
-  <div style="background:#F2F6FA; border-radius:8px; padding:12px; margin-bottom:12px;">
-    <div style="display:flex; flex-wrap:wrap; gap:4px;">
-      <span class="tag x">130 ×</span><span class="tag x">133 ×</span>
-      <span class="tag x">151 ×</span><span class="tag x">066 ×</span>
-      <span class="tag x">087 ×</span><span class="tag x">071 ×</span>
-      <span class="tag x">148 ×</span><span class="tag x">089 ×</span>
-    </div>
-    <div style="font-size:10px; color:#5C6B7A; margin-top:8px;">
-      rota sugerida: L6 → L3 (economia de ~22min)
-    </div>
-  </div>
-
-  <div class="alerta warn">
-    <span class="alerta-ico">ℹ️</span>
-    <div>faltam 13 tanques de alto risco. Pexeiro tem capacidade de 10/dia.</div>
-  </div>
-
-  <button class="btn-azul" onclick="alert('Plano enviado ao mergulhador (protótipo)')">
-    enviar plano ao mergulhador
-  </button>
-</div>
-
-<!-- TELA 4: PLANO DO MERGULHADOR -->
-<div id="tela-merg" style="display:none;">
-  <div class="header-card">
-    <div class="header-row">
-      <div class="header-info">
-        Pexeiro <span class="sub">· BTJ ILHA · 26/05</span>
-      </div>
-      <div style="display:flex; gap:6px;">
-        <span class="pill pill-online">online</span>
-        <button class="btn-link" onclick="goLogin()">sair</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="stat-grid">
-    <div class="stat-card">
-      <div class="stat-lbl">programados</div>
-      <div class="stat-num">8</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-lbl">concluídos</div>
-      <div class="stat-num">2</div>
-    </div>
-  </div>
-
-  <p class="label">fila por rota · L6 → L3</p>
-
-  <div class="lista-tanque concluido">
-    <div class="lt-icone" style="color:#2E7D5B;">✓</div>
-    <div class="lt-corpo">
-      <div class="lt-nome">087 · L6 pos 4</div>
-      <div class="lt-info">coletou 295 · 08:14</div>
-    </div>
-  </div>
-
-  <div class="lista-tanque concluido">
-    <div class="lt-icone" style="color:#2E7D5B;">✓</div>
-    <div class="lt-corpo">
-      <div class="lt-nome">071 · L6 pos 5</div>
-      <div class="lt-info">inspeção · 08:31</div>
-    </div>
-  </div>
-
-  <div class="lista-tanque critico" onclick="goRegistro()">
-    <div class="lt-icone">🔴</div>
-    <div class="lt-corpo">
-      <div class="lt-nome">130 · L6 pos 8</div>
-      <div class="lt-info">crítico · 886 mortes ontem · 0 mergulhos</div>
-    </div>
-    <div class="lt-seta">›</div>
-  </div>
-
-  <div class="lista-tanque alto">
-    <div class="lt-icone">⚠️</div>
-    <div class="lt-corpo">
-      <div class="lt-nome">133 · L6 pos 9</div>
-      <div class="lt-info">alto · 235 mortes 7d</div>
-    </div>
-    <div class="lt-seta">›</div>
-  </div>
-
-  <div class="lista-tanque alto">
-    <div class="lt-icone">⚠️</div>
-    <div class="lt-corpo">
-      <div class="lt-nome">151 · L6 pos 10</div>
-      <div class="lt-info">alto · 165 mortes 7d</div>
-    </div>
-    <div class="lt-seta">›</div>
-  </div>
-
-  <div class="lista-tanque baixo">
-    <div class="lt-icone">🟢</div>
-    <div class="lt-corpo">
-      <div class="lt-nome">066 · L6 pos 12</div>
-      <div class="lt-info">baixo · vistoria rotina</div>
-    </div>
-    <div class="lt-seta">›</div>
-  </div>
-
-  <button class="btn-secundario" style="margin-top:12px;">
-    + adicionar tanque fora do plano
-  </button>
-</div>
-
-<!-- TELA 5: REGISTRO DO TANQUE -->
-<div id="tela-registro" style="display:none;">
-  <button class="voltar" onclick="goMerg()">voltar ao plano</button>
-  <h2 style="margin:0 0 4px; font-size:20px; font-weight:600;">Tanque 130</h2>
-
-  <div class="alerta danger" style="margin-bottom:16px;">
-    <span class="alerta-ico">🔴</span>
-    <div>
-      <strong style="font-weight:600;">L6 · pos 8 · lote 23-01-26 (PA-PRO)</strong><br>
-      123 dias em F1 · mortalidade 33% · 0 mergulhos
-    </div>
-  </div>
-
-  <button class="btn-primario" onclick="marcarChegada(this)">
-    📍 cheguei no tanque
-  </button>
-
-  <p class="label" style="margin-top:16px;">o que aconteceu?</p>
-
-  <button class="btn-secundario" onclick="goColeta()" style="display:flex; gap:10px; padding:18px; text-align:left;">
-    <span style="font-size:22px;">🐟</span>
-    <div style="flex:1;">
-      <div style="font-weight:600;">coletei peixe morto</div>
-      <div style="font-size:11px; color:#5C6B7A;">contável, estimativa ou desintegrado</div>
-    </div>
-  </button>
-
-  <button class="btn-secundario" onclick="alert('Fluxo: vai para a mesma tela de sintomas, sem quantidade')" style="display:flex; gap:10px; padding:18px; text-align:left;">
-    <span style="font-size:22px;">👁️</span>
-    <div style="flex:1;">
-      <div style="font-weight:600;">sem peixe, mas vi sintomas</div>
-      <div style="font-size:11px; color:#5C6B7A;">alerta precoce</div>
-    </div>
-  </button>
-
-  <button class="btn-secundario" onclick="alert('Inspeção OK registrada (protótipo)'); goMerg();" style="display:flex; gap:10px; padding:18px; text-align:left;">
-    <span style="font-size:22px; color:#2E7D5B;">✓</span>
-    <div style="flex:1;">
-      <div style="font-weight:600;">inspeção sem alteração</div>
-      <div style="font-size:11px; color:#5C6B7A;">tanque verificado, sem ocorrência</div>
-    </div>
-  </button>
-
-  <div style="background:#F2F6FA; border-radius:8px; padding:10px 12px; margin-top:12px; font-size:11px; color:#5C6B7A;">
-    <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-      <span>condição da água</span>
-      <span style="color:#0E2A47;">turva · ondas calmas</span>
-    </div>
-    <div style="display:flex; justify-content:space-between;">
-      <span>cobertura da varredura</span>
-      <span style="color:#0E2A47;">completa</span>
-    </div>
-  </div>
-</div>
-
-<!-- TELA 6: COLETA (TIPO + QUANTIDADE + SINTOMAS) -->
-<div id="tela-coleta" style="display:none;">
-  <button class="voltar" onclick="goRegistro()">voltar</button>
-  <h2 style="margin:0 0 12px; font-size:18px; font-weight:600;">Tanque 130 · coleta</h2>
-
-  <p class="label">tipo de coleta</p>
-
-  <button class="tipo-coleta-btn ativo" onclick="selecionarTipo(this, 'contavel')">
-    <span class="tc-icone">🐟</span>
-    <div>
-      <div class="tc-titulo">Contável</div>
-      <div class="tc-sub">consigo contar os peixes inteiros</div>
-    </div>
-  </button>
-
-  <button class="tipo-coleta-btn" onclick="selecionarTipo(this, 'estimativa')">
-    <span class="tc-icone">📊</span>
-    <div>
-      <div class="tc-titulo">Estimativa</div>
-      <div class="tc-sub">conto parte, o resto está desintegrado</div>
-    </div>
-  </button>
-
-  <button class="tipo-coleta-btn" onclick="selecionarTipo(this, 'desintegrado')">
-    <span class="tc-icone">🌫️</span>
-    <div>
-      <div class="tc-titulo">Desintegrado / não-contável</div>
-      <div class="tc-sub">só pasta ou restos, sem peixe inteiro</div>
-    </div>
-  </button>
-
-  <!-- Bloco que aparece para contável e estimativa -->
-  <div id="bloco-quantidade" class="bloco" style="margin-top:16px;">
-    <p class="label">quantidade contada (peixes inteiros)</p>
-    <input type="tel" inputmode="numeric" pattern="[0-9]*" id="inp-quantidade" value="886" placeholder="0" style="font-size:24px; font-weight:600; text-align:center;">
-  </div>
-
-  <!-- Bloco que aparece para estimativa e desintegrado -->
-  <div id="bloco-volume" class="bloco" style="display:none;">
-    <p class="label">volume aproximado do material desintegrado</p>
-    <div class="volume-grid">
-      <button class="volume-btn" onclick="selecionarVolume(this)">¼ balde</button>
-      <button class="volume-btn" onclick="selecionarVolume(this)">½ balde</button>
-      <button class="volume-btn" onclick="selecionarVolume(this)">1 balde</button>
-      <button class="volume-btn" onclick="selecionarVolume(this)">2 baldes</button>
-      <button class="volume-btn" onclick="selecionarVolume(this)">1 tambor</button>
-      <button class="volume-btn" onclick="selecionarVolume(this)">2+ tambores</button>
-    </div>
-  </div>
-
-  <p class="label" style="margin-top:8px;">sintomas observados</p>
-
-  <div class="sintoma-cat">sintomas bacterianos</div>
-  <div class="sintoma-item checked">
-    <div class="sintoma-check">✓</div>
-    <span>lesão tipo "sela" no dorso</span>
-  </div>
-  <div class="sintoma-item checked">
-    <div class="sintoma-check">✓</div>
-    <span>brânquias com necrose</span>
-  </div>
-  <div class="sintoma-item">
-    <div class="sintoma-check"></div>
-    <span>lesões cinza-amareladas na pele</span>
-  </div>
-  <div class="sintoma-item">
-    <div class="sintoma-check"></div>
-    <span>úlceras / opérculo furado</span>
-  </div>
-
-  <div class="sintoma-cat">sintomas virais</div>
-  <div class="sintoma-item">
-    <div class="sintoma-check"></div>
-    <span>olhos estufados (exoftalmia)</span>
-  </div>
-  <div class="sintoma-item">
-    <div class="sintoma-check"></div>
-    <span>peixes rodando / cegos</span>
-  </div>
-  <div class="sintoma-item">
-    <div class="sintoma-check"></div>
-    <span>palidez branquial</span>
-  </div>
-
-  <div class="sintoma-cat">outros</div>
-  <div class="sintoma-item">
-    <div class="sintoma-check"></div>
-    <span>manchas algodonosas (fungos)</span>
-  </div>
-  <div class="sintoma-item">
-    <div class="sintoma-check"></div>
-    <span>asfixia / peixes na superfície</span>
-  </div>
-
-  <div class="alerta warn" style="margin-top:12px;">
-    <span class="alerta-ico">⚠️</span>
-    <div>sintomas bacterianos detectados. veterinário será notificado.</div>
-  </div>
-
-  <textarea placeholder="observação adicional (opcional)" style="margin-top:12px;"></textarea>
-
-  <button class="btn-azul" onclick="alert('Salvo no protótipo. No app real, sincroniza com a planilha.'); goMerg();" style="margin-top:12px;">
-    finalizar e ir pro próximo
-  </button>
-</div>
-
-<!-- TELA 7: HISTÓRICO DO TANQUE -->
-<div id="tela-historico" style="display:none;">
-  <button class="voltar" onclick="goCoord()">voltar</button>
-  <h2 style="margin:0 0 12px; font-size:18px; font-weight:600;">Tanque 130 · histórico</h2>
-
-  <div style="background:#F2F6FA; border-radius:8px; padding:12px; margin-bottom:16px;">
-    <div style="font-size:13px; color:#5C6B7A;">L6 · pos 8 · lote 23-01-26 (PA-PRO)</div>
-    <div style="font-size:11px; color:#5C6B7A; margin-top:2px;">entrada 23/01 · 123 dias em F1</div>
-    <div style="display:flex; gap:12px; margin-top:10px; font-size:13px;">
-      <span>mortes total <strong>5.222</strong></span>
-      <span style="color:#791F1F;">33%</span>
-      <span style="margin-left:auto;">mergulhos <strong>0</strong></span>
-    </div>
-  </div>
-
-  <p class="label">timeline</p>
-  <div class="timeline">
-    <div class="timeline-item">
-      <div class="timeline-dot danger"></div>
-      <div class="timeline-titulo danger">24/05 — pico crítico</div>
-      <div class="timeline-sub">886 mortes registradas</div>
-    </div>
-    <div class="timeline-item">
-      <div class="timeline-dot danger"></div>
-      <div class="timeline-titulo danger">14-23/05 — gatilhos perdidos</div>
-      <div class="timeline-sub">5 dias com mais de 100 mortes, nenhum mergulho</div>
-    </div>
-    <div class="timeline-item">
-      <div class="timeline-dot warn"></div>
-      <div class="timeline-titulo">10/05 — primeiro alerta</div>
-      <div class="timeline-sub">cruzou gatilho · não respondido</div>
-    </div>
-    <div class="timeline-item">
-      <div class="timeline-dot neutral"></div>
-      <div class="timeline-titulo">abr/2026 — calmaria</div>
-      <div class="timeline-sub">mortalidade baixa, sem visitas</div>
-    </div>
-    <div class="timeline-item">
-      <div class="timeline-dot warn"></div>
-      <div class="timeline-titulo">27/03 — pico anterior</div>
-      <div class="timeline-sub">658 mortes · sem mergulho</div>
-    </div>
-    <div class="timeline-item">
-      <div class="timeline-dot"></div>
-      <div class="timeline-titulo">23/01 — povoamento</div>
-      <div class="timeline-sub">15.841 peixes (PA-PRO)</div>
-    </div>
-  </div>
-
-  <button class="btn-perigo" style="margin-top:16px;" onclick="alert('Mergulho urgente programado (protótipo)')">
-    programar mergulho urgente
-  </button>
-</div>
-
-<script>
-  const telas = ['tela-login','tela-coord','tela-plano','tela-merg','tela-registro','tela-coleta','tela-historico'];
-  function mostrar(id) {
-    telas.forEach(t => document.getElementById(t).style.display = 'none');
-    document.getElementById(id).style.display = 'block';
-    window.scrollTo(0, 0);
-  }
-  function goLogin() { mostrar('tela-login'); }
-  function goCoord() { mostrar('tela-coord'); }
-  function goPlano() { mostrar('tela-plano'); }
-  function goMerg() { mostrar('tela-merg'); }
-  function goRegistro() { mostrar('tela-registro'); }
-  function goColeta() { mostrar('tela-coleta'); }
-  function goHistorico() { mostrar('tela-historico'); }
-
-  document.querySelectorAll('.opcao-btn[data-unidade]').forEach(b => {
-    b.addEventListener('click', () => {
-      document.querySelectorAll('.opcao-btn[data-unidade]').forEach(x => x.classList.remove('ativo'));
-      b.classList.add('ativo');
-      validarLogin();
-    });
-  });
-  document.getElementById('sel-funcionario').addEventListener('change', validarLogin);
-  function validarLogin() {
-    const f = document.getElementById('sel-funcionario').value;
-    document.getElementById('btn-entrar').disabled = !f;
-  }
-  document.getElementById('btn-entrar').addEventListener('click', () => {
-    const f = document.getElementById('sel-funcionario').value;
-    if (f === 'lucas-coord' || f === 'vet') goCoord();
-    else goMerg();
-  });
-
-  document.querySelectorAll('.sintoma-item').forEach(item => {
-    item.addEventListener('click', () => item.classList.toggle('checked'));
-  });
-
-  function marcarChegada(btn) {
-    btn.innerHTML = '✓ chegou às ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) + ' — GPS ok';
-    btn.style.background = '#2E7D5B';
-    btn.disabled = true;
-  }
-
-  function selecionarTipo(btn, tipo) {
-    document.querySelectorAll('.tipo-coleta-btn').forEach(b => b.classList.remove('ativo'));
-    btn.classList.add('ativo');
-    const blocoQtd = document.getElementById('bloco-quantidade');
-    const blocoVol = document.getElementById('bloco-volume');
-    if (tipo === 'contavel') {
-      blocoQtd.style.display = 'block';
-      blocoVol.style.display = 'none';
-    } else if (tipo === 'estimativa') {
-      blocoQtd.style.display = 'block';
-      blocoVol.style.display = 'block';
-    } else {
-      blocoQtd.style.display = 'none';
-      blocoVol.style.display = 'block';
-    }
-  }
-
-  function selecionarVolume(btn) {
-    document.querySelectorAll('.volume-btn').forEach(b => b.classList.remove('ativo'));
-    btn.classList.add('ativo');
-  }
-</script>
-
-</body>
-</html>
+    display: inline-flex; align-items: center; gap: 6px;
+    background: n
