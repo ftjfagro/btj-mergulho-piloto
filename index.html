@@ -728,7 +728,7 @@ function entrarComoFuncionario() {
   async function carregarPlanoOperador() {
     try {
       const semana = segundaDaSemanaFmt();
-      const r = await fetch(API_URL + '?acao=plano_semana&operador=' + encodeURIComponent(estado.funcionario.nome) + '&semana_inicio=' + encodeURIComponent(semana));
+      const r = await fetch(API_URL + '?acao=plano_semana&operador=' + encodeURIComponent(estado.unidade) + '&semana_inicio=' + encodeURIComponent(semana));
       const j = await r.json();
       const todos = j.plano || [];
       const hoje = dataHojeBR();
@@ -1100,10 +1100,10 @@ async function enviar(payload) {
 
   // Atualiza a linha do plano na planilha
   function marcarVisitadoNoBackend(payload) {
-    if (!payload.id_plano) return; // não está em plano nenhum
+    if (!payload.id_plano) return;
     const body = {
       acao: 'marcar_visitado',
-      operador: estado.funcionario.nome,
+      operador: estado.unidade,
       semana_inicio: segundaDaSemanaFmt(),
       dia: payload.data,
       id_tanque: payload.id_tanque,
