@@ -196,6 +196,56 @@
   .tanque-card.card-saudavel {
     border-left: 4px solid #5DCAA5;
   }
+ .tanque-card.visitado {
+    opacity: 0.55;
+    background: #F0F7F2;
+    border-left: 4px solid #2E7D5B;
+  }
+  .tag-status {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 600;
+    margin-left: 6px;
+    flex-shrink: 0;
+  }
+  .tag-visitado {
+    background: #2E7D5B;
+    color: white;
+  }
+  .tag-pendente {
+    background: #F2F6FA;
+    color: #5C6B7A;
+  }
+  .tanque-card-row3 {
+    font-size: 10px;
+    color: #2E7D5B;
+    padding-left: 24px;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+  .resumo-semana {
+    background: #D6E8F4;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #0E2A47;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .resumo-semana strong { font-weight: 700; }
+  .resumo-semana .barra {
+    background: #fff;
+    border-radius: 4px;
+    height: 6px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+  .resumo-semana .preenchido {
+    background: #2E7D5B;
+    height: 100%;
+    transition: width 0.4s;
+  }
   .tanque-card-row1 {
     display: flex; align-items: center; gap: 8px;
     margin-bottom: 4px;
@@ -513,7 +563,8 @@
     modoSelecao: 'lote', // 'lote' ou 'tanque'
     diasSelecionados: new Set(), // dias marcados pra replicar
     diaAtivo: null, // dia da semana sendo editado (string dd/mm/aaaa)
-    enviandoAgora: false
+    enviandoAgora: false,
+    refreshInterval: null
   };
 
   const $ = id => document.getElementById(id);
@@ -571,15 +622,30 @@
     $(id).style.display = 'block';
     window.scrollTo(0,0);
   }
-  function goMenu() { mostrar('tela-menu'); }
+  function goMenu() {
+    if (estado.refreshInterval) { clearInterval(estado.refreshInterval); estado.refreshInterval = null; }
+    mostrar('tela-menu');
+  }
   function goConfig() { mostrar('tela-config'); carregarConfigAtual(); }
   function goPlano() {
     mostrar('tela-plano');
     estado.semanaOffset = 0;
-    estado.operador = estado.unidade; // o "operador" do plano é a unidade
+    estado.operador = estado.unidade;
     $('lbl-unidade').textContent = estado.unidade;
+    estado.lotes = []; // limpa cache pra puxar dados frescos
     atualizarBotoesSemana();
     carregarPlano();
+    iniciarAutoRefresh();
+  }
+
+  function iniciarAutoRefresh() {
+    if (estado.refreshInterval) clearInterval(estado.refreshInterval);
+    // A cada 30s, refaz o carregamento se a tela do plano estiver visível
+    estado.refreshInterval = setInterval(() => {
+      if ($('tela-plano').style.display !== 'none' && estado.operador) {
+        carregarPlano();
+      }
+    }, 30000);
   }
   function irPraCampo() { window.location.href = 'index.html?modo=operador'; }
   function sair() {
@@ -685,6 +751,20 @@
   }
 
   function renderPlano() {
+    // Resumo da semana
+    const totalTanques = estado.plano.length;
+    const visitados = estado.plano.filter(p => String(p.status||'').toLowerCase() === 'visitado').length;
+    const pendentes = totalTanques - visitados;
+    const pct = totalTanques > 0 ? Math.round((visitados / totalTanques) * 100) : 0;
+    const resumoHtml = totalTanques > 0 ? `
+      <div class="resumo-semana">
+        ✓ <strong>${visitados}</strong> visitados · ⏳ <strong>${pendentes}</strong> pendentes · <strong>${pct}%</strong> concluído
+        <div class="barra"><div class="preenchido" style="width:${pct}%;"></div></div>
+      </div>
+    ` : '';
+    const seg = parsearData(estado.semanaInicio);
+    const html = [resumoHtml];
+    for (let i = 0; i < 7; i++) {
     const seg = parsearData(estado.semanaInicio);
     const html = [];
     for (let i = 0; i < 7; i++) {
@@ -714,27 +794,52 @@ ${itens.length ? itens.map(it => {
             let classe = 'card-saudavel';
             if (grp === 'viral_confirmado') classe = 'card-viral';
             else if (grp === 'janela_viral' || grp === 'suspeito') classe = 'card-alerta';
+            const visitado = String(it.status || '').toLowerCase() === 'visitado';
+            if (visitado) classe += ' visitado';
+            const tag = visitado
+              ? '<span class="tag-status tag-visitado">✓ VISITADO</span>'
+              : '<span class="tag-status tag-pendente">⏳ PENDENTE</span>';
+            let detalheVisita = '';
+            if (visitado) {
+              const quando = formatarQuando(it.visitado_em);
+              detalheVisita = `<div class="tanque-card-row3">visitado ${quando}</div>`;
+            }
             return `
               <div class="tanque-card ${classe}">
                 <div class="tanque-card-row1">
                   <span class="ico">${ico}</span>
                   <span class="num">${num} · ${produto}</span>
+                  ${tag}
                   <button class="remover" onclick="removerTanque('${dataStr}','${it.id_tanque}')">×</button>
                 </div>
                 <div class="tanque-card-row2">
                   ${codigoLote} · ${dias}d · sobrev ${sobrev.toFixed(1)}% · ${mortes} mortos
                 </div>
+                ${detalheVisita}
               </div>
             `;
-          }).join('') : '<div class="dia-vazio">— nenhum tanque planejado —</div>'}
-          </div>
+          }).join('') : '<div class="dia-vazio">— nenhum tanque planejado —</div>'}          </div>
       `);
     }
     $('plano-conteudo').innerHTML = html.join('');
     $('plano-rodape').style.display = 'block';
     $('total-tanques').textContent = estado.plano.length;
   }
-
+function formatarQuando(iso) {
+    if (!iso) return '';
+    try {
+      const d = new Date(iso);
+      const hoje = new Date();
+      const mesmaData = d.getDate() === hoje.getDate() &&
+                       d.getMonth() === hoje.getMonth() &&
+                       d.getFullYear() === hoje.getFullYear();
+      const hora = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+      if (mesmaData) return `hoje às ${hora}`;
+      const dt = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0');
+      return `${dt} às ${hora}`;
+    } catch(e) { return ''; }
+  }
+ 
   function parsearData(s) {
     const p = s.split('/');
     return new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
