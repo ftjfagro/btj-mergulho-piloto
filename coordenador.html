@@ -439,10 +439,8 @@
 
   <div id="lbl-periodo" style="font-size:12px; color:#5C6B7A; text-align:center; margin-bottom:12px;"></div>
 
-  <div class="filtros-row">
-    <select id="sel-operador">
-      <option value="">— escolher operador —</option>
-    </select>
+    <div style="background:#F2F6FA; padding:10px 12px; border-radius:8px; margin-bottom:12px; font-size:13px; color:#0E2A47;">
+    📍 Plano da unidade <strong id="lbl-unidade">ILHA</strong> · disponível pra toda a equipe
   </div>
 
   <div id="plano-conteudo">
@@ -578,8 +576,10 @@
   function goPlano() {
     mostrar('tela-plano');
     estado.semanaOffset = 0;
+    estado.operador = estado.unidade; // o "operador" do plano é a unidade
+    $('lbl-unidade').textContent = estado.unidade;
     atualizarBotoesSemana();
-    carregarFuncionariosParaPlano();
+    carregarPlano();
   }
   function irPraCampo() { window.location.href = 'index.html?modo=operador'; }
   function sair() {
@@ -663,27 +663,6 @@
     if (estado.operador) carregarPlano();
   }
 
-  async function carregarFuncionariosParaPlano() {
-    try {
-      const r = await fetch(API_URL + '?acao=listar_funcionarios&unidade=' + estado.unidade);
-      const j = await r.json();
-      estado.funcionarios = j.funcionarios || [];
-      const opts = ['<option value="">— escolher operador —</option>'];
-      estado.funcionarios.forEach(f => {
-        opts.push(`<option value="${f.nome}">${f.nome} (${f.funcao})</option>`);
-      });
-      $('sel-operador').innerHTML = opts.join('');
-      $('sel-operador').onchange = () => {
-        estado.operador = $('sel-operador').value;
-        if (estado.operador) carregarPlano();
-        else { $('plano-conteudo').innerHTML = '<div class="loading">escolha um operador acima</div>'; $('plano-rodape').style.display = 'none'; }
-      };
-      $('plano-conteudo').innerHTML = '<div class="loading">escolha um operador acima</div>';
-      $('plano-rodape').style.display = 'none';
-    } catch(e) {
-      $('plano-conteudo').innerHTML = '<div class="loading">erro ao carregar</div>';
-    }
-  }
 
   async function carregarPlano() {
     $('plano-conteudo').innerHTML = '<div class="loading"><span class="spinner"></span>carregando plano...</div>';
@@ -1067,14 +1046,13 @@ function extrairNumLinha(linhaFisica) {
 
   async function salvarPlano() {
     if (estado.enviandoAgora) { toast('aguarde...', false); return; }
-    if (!estado.operador) { toast('Escolha um operador', true); return; }
 
     estado.enviandoAgora = true;
 
     const payload = {
       acao: 'criar_plano_semana',
       unidade: estado.unidade,
-      operador: estado.operador,
+      operador: estado.unidade, // plano da unidade, não de pessoa
       semana_inicio: estado.semanaInicio,
       criado_por: estado.funcionario.nome,
       itens: estado.plano.map(p => ({ dia: p.dia, id_tanque: p.id_tanque }))
