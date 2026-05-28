@@ -344,46 +344,28 @@
   </button>
 </div>
 
-<!-- TELA 2: CONFIGURAR JANELA VIRAL -->
+<!-- TELA 2: CONFIGURAR FASES -->
 <div id="tela-config" style="display:none;">
   <button class="voltar" onclick="goMenu()">voltar</button>
-  <h2 style="margin:0 0 4px; font-size:20px; font-weight:600;">⚙️ Janela viral</h2>
+  <h2 style="margin:0 0 4px; font-size:20px; font-weight:600;">⚙️ Configurar fases</h2>
   <p style="font-size:13px; color:#5C6B7A; margin:0 0 16px;">
-    Período de dias em F1 em que o risco de surto viral é maior.
+    Defina quais fases aparecem no app e a janela viral de cada uma.
   </p>
 
-  <div class="config-card">
-    <div style="font-size:13px; color:#0E2A47; font-weight:600; margin-bottom:12px;">
-      🌐 BTJ <span id="cfg-unidade">ILHA</span>
-    </div>
-
-    <div class="config-row">
-      <div class="lbl">Início (dias)</div>
-      <div class="stepper">
-        <button onclick="ajustar('ini',-1)">−</button>
-        <input id="cfg-ini" type="number" min="0" max="200" value="15">
-        <button onclick="ajustar('ini',1)">+</button>
-      </div>
-    </div>
-
-    <div class="config-row">
-      <div class="lbl">Fim (dias)</div>
-      <div class="stepper">
-        <button onclick="ajustar('fim',-1)">−</button>
-        <input id="cfg-fim" type="number" min="0" max="200" value="80">
-        <button onclick="ajustar('fim',1)">+</button>
-      </div>
-    </div>
-
-    <div class="ref-box">
-      <strong>📌 Referência:</strong> tipicamente <strong>15 a 80 dias</strong>.
-      Ajuste conforme a estação.
-    </div>
-
-    <div id="cfg-info" style="font-size:11px; color:#8A99A8; margin-top:10px;"></div>
+  <div style="font-size:13px; color:#0E2A47; font-weight:600; margin-bottom:12px;">
+    🌐 BTJ <span id="cfg-unidade">ILHA</span>
   </div>
 
-  <button class="btn-azul" onclick="salvarConfig()">salvar configuração</button>
+  <div id="lista-fases">
+    <div class="loading"><span class="spinner"></span>carregando...</div>
+  </div>
+
+  <div class="ref-box" style="margin-top:12px;">
+    <strong>📌 Referência:</strong> janela viral tipicamente <strong>15 a 80 dias</strong>.
+    Ajuste conforme a estação ou fase.
+  </div>
+
+  <button class="btn-azul" onclick="salvarTodasFases()" style="margin-top:16px;">salvar configuração</button>
 </div>
 
 <!-- TELA 3: PLANO SEMANAL -->
@@ -569,44 +551,139 @@
     window.location.href = 'index.html';
   }
 
-  function ajustar(campo, delta) {
-    const inp = $(campo === 'ini' ? 'cfg-ini' : 'cfg-fim');
+  // ===== Config de fases =====
+  let fasesConfig = []; // array de objetos {fase, nome, mostrar, ini, fim}
+
+  async function carregarConfigAtual() {
+    $('cfg-unidade').textContent = estado.unidade;
+    $('lista-fases').innerHTML = '<div class="loading"><span class="spinner"></span>carregando...</div>';
+    try {
+      // Tenta pegar todas as fases configuradas pra essa unidade
+      const r = await fetch(API_URL + '?acao=listar_fases_ativas&unidade=' + estado.unidade);
+      const j = await r.json();
+      // Mas listar_fases_ativas só retorna as MOSTRADAS. Pra editar, preciso de todas.
+      // Workaround: vamos buscar diretamente da planilha via outro endpoint, ou
+      // por enquanto trabalhar só com as que estão ativas (mostrar=TRUE)
+      fasesConfig = (j.fases || []).map(f => ({
+        fase: f.fase,
+        nome: f.nome,
+        mostrar: true,
+        ini: f.janela_dia_inicio,
+        fim: f.janela_dia_fim
+      }));
+      renderFasesConfig();
+    } catch(e) {
+      $('lista-fases').innerHTML = '<div class="loading">erro ao carregar - <a href="javascript:carregarConfigAtual()" style="color:#3FA0D6;">tentar de novo</a></div>';
+    }
+  }
+
+  function renderFasesConfig() {
+    if (!fasesConfig.length) {
+      $('lista-fases').innerHTML = '<div class="loading">nenhuma fase configurada nesta unidade</div>';
+      return;
+    }
+    const html = fasesConfig.map((f, idx) => `
+      <div class="config-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div>
+            <div style="font-size:14px; font-weight:600; color:#0E2A47;">${f.fase} - ${f.nome}</div>
+          </div>
+          <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+            <input type="checkbox" id="cfg-mostrar-${idx}" ${f.mostrar ? 'checked' : ''} onchange="toggleMostrarFase(${idx})" style="width:18px; height:18px;">
+            <span style="font-size:12px; color:#5C6B7A;">mostrar</span>
+          </label>
+        </div>
+
+        <div class="config-row">
+          <div class="lbl">Início (dias)</div>
+          <div class="stepper">
+            <button onclick="ajustarFase(${idx},'ini',-1)">−</button>
+            <input id="cfg-ini-${idx}" type="number" min="0" max="200" value="${f.ini}" onchange="onChangeInput(${idx},'ini')">
+            <button onclick="ajustarFase(${idx},'ini',1)">+</button>
+          </div>
+        </div>
+
+        <div class="config-row">
+          <div class="lbl">Fim (dias)</div>
+          <div class="stepper">
+            <button onclick="ajustarFase(${idx},'fim',-1)">−</button>
+            <input id="cfg-fim-${idx}" type="number" min="0" max="200" value="${f.fim}" onchange="onChangeInput(${idx},'fim')">
+            <button onclick="ajustarFase(${idx},'fim',1)">+</button>
+          </div>
+        </div>
+
+        <div id="cfg-info-${idx}" style="font-size:11px; color:#8A99A8;">
+          janela: ${f.fim - f.ini} dias
+        </div>
+      </div>
+    `).join('');
+    $('lista-fases').innerHTML = html;
+  }
+
+  function toggleMostrarFase(idx) {
+    fasesConfig[idx].mostrar = $(`cfg-mostrar-${idx}`).checked;
+  }
+
+  function ajustarFase(idx, campo, delta) {
+    const inp = $(`cfg-${campo}-${idx}`);
     let v = parseInt(inp.value) || 0;
     v = Math.max(0, Math.min(200, v + delta));
     inp.value = v;
-    validarConfig();
+    fasesConfig[idx][campo] = v;
+    atualizarInfoFase(idx);
   }
-  function validarConfig() {
-    const ini = parseInt($('cfg-ini').value) || 0;
-    const fim = parseInt($('cfg-fim').value) || 0;
-    if (fim <= ini) {
-      $('cfg-info').textContent = '⚠ o fim precisa ser maior que o início';
-      return false;
+
+  function onChangeInput(idx, campo) {
+    const inp = $(`cfg-${campo}-${idx}`);
+    let v = parseInt(inp.value) || 0;
+    v = Math.max(0, Math.min(200, v));
+    inp.value = v;
+    fasesConfig[idx][campo] = v;
+    atualizarInfoFase(idx);
+  }
+
+  function atualizarInfoFase(idx) {
+    const f = fasesConfig[idx];
+    const info = $(`cfg-info-${idx}`);
+    if (f.fim <= f.ini) {
+      info.textContent = '⚠ o fim precisa ser maior que o início';
+      info.style.color = '#B23A2A';
+    } else {
+      info.textContent = `janela: ${f.fim - f.ini} dias`;
+      info.style.color = '#8A99A8';
     }
-    $('cfg-info').textContent = 'janela: ' + (fim - ini) + ' dias';
-    return true;
   }
-  async function carregarConfigAtual() {
-    $('cfg-unidade').textContent = estado.unidade;
-    try {
-      const r = await fetch(API_URL + '?acao=ler_config&unidade=' + estado.unidade);
-      const j = await r.json();
-      if (j.ok && j.config) {
-        $('cfg-ini').value = j.config.janela_dia_inicio;
-        $('cfg-fim').value = j.config.janela_dia_fim;
-        validarConfig();
+
+  async function salvarTodasFases() {
+    // Valida todas
+    for (let i = 0; i < fasesConfig.length; i++) {
+      if (fasesConfig[i].fim <= fasesConfig[i].ini) {
+        toast(`Fase ${fasesConfig[i].fase}: fim precisa ser maior que início`, true);
+        return;
       }
-    } catch(e) { toast('Erro ao carregar', true); }
+    }
+    // Salva uma por uma
+    let erro = false;
+    for (const f of fasesConfig) {
+      try {
+        await fetch(API_URL, {
+          method: 'POST', mode: 'no-cors',
+          body: JSON.stringify({
+            acao: 'salvar_fase',
+            unidade: estado.unidade,
+            fase: f.fase,
+            mostrar_no_app: f.mostrar,
+            janela_dia_inicio: f.ini,
+            janela_dia_fim: f.fim
+          }),
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+        });
+      } catch(e) { erro = true; }
+    }
+    if (erro) toast('Algumas fases falharam', true);
+    else toast('Configuração salva!');
+    setTimeout(() => goMenu(), 1000);
   }
-  async function salvarConfig() {
-    if (!validarConfig()) { toast('Corrija valores', true); return; }
-    const payload = {
-      acao: 'salvar_config',
-      unidade: estado.unidade,
-      janela_dia_inicio: parseInt($('cfg-ini').value),
-      janela_dia_fim: parseInt($('cfg-fim').value),
-      atualizado_por: estado.funcionario.nome
-    };
     try {
       await fetch(API_URL, {
         method: 'POST', mode: 'no-cors',
