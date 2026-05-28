@@ -840,7 +840,7 @@ function renderPlano(quandoAtualizado) {
       <div class="lista-tanque ${cls}" style="${opacidade}" onclick='abrirTanque(${JSON.stringify(lt).replace(/'/g,"&#39;")})'>
         <div class="lt-icone">${ico}</div>
         <div class="lt-corpo">
-          <div class="lt-nome">${num} · ${lt.produto_origem || ''} ${tagPlano}</div>
+          <div class="lt-nome">${num} · ${lt.fase || ''} · ${lt.produto_origem || ''} ${tagPlano}</div>
           <div class="lt-info">${info}</div>
         </div>
         <div class="lt-seta">›</div>
