@@ -157,6 +157,27 @@
     background: none; border: none;
     color: #B23A2A; font-size: 18px; padding: 0 4px;
   }
+ .tanque-mini.visitado {
+    opacity: 0.5;
+    background: #F0F7F2;
+  }
+  .tag-visitado {
+    font-size: 10px;
+    background: #2E7D5B;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 999px;
+    font-weight: 600;
+    margin-left: 4px;
+  }
+  .btn-refresh {
+    background: none;
+    border: 1px solid #D6E0EA;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: #0E2A47;
+  }
   .dia-vazio {
     font-size: 12px; color: #8A99A8;
     text-align: center; padding: 8px;
@@ -376,7 +397,10 @@
     <button class="btn-semana" id="btn-sem-proxima" onclick="mudarSemana(1)">próxima</button>
   </div>
 
-  <div id="lbl-periodo" style="font-size:12px; color:#5C6B7A; text-align:center; margin-bottom:12px;"></div>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    <div id="lbl-periodo" style="font-size:12px; color:#5C6B7A;"></div>
+    <button class="btn-refresh" onclick="carregarPlano()">🔄 atualizar</button>
+  </div>
 
   <div style="background:#F2F6FA; padding:10px 12px; border-radius:8px; margin-bottom:12px; font-size:13px; color:#0E2A47;">
     📍 Plano da unidade <strong id="lbl-unidade">ILHA</strong>
@@ -644,10 +668,14 @@
         const num = m ? m[1] : it.id_tanque;
         const dias = lt ? lt.dias_em_fase : '';
         const sobrev = lt ? parseFloat(String(lt.sobrevivencia).replace(',','.')).toFixed(1) : '?';
+        const visitado = String(it.status || '').toLowerCase() === 'visitado';
+        const clsVisit = visitado ? 'visitado' : '';
+        const tagVisit = visitado ? '<span class="tag-visitado">✓ VISITADO</span>' : '';
         return `
-          <div class="tanque-mini">
+          <div class="tanque-mini ${clsVisit}">
             <span class="num">${num}</span>
             <span class="desc">${dias}d · ${sobrev}%</span>
+            ${tagVisit}
             <button class="remover" onclick="removerTanque('${dataStr}','${it.id_tanque}')">×</button>
           </div>
         `;
