@@ -747,19 +747,8 @@
   }
 
   function renderPlano() {
-    // Resumo da semana
-    const totalTanques = estado.plano.length;
-    const visitados = estado.plano.filter(p => String(p.status||'').toLowerCase() === 'visitado').length;
-    const pendentes = totalTanques - visitados;
-    const pct = totalTanques > 0 ? Math.round((visitados / totalTanques) * 100) : 0;
-    const resumoHtml = totalTanques > 0 ? `
-      <div class="resumo-semana">
-        ✓ <strong>${visitados}</strong> visitados · ⏳ <strong>${pendentes}</strong> pendentes · <strong>${pct}%</strong> concluído
-        <div class="barra"><div class="preenchido" style="width:${pct}%;"></div></div>
-      </div>
-    ` : '';
     const seg = parsearData(estado.semanaInicio);
-    const html = [resumoHtml];
+    const html = [];
     for (let i = 0; i < 7; i++) {
     const seg = parsearData(estado.semanaInicio);
     const html = [];
