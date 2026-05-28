@@ -25,23 +25,20 @@
     padding-bottom: max(80px, env(safe-area-inset-bottom));
     max-width: 760px; margin: 0 auto;
   }
-  button, input, select, textarea { font-family: inherit; }
-  input[type="number"], input[type="text"], select {
+  button, input, select { font-family: inherit; }
+  input[type="number"] {
     width: 100%; padding: 12px; font-size: 16px;
     border: 1px solid #D6E0EA; border-radius: 8px;
     background: #fff; color: #0E2A47;
     -webkit-appearance: none; appearance: none;
   }
-  input:focus, select:focus { outline: none; border-color: #3FA0D6;
+  input:focus { outline: none; border-color: #3FA0D6;
     box-shadow: 0 0 0 3px rgba(63,160,214,0.15); }
   button { cursor: pointer; -webkit-appearance: none; appearance: none; }
-  .label { font-size: 12px; color: #5C6B7A; margin: 0 0 6px; }
 
   .header-card {
-    background: #D6E8F4;
-    border-radius: 12px;
-    padding: 14px 16px;
-    margin-bottom: 16px;
+    background: #D6E8F4; border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 16px;
     display: flex; justify-content: space-between; align-items: center;
   }
   .header-info { font-size: 15px; font-weight: 600; color: #0E2A47; }
@@ -72,13 +69,6 @@
   .btn-azul:active { background: #2A85B8; }
   .btn-azul:disabled { opacity: 0.4; }
 
-  .btn-secundario {
-    width: 100%; padding: 12px;
-    background: #fff; color: #0E2A47;
-    border: 1px solid #D6E0EA; border-radius: 8px;
-    font-size: 14px; font-weight: 500;
-  }
-
   .voltar {
     display: inline-flex; align-items: center; gap: 6px;
     background: none; border: none; color: #0E2A47;
@@ -98,7 +88,7 @@
   .toast.visivel { opacity: 1; }
   .toast.erro { background: #B23A2A; }
 
-  /* Configuração janela viral */
+  /* Config */
   .config-card {
     background: #F2F6FA; border-radius: 12px;
     padding: 16px; margin-bottom: 16px;
@@ -114,7 +104,6 @@
     background: #fff; border: 1px solid #D6E0EA;
     border-radius: 8px; font-size: 18px; font-weight: 600; color: #0E2A47;
   }
-  .stepper button:active { background: #D6E8F4; }
   .stepper input {
     width: 60px; text-align: center;
     padding: 8px 4px; font-size: 16px; font-weight: 600;
@@ -127,9 +116,7 @@
   .ref-box strong { color: #0E2A47; }
 
   /* Plano semanal */
-  .seletor-semana {
-    display: flex; gap: 6px; margin-bottom: 12px;
-  }
+  .seletor-semana { display: flex; gap: 6px; margin-bottom: 12px; }
   .btn-semana {
     flex: 1; padding: 10px 8px;
     background: #fff; border: 1px solid #D6E0EA;
@@ -140,25 +127,9 @@
     color: #0E2A47; padding: 9px 7px;
   }
 
-  .filtros-row {
-    display: flex; gap: 8px; margin-bottom: 12px; align-items: center;
-  }
-  .filtros-row select { flex: 1; padding: 10px; font-size: 14px; }
-  .ordem-group {
-    display: flex; gap: 4px;
-    background: #F2F6FA; padding: 3px; border-radius: 8px;
-  }
-  .ordem-btn {
-    padding: 8px 12px; font-size: 12px;
-    background: transparent; border: none;
-    border-radius: 6px; color: #5C6B7A; font-weight: 500;
-  }
-  .ordem-btn.ativa { background: #fff; color: #0E2A47; font-weight: 600; }
-
   .dia-card {
     background: #fff; border: 1px solid #D6E0EA;
-    border-radius: 10px; padding: 12px;
-    margin-bottom: 8px;
+    border-radius: 10px; padding: 12px; margin-bottom: 8px;
   }
   .dia-header {
     display: flex; justify-content: space-between;
@@ -180,88 +151,6 @@
     background: #F8FAFC; border-radius: 6px;
     font-size: 13px;
   }
- .tanque-card {
-    border: 1px solid #D6E0EA; border-radius: 8px;
-    padding: 10px 12px; margin-bottom: 6px;
-    background: #fff;
-  }
-  .tanque-card.card-viral {
-    border: 2px solid #A32D2D;
-    background: #FBE9E5;
-    padding: 9px 11px;
-  }
-  .tanque-card.card-alerta {
-    border-left: 4px solid #BA7517;
-  }
-  .tanque-card.card-saudavel {
-    border-left: 4px solid #5DCAA5;
-  }
- .tanque-card.visitado {
-    opacity: 0.55;
-    background: #F0F7F2;
-    border-left: 4px solid #2E7D5B;
-  }
-  .tag-status {
-    font-size: 10px;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-weight: 600;
-    margin-left: 6px;
-    flex-shrink: 0;
-  }
-  .tag-visitado {
-    background: #2E7D5B;
-    color: white;
-  }
-  .tag-pendente {
-    background: #F2F6FA;
-    color: #5C6B7A;
-  }
-  .tanque-card-row3 {
-    font-size: 10px;
-    color: #2E7D5B;
-    padding-left: 24px;
-    margin-top: 4px;
-    font-weight: 500;
-  }
-  .resumo-semana {
-    background: #D6E8F4;
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 13px;
-    color: #0E2A47;
-    margin-bottom: 12px;
-    text-align: center;
-  }
-  .resumo-semana strong { font-weight: 700; }
-  .resumo-semana .barra {
-    background: #fff;
-    border-radius: 4px;
-    height: 6px;
-    margin-top: 6px;
-    overflow: hidden;
-  }
-  .resumo-semana .preenchido {
-    background: #2E7D5B;
-    height: 100%;
-    transition: width 0.4s;
-  }
-  .tanque-card-row1 {
-    display: flex; align-items: center; gap: 8px;
-    margin-bottom: 4px;
-  }
-  .tanque-card-row1 .ico { font-size: 16px; flex-shrink: 0; }
-  .tanque-card-row1 .num {
-    font-size: 14px; font-weight: 600; flex: 1;
-    color: #0E2A47;
-  }
-  .tanque-card.card-viral .tanque-card-row1 .num { color: #501313; }
-  .tanque-card-row2 {
-    font-size: 11px; color: #5C6B7A;
-    padding-left: 24px;
-  }
-  .tanque-card.card-viral .tanque-card-row2 { color: #791F1F; }
-  .tanque-mini .ico { font-size: 14px; }
   .tanque-mini .num { font-weight: 600; }
   .tanque-mini .desc { flex: 1; color: #5C6B7A; font-size: 11px; }
   .tanque-mini .remover {
@@ -273,7 +162,30 @@
     text-align: center; padding: 8px;
   }
 
-  /* Tela de seleção */
+  .modo-group {
+    display: flex; gap: 4px;
+    background: #F2F6FA; padding: 3px; border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .modo-btn {
+    flex: 1; padding: 10px;
+    background: transparent; border: none;
+    border-radius: 6px; font-size: 13px; color: #5C6B7A; font-weight: 500;
+  }
+  .modo-btn.ativa {
+    background: #fff; color: #0E2A47; font-weight: 600;
+  }
+  .ordem-group {
+    display: flex; gap: 4px;
+    background: #F2F6FA; padding: 3px; border-radius: 8px;
+  }
+  .ordem-btn {
+    padding: 8px 12px; font-size: 12px;
+    background: transparent; border: none;
+    border-radius: 6px; color: #5C6B7A; font-weight: 500;
+  }
+  .ordem-btn.ativa { background: #fff; color: #0E2A47; font-weight: 600; }
+
   .item-selecao {
     display: flex; align-items: center; gap: 10px;
     padding: 12px; margin-bottom: 6px;
@@ -298,37 +210,14 @@
   .item-selecao .num { font-weight: 600; font-size: 14px; }
   .item-selecao .desc { flex: 1; color: #5C6B7A; font-size: 11px; }
 
-  .grupo-label {
-    font-size: 10px; text-transform: uppercase;
-    letter-spacing: 0.5px; color: #8A99A8;
-    margin: 12px 0 6px; font-weight: 600;
-  }
-.modo-group {
-    display: flex; gap: 4px;
-    background: #F2F6FA; padding: 3px; border-radius: 8px;
-    margin-bottom: 8px;
-  }
-  .modo-btn {
-    flex: 1; padding: 10px;
-    background: transparent; border: none;
-    border-radius: 6px; font-size: 13px; color: #5C6B7A;
-    font-weight: 500;
-  }
-  .modo-btn.ativa {
-    background: #fff; color: #0E2A47; font-weight: 600;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  }
-
   .lote-card {
     display: flex; flex-direction: column; gap: 6px;
     padding: 12px; margin-bottom: 8px;
     border: 1px solid #D6E0EA; border-radius: 10px;
     background: #fff; font-size: 13px;
-    cursor: pointer;
   }
   .lote-card.selecionado {
-    border: 2px solid #0E2A47;
-    background: #D6E8F4; padding: 11px;
+    border: 2px solid #0E2A47; background: #D6E8F4; padding: 11px;
   }
   .lote-card-header {
     display: flex; align-items: center; gap: 8px;
@@ -343,26 +232,27 @@
   .lote-card.selecionado .check {
     background: #0E2A47; border-color: #0E2A47;
   }
-  .lote-card-header .ico { font-size: 16px; }
   .lote-card-header .codigo {
-    font-weight: 600; font-size: 14px; color: #0E2A47;
-    flex: 1;
+    font-weight: 600; font-size: 14px; color: #0E2A47; flex: 1;
   }
   .lote-card-header .dias {
     font-size: 11px; color: #5C6B7A;
     background: #F2F6FA;
     padding: 2px 8px; border-radius: 999px;
-    font-weight: 500;
   }
   .lote-card-info {
-    font-size: 12px; color: #5C6B7A;
-    padding-left: 30px;
+    font-size: 12px; color: #5C6B7A; padding-left: 30px;
   }
   .lote-card-tanques {
-    font-size: 11px; color: #8A99A8;
-    padding-left: 30px;
+    font-size: 11px; color: #8A99A8; padding-left: 30px;
   }
- 
+
+  .grupo-label {
+    font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.5px; color: #8A99A8;
+    margin: 12px 0 6px; font-weight: 600;
+  }
+
   .dias-replicar {
     display: flex; gap: 4px; flex-wrap: wrap;
     background: #F2F6FA; padding: 10px;
@@ -412,7 +302,7 @@
     <span class="ico">📋</span>
     <div>
       <div class="lbl-titulo">Montar plano semanal</div>
-      <div class="lbl-sub">Definir tanques que cada operador vai visitar</div>
+      <div class="lbl-sub">Definir tanques pra equipe visitar</div>
     </div>
   </button>
 
@@ -466,8 +356,7 @@
 
     <div class="ref-box">
       <strong>📌 Referência:</strong> tipicamente <strong>15 a 80 dias</strong>.
-      Ajuste conforme a estação: <em>inverno</em> tende a janela mais curta;
-      <em>verão</em> tende a janela mais longa.
+      Ajuste conforme a estação.
     </div>
 
     <div id="cfg-info" style="font-size:11px; color:#8A99A8; margin-top:10px;"></div>
@@ -487,12 +376,10 @@
     <button class="btn-semana" id="btn-sem-proxima" onclick="mudarSemana(1)">próxima</button>
   </div>
 
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-    <div id="lbl-periodo" style="font-size:12px; color:#5C6B7A;"></div>
-    <button onclick="carregarPlano()" style="background:none; border:1px solid #D6E0EA; border-radius:6px; padding:6px 12px; font-size:12px; color:#0E2A47;">🔄 atualizar</button>
-  </div>
-    <div style="background:#F2F6FA; padding:10px 12px; border-radius:8px; margin-bottom:12px; font-size:13px; color:#0E2A47;">
-    📍 Plano da unidade <strong id="lbl-unidade">ILHA</strong> · disponível pra toda a equipe
+  <div id="lbl-periodo" style="font-size:12px; color:#5C6B7A; text-align:center; margin-bottom:12px;"></div>
+
+  <div style="background:#F2F6FA; padding:10px 12px; border-radius:8px; margin-bottom:12px; font-size:13px; color:#0E2A47;">
+    📍 Plano da unidade <strong id="lbl-unidade">ILHA</strong>
   </div>
 
   <div id="plano-conteudo">
@@ -501,7 +388,7 @@
 
   <div id="plano-rodape" style="display:none;" class="barra-acao">
     <div style="font-size:12px; color:#5C6B7A; text-align:center; margin-bottom:8px;">
-      total: <strong id="total-tanques">0</strong> tanques no plano
+      total: <strong id="total-tanques">0</strong> tanques
     </div>
     <button class="btn-azul" onclick="salvarPlano()">salvar plano</button>
   </div>
@@ -525,20 +412,18 @@
   </div>
 
   <div style="margin-bottom:12px; font-size:12px; color:#5C6B7A;">
-    selecione os dias da semana em que esses tanques entrarão:
+    selecione os dias da semana:
   </div>
 
   <div class="dias-replicar" id="dias-replicar"></div>
 
   <div id="lista-tanques">
-    <div class="loading"><span class="spinner"></span>carregando lotes...</div>
+    <div class="loading"><span class="spinner"></span>carregando...</div>
   </div>
 
   <div class="barra-acao">
-    <div style="font-size:12px; color:#5C6B7A; text-align:center; margin-bottom:8px;">
-      <strong id="sel-contagem">0</strong> tanques selecionados ×
-      <strong id="sel-dias">0</strong> dias =
-      <strong id="sel-total">0</strong> entradas
+    <div id="info-selecao" style="font-size:12px; color:#5C6B7A; text-align:center; margin-bottom:8px;">
+      0 tanques selecionados × 0 dias = 0 entradas
     </div>
     <button class="btn-azul" onclick="confirmarSelecao()">adicionar ao plano</button>
   </div>
@@ -552,21 +437,19 @@
   let estado = {
     funcionario: null,
     unidade: 'ILHA',
-    semanaOffset: 0, // 0=atual, -1=passada, +1=próxima
-    semanaInicio: null, // string dd/mm/aaaa
+    semanaOffset: 0,
+    semanaInicio: null,
     operador: '',
-    funcionarios: [],
     lotes: [],
-    plano: [], // [{dia, id_tanque, ...}]
-    ordem: 'rota', // 'rota' ou 'biosseg'
-    selecionados: new Set(), // tanques marcados na tela de seleção
     lotesAgrupados: [],
+    plano: [],
+    ordem: 'rota',
+    modoSelecao: 'lote',
+    selecionados: new Set(),
     lotesSelecionados: new Set(),
-    modoSelecao: 'lote', // 'lote' ou 'tanque'
-    diasSelecionados: new Set(), // dias marcados pra replicar
-    diaAtivo: null, // dia da semana sendo editado (string dd/mm/aaaa)
-    enviandoAgora: false,
-    refreshInterval: null
+    diasSelecionados: new Set(),
+    diaAtivo: null,
+    enviandoAgora: false
   };
 
   const $ = id => document.getElementById(id);
@@ -580,7 +463,6 @@
     setTimeout(() => { t.className = 'toast' + (erro ? ' erro' : ''); }, 2500);
   }
 
-  // ===== Helpers de data =====
   function segundaDaSemana(d) {
     const dia = d.getDay();
     const diff = dia === 0 ? -6 : 1 - dia;
@@ -599,8 +481,28 @@
     d.setDate(base.getDate() + offset);
     return d;
   }
+  function parsearData(s) {
+    const p = s.split('/');
+    return new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
+  }
+  function iconGrupo(g) {
+    if (g === 'viral_confirmado') return '🔴';
+    if (g === 'janela_viral') return '🟡';
+    if (g === 'suspeito') return '🟡';
+    return '🟢';
+  }
+  function labelGrupo(g) {
+    if (g === 'viral_confirmado') return 'viral confirmado';
+    if (g === 'janela_viral') return 'janela viral';
+    if (g === 'suspeito') return 'suspeito';
+    return 'saudável';
+  }
+  function extrairNumLinha(linhaFisica) {
+    if (!linhaFisica) return 999;
+    const m = String(linhaFisica).match(/L(\d+)/i);
+    return m ? parseInt(m[1]) : 999;
+  }
 
-  // ===== Sessão =====
   function carregarSessao() {
     try {
       const raw = localStorage.getItem('btj_funcionario');
@@ -608,7 +510,6 @@
       if (raw) estado.funcionario = JSON.parse(raw);
       if (und) estado.unidade = und;
     } catch(e) {}
-
     if (!estado.funcionario) {
       window.location.href = 'index.html';
       return;
@@ -617,17 +518,13 @@
     $('hdr-contexto').textContent = '· BTJ ' + estado.unidade + ' · ' + estado.funcionario.funcao;
   }
 
-  // ===== Navegação =====
   const telas = ['tela-menu','tela-config','tela-plano','tela-selecao'];
   function mostrar(id) {
     telas.forEach(t => $(t).style.display = 'none');
     $(id).style.display = 'block';
     window.scrollTo(0,0);
   }
-  function goMenu() {
-    if (estado.refreshInterval) { clearInterval(estado.refreshInterval); estado.refreshInterval = null; }
-    mostrar('tela-menu');
-  }
+  function goMenu() { mostrar('tela-menu'); }
   function goConfig() { mostrar('tela-config'); carregarConfigAtual(); }
   function goPlano() {
     mostrar('tela-plano');
@@ -635,9 +532,9 @@
     estado.operador = estado.unidade;
     $('lbl-unidade').textContent = estado.unidade;
     estado.lotes = [];
+    estado.lotesAgrupados = [];
     atualizarBotoesSemana();
     carregarPlano();
-    // Auto-refresh desabilitado por enquanto - use o botão "atualizar"
   }
   function irPraCampo() { window.location.href = 'index.html?modo=operador'; }
   function sair() {
@@ -648,7 +545,6 @@
     window.location.href = 'index.html';
   }
 
-  // ===== Config janela viral =====
   function ajustar(campo, delta) {
     const inp = $(campo === 'ini' ? 'cfg-ini' : 'cfg-fim');
     let v = parseInt(inp.value) || 0;
@@ -661,11 +557,9 @@
     const fim = parseInt($('cfg-fim').value) || 0;
     if (fim <= ini) {
       $('cfg-info').textContent = '⚠ o fim precisa ser maior que o início';
-      $('cfg-info').style.color = '#B23A2A';
       return false;
     }
     $('cfg-info').textContent = 'janela: ' + (fim - ini) + ' dias';
-    $('cfg-info').style.color = '#8A99A8';
     return true;
   }
   async function carregarConfigAtual() {
@@ -678,10 +572,10 @@
         $('cfg-fim').value = j.config.janela_dia_fim;
         validarConfig();
       }
-    } catch(e) { toast('Erro ao carregar configuração', true); }
+    } catch(e) { toast('Erro ao carregar', true); }
   }
   async function salvarConfig() {
-    if (!validarConfig()) { toast('Corrija os valores antes de salvar', true); return; }
+    if (!validarConfig()) { toast('Corrija valores', true); return; }
     const payload = {
       acao: 'salvar_config',
       unidade: estado.unidade,
@@ -695,18 +589,16 @@
         body: JSON.stringify(payload),
         headers: { 'Content-Type': 'text/plain;charset=utf-8' }
       });
-      toast('Configuração salva!');
+      toast('Salvo!');
       setTimeout(() => goMenu(), 1000);
-    } catch(e) { toast('Erro ao salvar', true); }
+    } catch(e) { toast('Erro', true); }
   }
 
-  // ===== Plano semanal =====
   function atualizarBotoesSemana() {
     document.querySelectorAll('.btn-semana').forEach(b => b.classList.remove('ativa'));
     const id = estado.semanaOffset === -1 ? 'btn-sem-passada' :
                estado.semanaOffset === 1 ? 'btn-sem-proxima' : 'btn-sem-atual';
     $(id).classList.add('ativa');
-
     const hoje = new Date();
     const seg = segundaDaSemana(hoje);
     seg.setDate(seg.getDate() + 7 * estado.semanaOffset);
@@ -718,31 +610,24 @@
   function mudarSemana(offset) {
     estado.semanaOffset = offset;
     atualizarBotoesSemana();
-    if (estado.operador) carregarPlano();
+    carregarPlano();
   }
 
-
   async function carregarPlano() {
-    $('plano-conteudo').innerHTML = '<div class="loading"><span class="spinner"></span>carregando plano...<br><span style="font-size:11px;color:#8A99A8;">isso pode demorar alguns segundos</span></div>';
+    $('plano-conteudo').innerHTML = '<div class="loading"><span class="spinner"></span>carregando...</div>';
     $('plano-rodape').style.display = 'none';
     try {
-      const urlPlano = API_URL + '?acao=plano_semana&operador=' + encodeURIComponent(estado.operador) + '&semana_inicio=' + encodeURIComponent(estado.semanaInicio);
-      const urlLotes = API_URL + '?acao=classificar_lotes&unidade=' + estado.unidade;
-
-      // Chamadas em paralelo (mais rápido)
-      const promessas = [fetch(urlPlano).then(r => r.json())];
+      const r = await fetch(API_URL + '?acao=plano_semana&operador=' + encodeURIComponent(estado.operador) + '&semana_inicio=' + encodeURIComponent(estado.semanaInicio));
+      const j = await r.json();
+      estado.plano = j.plano || [];
       if (!estado.lotes.length) {
-        promessas.push(fetch(urlLotes).then(r => r.json()));
+        const r2 = await fetch(API_URL + '?acao=classificar_lotes&unidade=' + estado.unidade);
+        const j2 = await r2.json();
+        estado.lotes = j2.lotes || [];
       }
-      const resultados = await Promise.all(promessas);
-
-      estado.plano = resultados[0].plano || [];
-      if (resultados[1]) estado.lotes = resultados[1].lotes || [];
-
-      // Dá um respiro pro iPhone antes de renderizar (evita travar)
-      setTimeout(() => renderPlano(), 50);
+      renderPlano();
     } catch(e) {
-      $('plano-conteudo').innerHTML = '<div class="loading">erro ao carregar - <a href="javascript:carregarPlano()" style="color:#3FA0D6;">tentar de novo</a></div>';
+      $('plano-conteudo').innerHTML = '<div class="loading">erro - <a href="javascript:carregarPlano()" style="color:#3FA0D6;">tentar de novo</a></div>';
     }
   }
 
@@ -750,97 +635,39 @@
     const seg = parsearData(estado.semanaInicio);
     const html = [];
     for (let i = 0; i < 7; i++) {
-    const seg = parsearData(estado.semanaInicio);
-    const html = [];
-    for (let i = 0; i < 7; i++) {
       const d = diaDaSemana(i, seg);
       const dataStr = fmtData(d);
       const itens = estado.plano.filter(p => p.dia === dataStr);
+      const itensHtml = itens.length ? itens.map(it => {
+        const lt = estado.lotes.find(l => l.id_tanque === it.id_tanque);
+        const m = it.id_tanque.match(/^(\d+)-/);
+        const num = m ? m[1] : it.id_tanque;
+        const dias = lt ? lt.dias_em_fase : '';
+        const sobrev = lt ? parseFloat(String(lt.sobrevivencia).replace(',','.')).toFixed(1) : '?';
+        return `
+          <div class="tanque-mini">
+            <span class="num">${num}</span>
+            <span class="desc">${dias}d · ${sobrev}%</span>
+            <button class="remover" onclick="removerTanque('${dataStr}','${it.id_tanque}')">×</button>
+          </div>
+        `;
+      }).join('') : '<div class="dia-vazio">— vazio —</div>';
       html.push(`
         <div class="dia-card">
           <div class="dia-header">
             <div>
               <span class="dia-titulo">${DIAS_LONGOS[i]} ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}</span>
-              <span class="dia-contagem">· ${itens.length} tanque${itens.length===1?'':'s'}</span>
+              <span class="dia-contagem">· ${itens.length}</span>
             </div>
             <button class="dia-add" onclick="abrirSelecao('${dataStr}')">+ add</button>
           </div>
-${itens.length ? itens.map(it => {
-            const lt = estado.lotes.find(l => l.id_tanque === it.id_tanque);
-            const grp = lt ? lt.grupo_biosseguranca : 'saudavel';
-            const ico = iconGrupo(grp);
-            const m = it.id_tanque.match(/^(\\d+)-/);
-            const num = m ? m[1] : it.id_tanque;
-            const sobrev = lt ? parseFloat(String(lt.sobrevivencia).replace(',','.')) || 0 : 0;
-            const mortes = lt ? (parseInt(lt.mortalidade) || 0) : 0;
-            const codigoLote = lt ? lt.codigo_lote : '';
-            const produto = lt ? (lt.produto_origem || '') : '';
-            const dias = lt ? lt.dias_em_fase : '';
-            let classe = 'card-saudavel';
-            if (grp === 'viral_confirmado') classe = 'card-viral';
-            else if (grp === 'janela_viral' || grp === 'suspeito') classe = 'card-alerta';
-            const visitado = String(it.status || '').toLowerCase() === 'visitado';
-            if (visitado) classe += ' visitado';
-            const tag = visitado
-              ? '<span class="tag-status tag-visitado">✓ VISITADO</span>'
-              : '<span class="tag-status tag-pendente">⏳ PENDENTE</span>';
-            let detalheVisita = '';
-            if (visitado) {
-              const quando = formatarQuando(it.visitado_em);
-              detalheVisita = `<div class="tanque-card-row3">visitado ${quando}</div>`;
-            }
-            return `
-              <div class="tanque-card ${classe}">
-                <div class="tanque-card-row1">
-                  <span class="ico">${ico}</span>
-                  <span class="num">${num} · ${produto}</span>
-                  ${tag}
-                  <button class="remover" onclick="removerTanque('${dataStr}','${it.id_tanque}')">×</button>
-                </div>
-                <div class="tanque-card-row2">
-                  ${codigoLote} · ${dias}d · sobrev ${sobrev.toFixed(1)}% · ${mortes} mortos
-                </div>
-                ${detalheVisita}
-              </div>
-            `;
-          }).join('') : '<div class="dia-vazio">— nenhum tanque planejado —</div>'}          </div>
+          ${itensHtml}
+        </div>
       `);
     }
     $('plano-conteudo').innerHTML = html.join('');
     $('plano-rodape').style.display = 'block';
     $('total-tanques').textContent = estado.plano.length;
-  }
-function formatarQuando(iso) {
-    if (!iso) return '';
-    try {
-      const d = new Date(iso);
-      const hoje = new Date();
-      const mesmaData = d.getDate() === hoje.getDate() &&
-                       d.getMonth() === hoje.getMonth() &&
-                       d.getFullYear() === hoje.getFullYear();
-      const hora = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
-      if (mesmaData) return `hoje às ${hora}`;
-      const dt = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0');
-      return `${dt} às ${hora}`;
-    } catch(e) { return ''; }
-  }
- 
-  function parsearData(s) {
-    const p = s.split('/');
-    return new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
-  }
-
-  function iconGrupo(g) {
-    if (g === 'viral_confirmado') return '🔴';
-    if (g === 'janela_viral') return '🟡';
-    if (g === 'suspeito') return '🟡';
-    return '🟢';
-  }
-  function labelGrupo(g) {
-    if (g === 'viral_confirmado') return 'viral confirmado';
-    if (g === 'janela_viral') return 'janela viral';
-    if (g === 'suspeito') return 'suspeito';
-    return 'saudável';
   }
 
   function removerTanque(dia, idTanque) {
@@ -848,7 +675,6 @@ function formatarQuando(iso) {
     renderPlano();
   }
 
-  // ===== Seleção de tanques =====
   function abrirSelecao(dia) {
     estado.diaAtivo = dia;
     estado.selecionados = new Set();
@@ -856,31 +682,53 @@ function formatarQuando(iso) {
     estado.diasSelecionados = new Set([dia]);
     estado.ordem = 'rota';
     estado.modoSelecao = 'lote';
-    document.querySelectorAll('.ordem-btn').forEach(b => b.classList.remove('ativa'));
-    $('ord-rota').classList.add('ativa');
     document.querySelectorAll('.modo-btn').forEach(b => b.classList.remove('ativa'));
     $('modo-lote').classList.add('ativa');
     $('ordem-group').style.display = 'none';
-    $('sel-titulo').textContent = 'Adicionar tanques';
     renderDiasReplicar();
     carregarLotesEAgrupados();
     atualizarContagensSelecao();
     mostrar('tela-selecao');
   }
 
+  function voltarPlano() { mostrar('tela-plano'); }
+
+  function renderDiasReplicar() {
+    const seg = parsearData(estado.semanaInicio);
+    const html = [];
+    for (let i = 0; i < 7; i++) {
+      const d = diaDaSemana(i, seg);
+      const dataStr = fmtData(d);
+      const ativo = estado.diasSelecionados.has(dataStr) ? 'ativo' : '';
+      html.push(`<button class="dia-btn ${ativo}" onclick="toggleDiaReplicar('${dataStr}')">${DIAS_NOMES[i]}<br>${String(d.getDate()).padStart(2,'0')}</button>`);
+    }
+    $('dias-replicar').innerHTML = html.join('');
+  }
+
+  function toggleDiaReplicar(dataStr) {
+    if (estado.diasSelecionados.has(dataStr)) estado.diasSelecionados.delete(dataStr);
+    else estado.diasSelecionados.add(dataStr);
+    renderDiasReplicar();
+    atualizarContagensSelecao();
+  }
+
   function mudarModo(m) {
     estado.modoSelecao = m;
     document.querySelectorAll('.modo-btn').forEach(b => b.classList.remove('ativa'));
     $(m === 'lote' ? 'modo-lote' : 'modo-tanque').classList.add('ativa');
-    // Mostra/oculta seletor de ordem (só em modo tanque)
     $('ordem-group').style.display = (m === 'tanque') ? 'flex' : 'none';
-    // Re-renderiza a lista
     if (m === 'lote') renderListaLotes();
     else renderListaTanques();
   }
 
+  function mudarOrdem(o) {
+    estado.ordem = o;
+    document.querySelectorAll('.ordem-btn').forEach(b => b.classList.remove('ativa'));
+    $(o === 'rota' ? 'ord-rota' : 'ord-biosseg').classList.add('ativa');
+    renderListaTanques();
+  }
+
   async function carregarLotesEAgrupados() {
-    // Garante que temos os 2 dados: tanques (estado.lotes) e lotes agrupados
     if (!estado.lotes.length) {
       try {
         const r = await fetch(API_URL + '?acao=classificar_lotes&unidade=' + estado.unidade);
@@ -900,17 +748,13 @@ function formatarQuando(iso) {
 
   function renderListaLotes() {
     if (!estado.lotesAgrupados.length) {
-      $('lista-tanques').innerHTML = '<div class="loading">nenhum lote disponível</div>';
+      $('lista-tanques').innerHTML = '<div class="loading">nenhum lote</div>';
       return;
     }
-    // Ordena por idade decrescente (mais novo = menos dias primeiro)
     const ordenados = estado.lotesAgrupados.slice().sort((a,b) => {
-      const da = parseInt(a.dias_em_fase) || 999;
-      const db = parseInt(b.dias_em_fase) || 999;
-      return da - db;
+      return (parseInt(a.dias_em_fase)||999) - (parseInt(b.dias_em_fase)||999);
     });
-
-    const html = [`<div class="grupo-label">📦 ${ordenados.length} lotes · ordenados por idade (mais novos primeiro)</div>`];
+    const html = [`<div class="grupo-label">📦 ${ordenados.length} lotes · mais novos primeiro</div>`];
     ordenados.forEach(lt => html.push(loteHtml(lt)));
     $('lista-tanques').innerHTML = html.join('');
   }
@@ -921,20 +765,17 @@ function formatarQuando(iso) {
     const ico = iconGrupo(lt.grupo_pior);
     const sobrev = parseFloat(lt.sobrev_media || 0).toFixed(1);
     const nums = (lt.numeros_tanques || []).join(', ');
+    const codeEsc = lt.codigo_lote.replace(/'/g,"\\'");
     return `
-      <div class="lote-card ${sel}" onclick="toggleLote('${lt.codigo_lote.replace(/'/g,"\\'")}')">
+      <div class="lote-card ${sel}" onclick="toggleLote('${codeEsc}')">
         <div class="lote-card-header">
           <div class="check">${check}</div>
-          <span class="ico">${ico}</span>
+          <span>${ico}</span>
           <span class="codigo">${lt.codigo_lote}</span>
           <span class="dias">${lt.dias_em_fase}d</span>
         </div>
-        <div class="lote-card-info">
-          ${lt.qtd_tanques} tanque${lt.qtd_tanques===1?'':'s'} · sobrev média ${sobrev}% · ${lt.mort_soma} mortos
-        </div>
-        <div class="lote-card-tanques">
-          Tanques: ${nums}
-        </div>
+        <div class="lote-card-info">${lt.qtd_tanques} tanques · sobrev ${sobrev}%</div>
+        <div class="lote-card-tanques">Tanques: ${nums}</div>
       </div>
     `;
   }
@@ -942,77 +783,30 @@ function formatarQuando(iso) {
   function toggleLote(codigoLote) {
     if (estado.lotesSelecionados.has(codigoLote)) {
       estado.lotesSelecionados.delete(codigoLote);
-      // Remove os tanques desse lote
       const lote = estado.lotesAgrupados.find(l => l.codigo_lote === codigoLote);
-      if (lote) {
-        lote.tanques.forEach(tq => estado.selecionados.delete(tq.id_tanque));
-      }
+      if (lote) lote.tanques.forEach(tq => estado.selecionados.delete(tq.id_tanque));
     } else {
       estado.lotesSelecionados.add(codigoLote);
-      // Adiciona todos os tanques desse lote
       const lote = estado.lotesAgrupados.find(l => l.codigo_lote === codigoLote);
-      if (lote) {
-        lote.tanques.forEach(tq => estado.selecionados.add(tq.id_tanque));
-      }
+      if (lote) lote.tanques.forEach(tq => estado.selecionados.add(tq.id_tanque));
     }
     renderListaLotes();
     atualizarContagensSelecao();
   }
 
-  function voltarPlano() {
-    mostrar('tela-plano');
-  }
-
-  function renderDiasReplicar() {
-    const seg = parsearData(estado.semanaInicio);
-    const html = [];
-    for (let i = 0; i < 7; i++) {
-      const d = diaDaSemana(i, seg);
-      const dataStr = fmtData(d);
-      const ativo = estado.diasSelecionados.has(dataStr) ? 'ativo' : '';
-      html.push(`
-        <button class="dia-btn ${ativo}" onclick="toggleDiaReplicar('${dataStr}')">
-          ${DIAS_NOMES[i]}<br>${String(d.getDate()).padStart(2,'0')}
-        </button>
-      `);
-    }
-    $('dias-replicar').innerHTML = html.join('');
-  }
-
-  function toggleDiaReplicar(dataStr) {
-    if (estado.diasSelecionados.has(dataStr)) {
-      estado.diasSelecionados.delete(dataStr);
-    } else {
-      estado.diasSelecionados.add(dataStr);
-    }
-    renderDiasReplicar();
-    atualizarContagensSelecao();
-  }
-
-  function mudarOrdem(o) {
-    estado.ordem = o;
-    document.querySelectorAll('.ordem-btn').forEach(b => b.classList.remove('ativa'));
-    $(o === 'rota' ? 'ord-rota' : 'ord-biosseg').classList.add('ativa');
-    renderListaTanques();
-  }
-
   function renderListaTanques() {
     if (!estado.lotes.length) {
-      $('lista-tanques').innerHTML = '<div class="loading">nenhum lote F1 disponível</div>';
+      $('lista-tanques').innerHTML = '<div class="loading">nenhum lote</div>';
       return;
     }
-
     let ordenados;
-if (estado.ordem === 'rota') {
+    if (estado.ordem === 'rota') {
       ordenados = estado.lotes.slice().sort((a,b) => {
         const la = extrairNumLinha(a.linha_fisica);
         const lb = extrairNumLinha(b.linha_fisica);
         if (la !== lb) return la - lb;
-        const sa = parseInt(a.sequencia_linha) || 999;
-        const sb = parseInt(b.sequencia_linha) || 999;
-        return sa - sb;
+        return (parseInt(a.sequencia_linha)||999) - (parseInt(b.sequencia_linha)||999);
       });
-      // Agrupa por linha física
       const html = [];
       let linhaAtual = null;
       ordenados.forEach(lt => {
@@ -1021,11 +815,10 @@ if (estado.ordem === 'rota') {
           linhaAtual = linha;
           html.push(`<div class="grupo-label">📍 ${linha}</div>`);
         }
-        html.push(itemHtmlRota(lt));
+        html.push(itemHtml(lt));
       });
       $('lista-tanques').innerHTML = html.join('');
     } else {
-      // biosseg: saudavel → janela_viral → suspeito → viral_confirmado
       const ordem = { 'saudavel':0, 'janela_viral':1, 'suspeito':2, 'viral_confirmado':3 };
       ordenados = estado.lotes.slice().sort((a,b) => {
         const ga = ordem[a.grupo_biosseguranca] ?? 4;
@@ -1045,109 +838,63 @@ if (estado.ordem === 'rota') {
       $('lista-tanques').innerHTML = html.join('');
     }
   }
-function extrairNumLinha(linhaFisica) {
-    // ex: "L6 ILHA" → 6, "L3 ILHA" → 3
-    if (!linhaFisica) return 999;
-    const m = String(linhaFisica).match(/L(\d+)/i);
-    return m ? parseInt(m[1]) : 999;
-  }
 
-  function itemHtmlRota(lt) {
+  function itemHtml(lt) {
     const m = lt.id_tanque.match(/^(\d+)-/);
     const num = m ? m[1] : lt.id_tanque;
     const sel = estado.selecionados.has(lt.id_tanque) ? 'selecionado' : '';
     const check = estado.selecionados.has(lt.id_tanque) ? '✓' : '';
     const sobrev = parseFloat(String(lt.sobrevivencia).replace(',','.')) || 0;
-    const pos = lt.sequencia_linha ? `pos ${lt.sequencia_linha} · ` : '';
     return `
       <div class="item-selecao ${sel}" onclick="toggleTanque('${lt.id_tanque}')">
         <div class="check">${check}</div>
         <span class="ico-grp">${iconGrupo(lt.grupo_biosseguranca)}</span>
         <span class="num">${num}</span>
-        <span class="desc">${pos}${lt.dias_em_fase}d · sobrev ${sobrev.toFixed(1)}%</span>
-      </div>
-    `;
-  }
-  function itemHtml(lt) {
-    const m = lt.id_tanque.match(/^(\\d+)-/);
-    const num = m ? m[1] : lt.id_tanque;
-    const sel = estado.selecionados.has(lt.id_tanque) ? 'selecionado' : '';
-    const check = estado.selecionados.has(lt.id_tanque) ? '✓' : '';
-    const sobrev = parseFloat(String(lt.sobrevivencia).replace(',','.')) || 0;
-    return `
-      <div class="item-selecao ${sel}" onclick="toggleTanque('${lt.id_tanque}')">
-        <div class="check">${check}</div>
-        <span class="ico-grp">${iconGrupo(lt.grupo_biosseguranca)}</span>
-        <span class="num">${num}</span>
-        <span class="desc">${lt.dias_em_fase}d · sobrev ${sobrev.toFixed(1)}%</span>
+        <span class="desc">${lt.dias_em_fase}d · ${sobrev.toFixed(1)}%</span>
       </div>
     `;
   }
 
   function toggleTanque(idTanque) {
-    if (estado.selecionados.has(idTanque)) {
-      estado.selecionados.delete(idTanque);
-    } else {
-      estado.selecionados.add(idTanque);
-    }
-    renderListaTanques();
+    if (estado.selecionados.has(idTanque)) estado.selecionados.delete(idTanque);
+    else estado.selecionados.add(idTanque);
+    if (estado.modoSelecao === 'lote') renderListaLotes();
+    else renderListaTanques();
     atualizarContagensSelecao();
   }
 
- function atualizarContagensSelecao() {
+  function atualizarContagensSelecao() {
     const t = estado.selecionados.size;
     const d = estado.diasSelecionados.size;
-    const lts = estado.lotesSelecionados.size;
-    $('sel-contagem').textContent = t;
-    $('sel-dias').textContent = d;
-    $('sel-total').textContent = t * d;
-    // Se está em modo lote, mostra também quantos lotes selecionados
-    const info = document.querySelector('#tela-selecao .barra-acao div');
-    if (info && estado.modoSelecao === 'lote' && lts > 0) {
-      info.innerHTML = `<strong>${lts}</strong> lote${lts===1?'':'s'} = <strong>${t}</strong> tanques × <strong>${d}</strong> dias = <strong>${t*d}</strong> entradas`;
-    } else {
-      info.innerHTML = `<strong>${t}</strong> tanques selecionados × <strong>${d}</strong> dias = <strong>${t*d}</strong> entradas`;
-    }
+    $('info-selecao').innerHTML = `<strong>${t}</strong> tanques × <strong>${d}</strong> dias = <strong>${t*d}</strong> entradas`;
   }
 
   function confirmarSelecao() {
-    if (!estado.selecionados.size) { toast('Selecione ao menos 1 tanque', true); return; }
-    if (!estado.diasSelecionados.size) { toast('Selecione ao menos 1 dia', true); return; }
-
-    // Adiciona ao plano, evitando duplicatas
+    if (!estado.selecionados.size) { toast('Selecione tanques', true); return; }
+    if (!estado.diasSelecionados.size) { toast('Selecione dias', true); return; }
     estado.diasSelecionados.forEach(dia => {
       estado.selecionados.forEach(idTq => {
         const existe = estado.plano.find(p => p.dia === dia && p.id_tanque === idTq);
-        if (!existe) {
-          estado.plano.push({
-            dia: dia,
-            id_tanque: idTq,
-            status: 'pendente'
-          });
-        }
+        if (!existe) estado.plano.push({ dia: dia, id_tanque: idTq, status: 'pendente' });
       });
     });
-
     const total = estado.selecionados.size * estado.diasSelecionados.size;
-    toast(`${total} entradas adicionadas ao plano`);
+    toast(`${total} entradas adicionadas`);
     mostrar('tela-plano');
     renderPlano();
   }
 
   async function salvarPlano() {
-    if (estado.enviandoAgora) { toast('aguarde...', false); return; }
-
+    if (estado.enviandoAgora) return;
     estado.enviandoAgora = true;
-
     const payload = {
       acao: 'criar_plano_semana',
       unidade: estado.unidade,
-      operador: estado.unidade, // plano da unidade, não de pessoa
+      operador: estado.unidade,
       semana_inicio: estado.semanaInicio,
       criado_por: estado.funcionario.nome,
       itens: estado.plano.map(p => ({ dia: p.dia, id_tanque: p.id_tanque }))
     };
-
     try {
       await fetch(API_URL, {
         method: 'POST', mode: 'no-cors',
@@ -1162,12 +909,9 @@ function extrairNumLinha(linhaFisica) {
     }
   }
 
-  // ===== Service Worker =====
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(()=>{});
   }
-
-  // ===== Init =====
   carregarSessao();
 </script>
 
