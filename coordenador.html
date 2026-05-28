@@ -253,7 +253,66 @@
     letter-spacing: 0.5px; color: #8A99A8;
     margin: 12px 0 6px; font-weight: 600;
   }
+.modo-group {
+    display: flex; gap: 4px;
+    background: #F2F6FA; padding: 3px; border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .modo-btn {
+    flex: 1; padding: 10px;
+    background: transparent; border: none;
+    border-radius: 6px; font-size: 13px; color: #5C6B7A;
+    font-weight: 500;
+  }
+  .modo-btn.ativa {
+    background: #fff; color: #0E2A47; font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
 
+  .lote-card {
+    display: flex; flex-direction: column; gap: 6px;
+    padding: 12px; margin-bottom: 8px;
+    border: 1px solid #D6E0EA; border-radius: 10px;
+    background: #fff; font-size: 13px;
+    cursor: pointer;
+  }
+  .lote-card.selecionado {
+    border: 2px solid #0E2A47;
+    background: #D6E8F4; padding: 11px;
+  }
+  .lote-card-header {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .lote-card-header .check {
+    width: 22px; height: 22px;
+    border: 1.5px solid #B0BDC9; border-radius: 4px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: white;
+  }
+  .lote-card.selecionado .check {
+    background: #0E2A47; border-color: #0E2A47;
+  }
+  .lote-card-header .ico { font-size: 16px; }
+  .lote-card-header .codigo {
+    font-weight: 600; font-size: 14px; color: #0E2A47;
+    flex: 1;
+  }
+  .lote-card-header .dias {
+    font-size: 11px; color: #5C6B7A;
+    background: #F2F6FA;
+    padding: 2px 8px; border-radius: 999px;
+    font-weight: 500;
+  }
+  .lote-card-info {
+    font-size: 12px; color: #5C6B7A;
+    padding-left: 30px;
+  }
+  .lote-card-tanques {
+    font-size: 11px; color: #8A99A8;
+    padding-left: 30px;
+  }
+ 
   .dias-replicar {
     display: flex; gap: 4px; flex-wrap: wrap;
     background: #F2F6FA; padding: 10px;
@@ -405,7 +464,12 @@
     Adicionar tanques
   </h2>
 
-  <div class="ordem-group" style="margin-bottom:12px;">
+  <div class="modo-group">
+    <button class="modo-btn ativa" id="modo-lote" onclick="mudarModo('lote')">📦 por lote</button>
+    <button class="modo-btn" id="modo-tanque" onclick="mudarModo('tanque')">🐟 por tanque</button>
+  </div>
+
+  <div class="ordem-group" id="ordem-group" style="margin-bottom:12px; display:none;">
     <button class="ordem-btn ativa" id="ord-rota" onclick="mudarOrdem('rota')">📍 rota física</button>
     <button class="ordem-btn" id="ord-biosseg" onclick="mudarOrdem('biosseg')">🦠 biossegurança</button>
   </div>
@@ -446,6 +510,9 @@
     plano: [], // [{dia, id_tanque, ...}]
     ordem: 'rota', // 'rota' ou 'biosseg'
     selecionados: new Set(), // tanques marcados na tela de seleção
+    lotesAgrupados: [],
+    lotesSelecionados: new Set(),
+    modoSelecao: 'lote', // 'lote' ou 'tanque'
     diasSelecionados: new Set(), // dias marcados pra replicar
     diaAtivo: null, // dia da semana sendo editado (string dd/mm/aaaa)
     enviandoAgora: false
@@ -716,15 +783,111 @@ ${itens.length ? itens.map(it => {
   function abrirSelecao(dia) {
     estado.diaAtivo = dia;
     estado.selecionados = new Set();
+    estado.lotesSelecionados = new Set();
     estado.diasSelecionados = new Set([dia]);
     estado.ordem = 'rota';
+    estado.modoSelecao = 'lote';
     document.querySelectorAll('.ordem-btn').forEach(b => b.classList.remove('ativa'));
     $('ord-rota').classList.add('ativa');
+    document.querySelectorAll('.modo-btn').forEach(b => b.classList.remove('ativa'));
+    $('modo-lote').classList.add('ativa');
+    $('ordem-group').style.display = 'none';
     $('sel-titulo').textContent = 'Adicionar tanques';
     renderDiasReplicar();
-    renderListaTanques();
+    carregarLotesEAgrupados();
     atualizarContagensSelecao();
     mostrar('tela-selecao');
+  }
+
+  function mudarModo(m) {
+    estado.modoSelecao = m;
+    document.querySelectorAll('.modo-btn').forEach(b => b.classList.remove('ativa'));
+    $(m === 'lote' ? 'modo-lote' : 'modo-tanque').classList.add('ativa');
+    // Mostra/oculta seletor de ordem (só em modo tanque)
+    $('ordem-group').style.display = (m === 'tanque') ? 'flex' : 'none';
+    // Re-renderiza a lista
+    if (m === 'lote') renderListaLotes();
+    else renderListaTanques();
+  }
+
+  async function carregarLotesEAgrupados() {
+    // Garante que temos os 2 dados: tanques (estado.lotes) e lotes agrupados
+    if (!estado.lotes.length) {
+      try {
+        const r = await fetch(API_URL + '?acao=classificar_lotes&unidade=' + estado.unidade);
+        const j = await r.json();
+        estado.lotes = j.lotes || [];
+      } catch(e) {}
+    }
+    if (!estado.lotesAgrupados.length) {
+      try {
+        const r = await fetch(API_URL + '?acao=listar_lotes_agrupados&unidade=' + estado.unidade);
+        const j = await r.json();
+        estado.lotesAgrupados = j.lotes_agrupados || [];
+      } catch(e) {}
+    }
+    renderListaLotes();
+  }
+
+  function renderListaLotes() {
+    if (!estado.lotesAgrupados.length) {
+      $('lista-tanques').innerHTML = '<div class="loading">nenhum lote disponível</div>';
+      return;
+    }
+    // Ordena por idade decrescente (mais novo = menos dias primeiro)
+    const ordenados = estado.lotesAgrupados.slice().sort((a,b) => {
+      const da = parseInt(a.dias_em_fase) || 999;
+      const db = parseInt(b.dias_em_fase) || 999;
+      return da - db;
+    });
+
+    const html = [`<div class="grupo-label">📦 ${ordenados.length} lotes · ordenados por idade (mais novos primeiro)</div>`];
+    ordenados.forEach(lt => html.push(loteHtml(lt)));
+    $('lista-tanques').innerHTML = html.join('');
+  }
+
+  function loteHtml(lt) {
+    const sel = estado.lotesSelecionados.has(lt.codigo_lote) ? 'selecionado' : '';
+    const check = estado.lotesSelecionados.has(lt.codigo_lote) ? '✓' : '';
+    const ico = iconGrupo(lt.grupo_pior);
+    const sobrev = parseFloat(lt.sobrev_media || 0).toFixed(1);
+    const nums = (lt.numeros_tanques || []).join(', ');
+    return `
+      <div class="lote-card ${sel}" onclick="toggleLote('${lt.codigo_lote.replace(/'/g,"\\'")}')">
+        <div class="lote-card-header">
+          <div class="check">${check}</div>
+          <span class="ico">${ico}</span>
+          <span class="codigo">${lt.codigo_lote}</span>
+          <span class="dias">${lt.dias_em_fase}d</span>
+        </div>
+        <div class="lote-card-info">
+          ${lt.qtd_tanques} tanque${lt.qtd_tanques===1?'':'s'} · sobrev média ${sobrev}% · ${lt.mort_soma} mortos
+        </div>
+        <div class="lote-card-tanques">
+          Tanques: ${nums}
+        </div>
+      </div>
+    `;
+  }
+
+  function toggleLote(codigoLote) {
+    if (estado.lotesSelecionados.has(codigoLote)) {
+      estado.lotesSelecionados.delete(codigoLote);
+      // Remove os tanques desse lote
+      const lote = estado.lotesAgrupados.find(l => l.codigo_lote === codigoLote);
+      if (lote) {
+        lote.tanques.forEach(tq => estado.selecionados.delete(tq.id_tanque));
+      }
+    } else {
+      estado.lotesSelecionados.add(codigoLote);
+      // Adiciona todos os tanques desse lote
+      const lote = estado.lotesAgrupados.find(l => l.codigo_lote === codigoLote);
+      if (lote) {
+        lote.tanques.forEach(tq => estado.selecionados.add(tq.id_tanque));
+      }
+    }
+    renderListaLotes();
+    atualizarContagensSelecao();
   }
 
   function voltarPlano() {
@@ -862,12 +1025,20 @@ function extrairNumLinha(linhaFisica) {
     atualizarContagensSelecao();
   }
 
-  function atualizarContagensSelecao() {
+ function atualizarContagensSelecao() {
     const t = estado.selecionados.size;
     const d = estado.diasSelecionados.size;
+    const lts = estado.lotesSelecionados.size;
     $('sel-contagem').textContent = t;
     $('sel-dias').textContent = d;
     $('sel-total').textContent = t * d;
+    // Se está em modo lote, mostra também quantos lotes selecionados
+    const info = document.querySelector('#tela-selecao .barra-acao div');
+    if (info && estado.modoSelecao === 'lote' && lts > 0) {
+      info.innerHTML = `<strong>${lts}</strong> lote${lts===1?'':'s'} = <strong>${t}</strong> tanques × <strong>${d}</strong> dias = <strong>${t*d}</strong> entradas`;
+    } else {
+      info.innerHTML = `<strong>${t}</strong> tanques selecionados × <strong>${d}</strong> dias = <strong>${t*d}</strong> entradas`;
+    }
   }
 
   function confirmarSelecao() {
