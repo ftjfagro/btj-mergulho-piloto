@@ -487,8 +487,10 @@
     <button class="btn-semana" id="btn-sem-proxima" onclick="mudarSemana(1)">próxima</button>
   </div>
 
-  <div id="lbl-periodo" style="font-size:12px; color:#5C6B7A; text-align:center; margin-bottom:12px;"></div>
-
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    <div id="lbl-periodo" style="font-size:12px; color:#5C6B7A;"></div>
+    <button onclick="carregarPlano()" style="background:none; border:1px solid #D6E0EA; border-radius:6px; padding:6px 12px; font-size:12px; color:#0E2A47;">🔄 atualizar</button>
+  </div>
     <div style="background:#F2F6FA; padding:10px 12px; border-radius:8px; margin-bottom:12px; font-size:13px; color:#0E2A47;">
     📍 Plano da unidade <strong id="lbl-unidade">ILHA</strong> · disponível pra toda a equipe
   </div>
@@ -632,20 +634,10 @@
     estado.semanaOffset = 0;
     estado.operador = estado.unidade;
     $('lbl-unidade').textContent = estado.unidade;
-    estado.lotes = []; // limpa cache pra puxar dados frescos
+    estado.lotes = [];
     atualizarBotoesSemana();
     carregarPlano();
-    iniciarAutoRefresh();
-  }
-
-  function iniciarAutoRefresh() {
-    if (estado.refreshInterval) clearInterval(estado.refreshInterval);
-    // A cada 30s, refaz o carregamento se a tela do plano estiver visível
-    estado.refreshInterval = setInterval(() => {
-      if ($('tela-plano').style.display !== 'none' && estado.operador) {
-        carregarPlano();
-      }
-    }, 30000);
+    // Auto-refresh desabilitado por enquanto - use o botão "atualizar"
   }
   function irPraCampo() { window.location.href = 'index.html?modo=operador'; }
   function sair() {
@@ -731,22 +723,26 @@
 
 
   async function carregarPlano() {
-    $('plano-conteudo').innerHTML = '<div class="loading"><span class="spinner"></span>carregando plano...</div>';
+    $('plano-conteudo').innerHTML = '<div class="loading"><span class="spinner"></span>carregando plano...<br><span style="font-size:11px;color:#8A99A8;">isso pode demorar alguns segundos</span></div>';
     $('plano-rodape').style.display = 'none';
     try {
-      // Carrega plano atual da semana
-      const r = await fetch(API_URL + '?acao=plano_semana&operador=' + encodeURIComponent(estado.operador) + '&semana_inicio=' + encodeURIComponent(estado.semanaInicio));
-      const j = await r.json();
-      estado.plano = j.plano || [];
-      // Carrega lotes classificados pra mostrar contexto
+      const urlPlano = API_URL + '?acao=plano_semana&operador=' + encodeURIComponent(estado.operador) + '&semana_inicio=' + encodeURIComponent(estado.semanaInicio);
+      const urlLotes = API_URL + '?acao=classificar_lotes&unidade=' + estado.unidade;
+
+      // Chamadas em paralelo (mais rápido)
+      const promessas = [fetch(urlPlano).then(r => r.json())];
       if (!estado.lotes.length) {
-        const r2 = await fetch(API_URL + '?acao=classificar_lotes&unidade=' + estado.unidade);
-        const j2 = await r2.json();
-        estado.lotes = j2.lotes || [];
+        promessas.push(fetch(urlLotes).then(r => r.json()));
       }
-      renderPlano();
+      const resultados = await Promise.all(promessas);
+
+      estado.plano = resultados[0].plano || [];
+      if (resultados[1]) estado.lotes = resultados[1].lotes || [];
+
+      // Dá um respiro pro iPhone antes de renderizar (evita travar)
+      setTimeout(() => renderPlano(), 50);
     } catch(e) {
-      $('plano-conteudo').innerHTML = '<div class="loading">erro ao carregar</div>';
+      $('plano-conteudo').innerHTML = '<div class="loading">erro ao carregar - <a href="javascript:carregarPlano()" style="color:#3FA0D6;">tentar de novo</a></div>';
     }
   }
 
