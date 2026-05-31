@@ -268,6 +268,21 @@
     text-align: center; padding: 4px;
     margin-top: -4px;
   }
+ .secao-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .secao-header:active {
+    opacity: 0.85;
+  }
 </style>
 </head>
 <body>
@@ -476,6 +491,8 @@
     mergulhador: null,
     planoHoje: [],
     planoSemana: [],
+    planoPendentes: [],
+    secoesAbertas: { pendentes: true, hoje: true, semana: false },
     funcionarios: [],
     lotes: [],
     tanqueAtivo: null,
@@ -752,19 +769,45 @@ async function atualizarTudo() {
     }
   }
  
-  async function carregarPlanoOperador() {
+async function carregarPlanoOperador() {
     try {
       const semana = segundaDaSemanaFmt();
-      const r = await fetch(API_URL + '?acao=plano_semana&operador=' + encodeURIComponent(estado.unidade) + '&semana_inicio=' + encodeURIComponent(semana));
-      const j = await r.json();
-      const todos = j.plano || [];
       const hoje = dataHojeBR();
-      estado.planoHoje = todos.filter(p => p.dia === hoje);
-      estado.planoSemana = todos.filter(p => p.dia !== hoje);
+
+      // 2 chamadas em paralelo: plano da semana + pendentes anteriores
+      const [respSemana, respPendentes] = await Promise.all([
+        fetch(API_URL + '?acao=plano_semana&operador=' + encodeURIComponent(estado.unidade) + '&semana_inicio=' + encodeURIComponent(semana)).then(r => r.json()),
+        fetch(API_URL + '?acao=plano_pendentes&unidade=' + encodeURIComponent(estado.unidade)).then(r => r.json())
+      ]);
+
+      const todos = respSemana.plano || [];
+      const pendentes = respPendentes.pendentes || [];
+
+      // PENDENTES (atraso): vêm direto da API
+      estado.planoPendentes = pendentes;
+
+      // HOJE e SEMANA: da semana atual, separa por dia
+      estado.planoHoje = todos.filter(p => p.dia === hoje && String(p.status||'').toLowerCase() !== 'visitado');
+      estado.planoSemana = todos.filter(p => {
+        if (p.dia === hoje) return false;
+        // Só dias FUTUROS desta semana (anteriores viraram pendentes da API)
+        const dDate = parsearDataBR(p.dia);
+        const hojeDate = parsearDataBR(hoje);
+        if (!dDate || !hojeDate) return false;
+        return dDate.getTime() > hojeDate.getTime();
+      });
     } catch(e) {
+      estado.planoPendentes = [];
       estado.planoHoje = [];
       estado.planoSemana = [];
     }
+  }
+
+  function parsearDataBR(s) {
+    if (!s) return null;
+    const p = String(s).split('/');
+    if (p.length !== 3) return null;
+    return new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
   }
   async function carregarLotes() {
     const chave = 'lotes_' + estado.unidade;
@@ -795,9 +838,10 @@ async function atualizarTudo() {
     }
   }
 
+ 
 function renderPlano(quandoAtualizado) {
     if (!estado.lotes.length) {
-      $('merg-conteudo').innerHTML = '<div class="loading">Nenhum lote F1 encontrado para ' + estado.unidade + '.</div>';
+      $('merg-conteudo').innerHTML = '<div class="loading">Nenhum lote encontrado para ' + estado.unidade + '.</div>';
       return;
     }
 
@@ -811,32 +855,99 @@ function renderPlano(quandoAtualizado) {
       `<div class="cache-info">dados atualizados ${quandoAtualizado}</div>` : '';
 
     const html = [];
+    const pendentes = estado.planoPendentes || [];
+    const planoHoje = estado.planoHoje || [];
+    const planoSemana = estado.planoSemana || [];
 
-    // ===== SE TEM PLANO PRA HOJE, MOSTRAR EM DESTAQUE =====
-    if (estado.planoHoje && estado.planoHoje.length) {
-      const idsHoje = estado.planoHoje.map(p => p.id_tanque);
-      const lotesHoje = lotes.filter(lt => idsHoje.includes(lt.id_tanque));
-      html.push(`<p class="label" style="color:#0E2A47; font-weight:600;">📋 plano de hoje · ${lotesHoje.length} tanques</p>`);
-      lotesHoje.forEach(lt => html.push(renderItemLote(lt, true)));
+    // ===== SEÇÃO: EM ATRASO =====
+    if (pendentes.length) {
+      const aberto = estado.secoesAbertas.pendentes;
+      html.push(`
+        <div class="secao-header" onclick="toggleSecao('pendentes')" style="background:#FBE9E5; border-left:4px solid #B23A2A;">
+          <span style="color:#B23A2A; font-weight:700;">🔴 EM ATRASO · ${pendentes.length} tanque${pendentes.length>1?'s':''}</span>
+          <span style="color:#B23A2A; font-size:18px;">${aberto?'▼':'▶'}</span>
+        </div>
+      `);
+      if (aberto) {
+        pendentes.forEach(p => {
+          const lt = lotes.find(l => l.id_tanque === p.id_tanque);
+          if (lt) html.push(renderItemLote(lt, true, 'atraso', p.dias_atras));
+        });
+      }
     }
 
-    // ===== TODOS OS LOTES F1 (com plano de hoje marcado) =====
-    const titulo = (estado.planoHoje && estado.planoHoje.length)
-      ? `todos os lotes F1 · ${lotes.length} tanques`
-      : `lotes F1 ativos · ${lotes.length} tanques · ordenado por sobrevivência`;
+    // ===== SEÇÃO: PLANO DE HOJE =====
+    if (planoHoje.length) {
+      const aberto = estado.secoesAbertas.hoje;
+      html.push(`
+        <div class="secao-header" onclick="toggleSecao('hoje')" style="background:#D6E8F4; border-left:4px solid #0E2A47; margin-top:${pendentes.length?'12px':'0'};">
+          <span style="color:#0E2A47; font-weight:700;">📋 plano de hoje · ${planoHoje.length} tanque${planoHoje.length>1?'s':''}</span>
+          <span style="color:#0E2A47; font-size:18px;">${aberto?'▼':'▶'}</span>
+        </div>
+      `);
+      if (aberto) {
+        const idsHoje = planoHoje.map(p => p.id_tanque);
+        const lotesHoje = lotes.filter(lt => idsHoje.includes(lt.id_tanque));
+        lotesHoje.forEach(lt => html.push(renderItemLote(lt, true, 'hoje')));
+      }
+    }
+
+    // ===== SEÇÃO: PRÓXIMOS DIAS =====
+    if (planoSemana.length) {
+      const aberto = estado.secoesAbertas.semana;
+      html.push(`
+        <div class="secao-header" onclick="toggleSecao('semana')" style="background:#FBF5E5; border-left:4px solid #BA7517; margin-top:12px;">
+          <span style="color:#7A4E10; font-weight:700;">📅 próximos dias · ${planoSemana.length} tanque${planoSemana.length>1?'s':''}</span>
+          <span style="color:#7A4E10; font-size:18px;">${aberto?'▼':'▶'}</span>
+        </div>
+      `);
+      if (aberto) {
+        const porDia = {};
+        planoSemana.forEach(p => {
+          if (!porDia[p.dia]) porDia[p.dia] = [];
+          porDia[p.dia].push(p.id_tanque);
+        });
+        const diasOrdenados = Object.keys(porDia).sort((a,b) => {
+          const da = parsearDataBR(a), db = parsearDataBR(b);
+          return da.getTime() - db.getTime();
+        });
+        diasOrdenados.forEach(dia => {
+          const idsD = porDia[dia];
+          const lotesD = lotes.filter(lt => idsD.includes(lt.id_tanque));
+          const dDate = parsearDataBR(dia);
+          const diaNome = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'][dDate.getDay()];
+          html.push(`<div style="font-size:11px; color:#7A4E10; margin:8px 4px 4px; font-weight:600;">${diaNome} ${dia.substring(0,5)} · ${lotesD.length}</div>`);
+          lotesD.forEach(lt => html.push(renderItemLote(lt, true, 'futuro')));
+        });
+      }
+    }
+
+    // ===== TODOS OS LOTES =====
+    const titulo = (pendentes.length || planoHoje.length || planoSemana.length)
+      ? `todos os lotes · ${lotes.length} tanques`
+      : `lotes ativos · ${lotes.length} tanques · ordenado por sobrevivência`;
     html.push(`<p class="label" style="margin-top:16px;">${titulo}</p>`);
     html.push(cacheLabel);
 
-    const idsPlanoHoje = (estado.planoHoje || []).map(p => p.id_tanque);
+    const idsPlano = [
+      ...pendentes.map(p => p.id_tanque),
+      ...planoHoje.map(p => p.id_tanque),
+      ...planoSemana.map(p => p.id_tanque)
+    ];
     lotes.forEach(lt => {
-      const noPlano = idsPlanoHoje.includes(lt.id_tanque);
+      const noPlano = idsPlano.includes(lt.id_tanque);
       html.push(renderItemLote(lt, noPlano));
     });
 
     $('merg-conteudo').innerHTML = html.join('');
   }
 
-  function renderItemLote(lt, destacarPlano) {
+  function toggleSecao(nome) {
+    estado.secoesAbertas[nome] = !estado.secoesAbertas[nome];
+    renderPlano();
+  }
+
+  function renderItemLote(lt, destacarPlano, tipoSecao, diasAtras) {
     const sobrev = parseFloat(String(lt.sobrevivencia).replace(',','.')) || 0;
     const mort = parseInt(lt.mortalidade) || 0;
     let cls = 'baixo', ico = '🟢';
@@ -848,17 +959,16 @@ function renderPlano(quandoAtualizado) {
     const num = numTanque ? numTanque[1] : lt.id_tanque;
     const info = `${lt.codigo_lote} · ${lt.dias_em_fase}d · sobrev ${sobrev.toFixed(1)}% · ${mort} mortos`;
 
-    // Verifica se já foi visitado hoje
     const planoItem = (estado.planoHoje || []).find(p => p.id_tanque === lt.id_tanque);
     const jaVisitado = planoItem && planoItem.status === 'visitado';
 
     let tagPlano = '';
     if (destacarPlano) {
-      if (jaVisitado) {
-        tagPlano = '<span style="font-size:10px; background:#5DCAA5; color:white; padding:2px 6px; border-radius:999px; margin-left:6px;">✓ VISITADO</span>';
-      } else {
-        tagPlano = '<span style="font-size:10px; background:#0E2A47; color:white; padding:2px 6px; border-radius:999px; margin-left:6px;">PLANO</span>';
-      }
+      let cor = '#0E2A47', txt = 'PLANO';
+      if (tipoSecao === 'atraso') { cor = '#B23A2A'; txt = `${diasAtras}d atrasado`; }
+      else if (tipoSecao === 'futuro') { cor = '#BA7517'; txt = 'FUTURO'; }
+      if (jaVisitado) { cor = '#2E7D5B'; txt = '✓ VISITADO'; }
+      tagPlano = `<span style="font-size:10px; background:${cor}; color:white; padding:2px 6px; border-radius:999px; margin-left:6px; white-space:nowrap;">${txt}</span>`;
     }
 
     const opacidade = jaVisitado ? 'opacity:0.55;' : '';
