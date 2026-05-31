@@ -314,6 +314,7 @@
       <div style="display:flex; gap:6px;">
        <span id="badge-pendentes" class="pill pill-offline" style="display:none;">0 pendentes</span>
         <span id="hdr-net" class="pill pill-online">online</span>
+        <button class="btn-link" id="btn-refresh" onclick="atualizarTudo()" title="Atualizar plano e lotes">🔄</button>
         <button class="btn-link" onclick="goLogin()">sair</button>
       </div>
     </div>
@@ -724,7 +725,33 @@ function entrarComoFuncionario() {
            String(seg.getMonth()+1).padStart(2,'0') + '/' +
            seg.getFullYear();
   }
-
+ 
+async function atualizarTudo() {
+    const btn = $('btn-refresh');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = '⏳';
+    }
+    try {
+      // Re-carrega plano e lotes em paralelo
+      const tarefas = [carregarPlanoOperador()];
+      if (typeof carregarLotes === 'function') {
+        tarefas.push(carregarLotes());
+      }
+      await Promise.all(tarefas);
+      // Re-renderiza
+      if ($('tela-merg').style.display !== 'none') renderPlano();
+      toast('atualizado');
+    } catch(e) {
+      toast('erro ao atualizar', true);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = '🔄';
+      }
+    }
+  }
+ 
   async function carregarPlanoOperador() {
     try {
       const semana = segundaDaSemanaFmt();
