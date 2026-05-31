@@ -742,6 +742,17 @@ function entrarComoFuncionario() {
            String(seg.getMonth()+1).padStart(2,'0') + '/' +
            seg.getFullYear();
   }
+ function proximaSegundaFmt() {
+    const d = new Date();
+    const dia = d.getDay();
+    // próxima segunda: se hoje é domingo, +1 dia; senão, +(8 - dia)
+    const diff = dia === 0 ? 1 : 8 - dia;
+    const seg = new Date(d);
+    seg.setDate(d.getDate() + diff);
+    return String(seg.getDate()).padStart(2,'0') + '/' +
+           String(seg.getMonth()+1).padStart(2,'0') + '/' +
+           seg.getFullYear();
+  }
  
 async function atualizarTudo() {
     const btn = $('btn-refresh');
@@ -771,16 +782,18 @@ async function atualizarTudo() {
  
 async function carregarPlanoOperador() {
     try {
-      const semana = segundaDaSemanaFmt();
+      const semanaAtual = segundaDaSemanaFmt();
+      const semanaProxima = proximaSegundaFmt();
       const hoje = dataHojeBR();
 
-      // 2 chamadas em paralelo: plano da semana + pendentes anteriores
-      const [respSemana, respPendentes] = await Promise.all([
-        fetch(API_URL + '?acao=plano_semana&operador=' + encodeURIComponent(estado.unidade) + '&semana_inicio=' + encodeURIComponent(semana)).then(r => r.json()),
+      // 3 chamadas em paralelo: semana atual + próxima semana + pendentes
+      const [respAtual, respProxima, respPendentes] = await Promise.all([
+        fetch(API_URL + '?acao=plano_semana&operador=' + encodeURIComponent(estado.unidade) + '&semana_inicio=' + encodeURIComponent(semanaAtual)).then(r => r.json()),
+        fetch(API_URL + '?acao=plano_semana&operador=' + encodeURIComponent(estado.unidade) + '&semana_inicio=' + encodeURIComponent(semanaProxima)).then(r => r.json()),
         fetch(API_URL + '?acao=plano_pendentes&unidade=' + encodeURIComponent(estado.unidade)).then(r => r.json())
       ]);
 
-      const todos = respSemana.plano || [];
+      const todos = [...(respAtual.plano || []), ...(respProxima.plano || [])];
       const pendentes = respPendentes.pendentes || [];
 
       // PENDENTES (atraso): vêm direto da API
