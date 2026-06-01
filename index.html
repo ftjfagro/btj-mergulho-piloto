@@ -1015,18 +1015,28 @@ async function carregarPlanoOperador() {
     const html = ['<div style="min-width:600px;">'];
 
     pares.forEach((par, idx) => {
-      if (idx === 0) {
+     
+if (idx === 0) {
+        // L6 atravessa horizontalmente, dividida em 2 partes (esq + dir)
+        // Pra simular isso, mostra TODOS tanques de L6 numa linha que atravessa o lagoão 403
+        const todosL6 = porLinha['L6'] || [];
+        const metade = Math.ceil(todosL6.length / 2);
+        const l6Esq = todosL6.slice(0, metade);
+        const l6Dir = todosL6.slice(metade);
+
         html.push(`
           <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
-            <div style="font-size:11px; color:#5C6B7A; font-weight:600; min-width:36px; text-align:right;">L6</div>
-            <div style="flex:1; display:flex; flex-wrap:nowrap; gap:2px; padding:4px; background:#F8FAFC; border-radius:6px;">
-              ${renderTanquesDaLinha(porLinha['L6'] || [])}
+            <div style="flex:1; display:flex; flex-wrap:nowrap; justify-content:flex-end; gap:2px; padding:4px; background:#F8FAFC; border-radius:6px;">
+              ${renderTanquesDaLinha(l6Esq)}
             </div>
-          </div>
-        `);
-        html.push(`
-          <div style="display:flex; justify-content:center; margin:6px 0;">
-            ${par.lagoao ? renderLagoaoCard(par.lagoao, porLinha['LG'] || []) : ''}
+            <div style="font-size:11px; color:#5C6B7A; font-weight:600; min-width:30px; text-align:center;">L6</div>
+            <div style="min-width:36px; display:flex; justify-content:center;">
+              ${renderLagoaoCard('403', porLinha['LG'] || [])}
+            </div>
+            <div style="font-size:11px; color:#5C6B7A; font-weight:600; min-width:30px; text-align:center;">L6</div>
+            <div style="flex:1; display:flex; flex-wrap:nowrap; gap:2px; padding:4px; background:#F8FAFC; border-radius:6px;">
+              ${renderTanquesDaLinha(l6Dir)}
+            </div>
           </div>
         `);
         return;
