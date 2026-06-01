@@ -1173,9 +1173,16 @@ const todosPlanosVisiveis = [
 ];
 const planoItem = todosPlanosVisiveis.find(p => p.id_tanque === lote.id_tanque);
 const idPlano = planoItem ? planoItem.id_plano : '';
+const diaPlanejado = planoItem ? planoItem.dia : '';
+const semanaPlanejada = planoItem ? planoItem.semana_inicio : '';
+];
+const planoItem = todosPlanosVisiveis.find(p => p.id_tanque === lote.id_tanque);
+const idPlano = planoItem ? planoItem.id_plano : '';
     return {
       acao: 'registrar_mergulho',
       id_plano: idPlano,
+      dia_planejado: diaPlanejado,
+      semana_planejada: semanaPlanejada,
       id_tanque: lote.id_tanque,
       id_lote: lote.id_lote,
       apontador: estado.funcionario.nome,
@@ -1264,8 +1271,8 @@ async function enviar(payload) {
     const body = {
       acao: 'marcar_visitado',
       operador: estado.unidade,
-      semana_inicio: segundaDaSemanaFmt(),
-      dia: payload.data,
+      semana_inicio: payload.semana_planejada || segundaDaSemanaFmt(),
+      dia: payload.dia_planejado || payload.data,
       id_tanque: payload.id_tanque,
       id_mergulho: payload.id_local || ''
     };
