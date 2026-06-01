@@ -492,6 +492,8 @@
     planoHoje: [],
     planoSemana: [],
     planoPendentes: [],
+    todosTanques: [],
+    buscaTexto: '',
     secoesAbertas: { pendentes: true, hoje: true, semana: false },
     funcionarios: [],
     lotes: [],
@@ -761,13 +763,11 @@ async function atualizarTudo() {
       btn.textContent = '⏳';
     }
     try {
-      // Re-carrega plano e lotes em paralelo
-      const tarefas = [carregarPlanoOperador()];
+      const tarefas = [carregarPlanoOperador(), carregarTodosTanques()];
       if (typeof carregarLotes === 'function') {
         tarefas.push(carregarLotes());
       }
       await Promise.all(tarefas);
-      // Re-renderiza
       if ($('tela-merg').style.display !== 'none') renderPlano();
       toast('atualizado');
     } catch(e) {
@@ -778,6 +778,43 @@ async function atualizarTudo() {
         btn.textContent = '🔄';
       }
     }
+  }
+ 
+ async function carregarTodosTanques() {
+    try {
+      const r = await fetch(API_URL + '?acao=listar_todos_tanques&unidade=' + encodeURIComponent(estado.unidade));
+      const j = await r.json();
+      estado.todosTanques = j.tanques || [];
+    } catch(e) {
+      estado.todosTanques = [];
+    }
+  }
+
+  function traduzirFase(fase) {
+    const f = String(fase || '').trim();
+    if (f === 'F1') return 'F1 - Recria';
+    if (f === 'F3') return 'F3 - Engorda';
+    if (f.toUpperCase().includes('F4')) return 'F4 - Ciclo Direto';
+    if (!f || f === 'Sem categoria') return 'Sem categoria';
+    return f;
+  }
+
+  function filtrarTanques(texto) {
+    const q = String(texto || '').trim().toLowerCase();
+    if (!q) return [];
+    return estado.todosTanques.filter(t => {
+      const numTanque = (t.id_tanque || '').match(/^(\d+)-/);
+      const num = numTanque ? numTanque[1] : '';
+      const campos = [
+        num,
+        t.id_tanque,
+        t.codigo_lote,
+        t.fase,
+        t.produto_origem,
+        t.fornecedor
+      ].map(x => String(x || '').toLowerCase()).join(' ');
+      return campos.includes(q);
+    }).slice(0, 20); // máximo 20 resultados
   }
  
 async function carregarPlanoOperador() {
@@ -934,7 +971,24 @@ function renderPlano(quandoAtualizado) {
         });
       }
     }
-
+ 
+// ===== SEÇÃO: BUSCA DE TANQUES =====
+    html.push(`
+      <div style="margin-top:20px; padding:14px; background:#F7F9FC; border-radius:10px; border:1px solid #D6E0EA;">
+        <div style="font-size:13px; font-weight:700; color:#0E2A47; margin-bottom:8px;">🔍 buscar tanque</div>
+        <input
+          type="text"
+          id="busca-input"
+          value="${estado.buscaTexto || ''}"
+          placeholder="digite número, lote, fornecedor..."
+          oninput="onBuscaInput(this.value)"
+          autocomplete="off"
+          style="width:100%; padding:10px 12px; font-size:15px; border:1px solid #D6E0EA; border-radius:8px; box-sizing:border-box;"
+        >
+        <div id="busca-resultados" style="margin-top:8px;"></div>
+      </div>
+    `);
+ 
     // ===== TODOS OS LOTES =====
     const titulo = (pendentes.length || planoHoje.length || planoSemana.length)
       ? `todos os lotes · ${lotes.length} tanques`
@@ -955,6 +1009,47 @@ function renderPlano(quandoAtualizado) {
     $('merg-conteudo').innerHTML = html.join('');
   }
 
+ function onBuscaInput(texto) {
+    estado.buscaTexto = texto;
+    const resultados = filtrarTanques(texto);
+    const div = $('busca-resultados');
+    if (!div) return;
+    if (!texto || !texto.trim()) {
+      div.innerHTML = '';
+      return;
+    }
+    if (!resultados.length) {
+      div.innerHTML = '<div style="font-size:12px; color:#5C6B7A; padding:8px;">nenhum tanque encontrado</div>';
+      return;
+    }
+    const lotes = resultados.map(t => {
+      const sobrev = parseFloat(String(t.sobrevivencia).replace(',','.')) || 0;
+      const mort = parseInt(t.mortalidade) || 0;
+      let cls = 'baixo', ico = '🟢';
+      if (sobrev < 70) { cls = 'critico'; ico = '🔴'; }
+      else if (sobrev < 85) { cls = 'alto'; ico = '⚠️'; }
+      else if (sobrev < 92) { cls = 'medio'; ico = '🟡'; }
+
+      const numTanque = (t.id_tanque || '').match(/^(\d+)-/);
+      const num = numTanque ? numTanque[1] : t.id_tanque;
+      const faseTraduzida = traduzirFase(t.fase);
+      const info = `${t.codigo_lote || ''} · ${t.dias_em_fase}d · sobrev ${sobrev.toFixed(1)}% · ${mort} mortos`;
+
+      return `
+        <div class="lista-tanque ${cls}" onclick='abrirTanque(${JSON.stringify(t).replace(/'/g,"&#39;")})'>
+          <div class="lt-icone">${ico}</div>
+          <div class="lt-corpo">
+            <div class="lt-nome">${num} · ${faseTraduzida}</div>
+            <div class="lt-info">${info}</div>
+          </div>
+          <div class="lt-seta">›</div>
+        </div>
+      `;
+    }).join('');
+
+    div.innerHTML = `<div style="font-size:11px; color:#5C6B7A; margin-bottom:4px;">${resultados.length} resultado${resultados.length>1?'s':''}</div>` + lotes;
+  }
+ 
   function toggleSecao(nome) {
     estado.secoesAbertas[nome] = !estado.secoesAbertas[nome];
     renderPlano();
