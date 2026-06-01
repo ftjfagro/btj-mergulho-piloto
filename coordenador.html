@@ -505,6 +505,49 @@
     if (g === 'suspeito') return 'suspeito';
     return 'saudável';
   }
+
+// ===== Rota física da ILHA (zigue-zague entre os 2 lados do reservatório) =====
+  const ORDEM_ROTA_ILHA = ['L6','L5','L7','L8','L4','L3','L9','L10','L2','L11','L1','LG'];
+  const DIRECAO_LINHA_ILHA = {
+    'L6':  true,
+    'L5':  false,
+    'L7':  false,
+    'L8':  true,
+    'L4':  true,
+    'L3':  false,
+    'L9':  false,
+    'L10': true,
+    'L2':  false,
+    'L11': true,
+    'L1':  true,
+    'LG':  true
+  };
+
+  function codigoLinhaCurto(linhaFisica) {
+    if (!linhaFisica) return null;
+    const m = String(linhaFisica).match(/^(L\d+|LG)/i);
+    return m ? m[1].toUpperCase() : null;
+  }
+
+  function ordemDaLinhaRota(linhaFisica) {
+    if (estado.unidade !== 'ILHA') {
+     
+      // Para STC e SUD, ainda não definimos rota - usa alfabética como antes
+      return extrairNumLinha(linhaFisica);
+    }
+    const cod = codigoLinhaCurto(linhaFisica);
+    if (!cod) return 999;
+    const idx = ORDEM_ROTA_ILHA.indexOf(cod);
+    return idx >= 0 ? idx : 998;
+  }
+
+  function direcaoDaLinhaRota(linhaFisica) {
+    if (estado.unidade !== 'ILHA') return true;
+    const cod = codigoLinhaCurto(linhaFisica);
+    if (!cod) return true;
+    return DIRECAO_LINHA_ILHA[cod] !== false;
+  }
+ 
   function extrairNumLinha(linhaFisica) {
     if (!linhaFisica) return 999;
     const m = String(linhaFisica).match(/L(\d+)/i);
@@ -765,10 +808,14 @@
     let ordenados;
     if (estado.ordem === 'rota') {
       ordenados = estado.lotes.slice().sort((a,b) => {
-        const la = extrairNumLinha(a.linha_fisica);
-        const lb = extrairNumLinha(b.linha_fisica);
-        if (la !== lb) return la - lb;
-        return (parseInt(a.sequencia_linha)||999) - (parseInt(b.sequencia_linha)||999);
+        const ordemA = ordemDaLinhaRota(a.linha_fisica);
+        const ordemB = ordemDaLinhaRota(b.linha_fisica);
+        if (ordemA !== ordemB) return ordemA - ordemB;
+        // mesma linha: aplica direção
+        const seqA = parseFloat(String(a.sequencia_linha||'0').replace(',','.')) || 999;
+        const seqB = parseFloat(String(b.sequencia_linha||'0').replace(',','.')) || 999;
+        const direcao = direcaoDaLinhaRota(a.linha_fisica);
+        return direcao ? (seqA - seqB) : (seqB - seqA);
       });
       const html = [];
       let linhaAtual = null;
