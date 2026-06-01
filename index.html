@@ -1192,13 +1192,21 @@ async function carregarPlanoOperador() {
       tagPlano = `<span style="font-size:10px; background:${cor}; color:white; padding:2px 6px; border-radius:999px; margin-left:6px; white-space:nowrap;">${txt}</span>`;
     }
 
+   // Tag de localização (linha · posição)
+    let tagLocalizacao = '';
+    const codLinha = (lt.linha_fisica || '').match(/^(L\d+|LG)/i);
+    if (codLinha) {
+      const seqRaw = parseFloat(String(lt.sequencia_linha||'0').replace(',','.')) || 0;
+      const seqTxt = seqRaw > 0 ? `·${Math.round(seqRaw)}` : '';
+      tagLocalizacao = `<span style="font-size:10px; background:#5C6B7A; color:white; padding:2px 6px; border-radius:999px; margin-left:6px; white-space:nowrap;">📍${codLinha[1].toUpperCase()}${seqTxt}</span>`;
+    }
     const opacidade = jaVisitado ? 'opacity:0.55;' : '';
 
     return `
       <div class="lista-tanque ${cls}" style="${opacidade}" onclick='abrirTanque(${JSON.stringify(lt).replace(/'/g,"&#39;")})'>
         <div class="lt-icone">${ico}</div>
         <div class="lt-corpo">
-          <div class="lt-nome">${num} · ${lt.fase || ''} · ${lt.produto_origem || ''} ${tagPlano}</div>
+          <div class="lt-nome">${num} · ${lt.fase || ''} · ${lt.produto_origem || ''} ${tagLocalizacao}${tagPlano}</div>
           <div class="lt-info">${info}</div>
         </div>
         <div class="lt-seta">›</div>
