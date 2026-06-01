@@ -1175,10 +1175,8 @@ const planoItem = todosPlanosVisiveis.find(p => p.id_tanque === lote.id_tanque);
 const idPlano = planoItem ? planoItem.id_plano : '';
 const diaPlanejado = planoItem ? planoItem.dia : '';
 const semanaPlanejada = planoItem ? planoItem.semana_inicio : '';
-];
-const planoItem = todosPlanosVisiveis.find(p => p.id_tanque === lote.id_tanque);
-const idPlano = planoItem ? planoItem.id_plano : '';
-    return {
+
+ return {
       acao: 'registrar_mergulho',
       id_plano: idPlano,
       dia_planejado: diaPlanejado,
