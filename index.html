@@ -782,12 +782,17 @@ async function atualizarTudo() {
   }
  
  async function carregarTodosTanques() {
+    estado.todosTanquesCarregando = true;
     try {
       const r = await fetch(API_URL + '?acao=listar_todos_tanques&unidade=' + encodeURIComponent(estado.unidade));
       const j = await r.json();
       estado.todosTanques = j.tanques || [];
     } catch(e) {
       estado.todosTanques = [];
+    } finally {
+      estado.todosTanquesCarregando = false;
+      // Se já tem texto digitado, re-filtra
+      if (estado.buscaTexto) onBuscaInput(estado.buscaTexto);
     }
   }
 
@@ -1012,13 +1017,18 @@ function renderPlano(quandoAtualizado) {
 
  function onBuscaInput(texto) {
     estado.buscaTexto = texto;
-    const resultados = filtrarTanques(texto);
     const div = $('busca-resultados');
     if (!div) return;
     if (!texto || !texto.trim()) {
       div.innerHTML = '';
       return;
     }
+    // Se ainda está carregando, mostra status
+    if (estado.todosTanquesCarregando || !estado.todosTanques.length) {
+      div.innerHTML = '<div style="font-size:12px; color:#5C6B7A; padding:8px;">⏳ carregando tanques... aguarde</div>';
+      return;
+    }
+    const resultados = filtrarTanques(texto);
     if (!resultados.length) {
       div.innerHTML = '<div style="font-size:12px; color:#5C6B7A; padding:8px;">nenhum tanque encontrado</div>';
       return;
