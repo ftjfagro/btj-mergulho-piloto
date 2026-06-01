@@ -330,6 +330,7 @@
        <span id="badge-pendentes" class="pill pill-offline" style="display:none;">0 pendentes</span>
         <span id="hdr-net" class="pill pill-online">online</span>
         <button class="btn-link" id="btn-refresh" onclick="atualizarTudo()" title="Atualizar plano e lotes">🔄</button>
+        <button class="btn-link" onclick="goCroqui()" title="Ver croqui da unidade">🗺️</button>
         <button class="btn-link" onclick="goLogin()">sair</button>
       </div>
     </div>
@@ -386,6 +387,27 @@
   </button>
 </div>
 
+<!-- ===== TELA CROQUI ===== -->
+<div id="tela-croqui" style="display:none;">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+    <button class="btn-link" onclick="goMerg()">‹ voltar</button>
+    <strong style="font-size:16px;">🗺️ Croqui · <span id="croqui-unidade">ILHA</span></strong>
+    <button class="btn-link" onclick="renderCroqui()" title="Atualizar">🔄</button>
+  </div>
+
+  <div style="background:#F2F6FA; padding:8px 12px; border-radius:8px; margin-bottom:10px; font-size:11px; color:#5C6B7A;">
+    Toque num tanque pra ver detalhes. Cores: 🟢 saudável · 🟡 atenção · ⚠️ alerta · 🔴 crítico
+  </div>
+
+  <div id="croqui-conteudo" style="overflow-x:auto; padding:8px 0;">
+    <div class="loading"><span class="spinner"></span> carregando...</div>
+  </div>
+
+  <div id="croqui-tooltip" style="position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:#0E2A47; color:white; padding:10px 16px; border-radius:10px; font-size:13px; box-shadow:0 4px 12px rgba(0,0,0,0.2); display:none; z-index:1000; max-width:90%; text-align:center;">
+    <div id="croqui-tooltip-conteudo"></div>
+  </div>
+</div>
+ 
 <!-- TELA 4: COLETA -->
 <div id="tela-coleta" style="display:none;">
   <button class="voltar" onclick="goRegistro()">voltar</button>
@@ -586,7 +608,7 @@
   }
 
   // ===== Navegação =====
-  const telas = ['tela-login','tela-merg','tela-registro','tela-coleta'];
+  const telas = ['tela-login','tela-merg','tela-croqui','tela-registro','tela-coleta'];
   function mostrar(id) {
     telas.forEach(t => $(t).style.display = 'none');
     $(id).style.display = 'block';
