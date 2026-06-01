@@ -493,6 +493,7 @@
     planoSemana: [],
     planoPendentes: [],
     todosTanques: [],
+    incluirAtrasoNoDia: false,
     buscaTexto: '',
     secoesAbertas: { pendentes: true, hoje: true, semana: false },
     funcionarios: [],
@@ -894,8 +895,52 @@ async function carregarPlanoOperador() {
     }
   }
 
- 
-function renderPlano(quandoAtualizado) {
+// ===== Rota física da ILHA =====
+  const ORDEM_ROTA_ILHA = ['L6','L5','L7','L8','L4','L3','L9','L10','L2','L11','L1','LG'];
+  const DIRECAO_LINHA_ILHA = {
+    'L6': true, 'L5': false, 'L7': false, 'L8': true,
+    'L4': true, 'L3': false, 'L9': false, 'L10': true,
+    'L2': false, 'L11': true, 'L1': true, 'LG': true
+  };
+
+  function codigoLinhaCurto(linhaFisica) {
+    if (!linhaFisica) return null;
+    const m = String(linhaFisica).match(/^(L\d+|LG)/i);
+    return m ? m[1].toUpperCase() : null;
+  }
+
+  function ordemDaLinhaRota(linhaFisica) {
+    if (estado.unidade !== 'ILHA') return 999;
+    const cod = codigoLinhaCurto(linhaFisica);
+    if (!cod) return 999;
+    const idx = ORDEM_ROTA_ILHA.indexOf(cod);
+    return idx >= 0 ? idx : 998;
+  }
+
+  function direcaoDaLinhaRota(linhaFisica) {
+    if (estado.unidade !== 'ILHA') return true;
+    const cod = codigoLinhaCurto(linhaFisica);
+    if (!cod) return true;
+    return DIRECAO_LINHA_ILHA[cod] !== false;
+  }
+
+  function ordenarLotesPorRota(lotes) {
+    return lotes.slice().sort((a,b) => {
+      const ordemA = ordemDaLinhaRota(a.linha_fisica);
+      const ordemB = ordemDaLinhaRota(b.linha_fisica);
+      if (ordemA !== ordemB) return ordemA - ordemB;
+      const seqA = parseFloat(String(a.sequencia_linha||'0').replace(',','.')) || 999;
+      const seqB = parseFloat(String(b.sequencia_linha||'0').replace(',','.')) || 999;
+      const direcao = direcaoDaLinhaRota(a.linha_fisica);
+      return direcao ? (seqA - seqB) : (seqB - seqA);
+    });
+  }
+
+  function toggleIncluirAtraso() {
+    estado.incluirAtrasoNoDia = !estado.incluirAtrasoNoDia;
+    renderPlano();
+  }
+ function renderPlano(quandoAtualizado) {
     if (!estado.lotes.length) {
       $('merg-conteudo').innerHTML = '<div class="loading">Nenhum lote encontrado para ' + estado.unidade + '.</div>';
       return;
@@ -914,37 +959,94 @@ function renderPlano(quandoAtualizado) {
     const pendentes = estado.planoPendentes || [];
     const planoHoje = estado.planoHoje || [];
     const planoSemana = estado.planoSemana || [];
+    const incluindoAtraso = estado.incluirAtrasoNoDia && pendentes.length > 0;
 
-    // ===== SEÇÃO: EM ATRASO =====
-    if (pendentes.length) {
+    // ===== SEÇÃO: EM ATRASO (separada, só se NÃO incluído no dia) =====
+    if (pendentes.length && !incluindoAtraso) {
       const aberto = estado.secoesAbertas.pendentes;
+      const totalLotes = pendentes
+        .map(p => lotes.find(l => l.id_tanque === p.id_tanque))
+        .filter(Boolean).length;
       html.push(`
         <div class="secao-header" onclick="toggleSecao('pendentes')" style="background:#FBE9E5; border-left:4px solid #B23A2A;">
-          <span style="color:#B23A2A; font-weight:700;">🔴 EM ATRASO · ${pendentes.length} tanque${pendentes.length>1?'s':''}</span>
+          <span style="color:#B23A2A; font-weight:700;">🔴 EM ATRASO · ${totalLotes} tanque${totalLotes>1?'s':''}</span>
           <span style="color:#B23A2A; font-size:18px;">${aberto?'▼':'▶'}</span>
         </div>
       `);
       if (aberto) {
-        pendentes.forEach(p => {
-          const lt = lotes.find(l => l.id_tanque === p.id_tanque);
-          if (lt) html.push(renderItemLote(lt, true, 'atraso', p.dias_atras));
+        // Botão pra incluir no dia
+        html.push(`
+          <div style="margin-bottom:8px;">
+            <button onclick="toggleIncluirAtraso()" style="background:#B23A2A; color:white; border:none; padding:8px 14px; border-radius:8px; font-size:13px; font-weight:600; width:100%; cursor:pointer;">
+              ➕ incluir atrasados no plano de hoje
+            </button>
+          </div>
+        `);
+        // Lista de atrasados (ordenada pela rota)
+        const lotesPendentes = pendentes
+          .map(p => lotes.find(l => l.id_tanque === p.id_tanque))
+          .filter(Boolean);
+        const lotesPendentesOrdenados = ordenarLotesPorRota(lotesPendentes);
+        lotesPendentesOrdenados.forEach(lt => {
+          const p = pendentes.find(pp => pp.id_tanque === lt.id_tanque);
+          html.push(renderItemLote(lt, true, 'atraso', p ? p.dias_atras : 0));
         });
       }
     }
 
-    // ===== SEÇÃO: PLANO DE HOJE =====
-    if (planoHoje.length) {
+    // ===== SEÇÃO: PLANO DE HOJE (com ou sem atrasados integrados) =====
+    if (planoHoje.length || incluindoAtraso) {
       const aberto = estado.secoesAbertas.hoje;
+
+      // Junta plano de hoje + atrasados (se incluindo) + ordena pela rota
+      const idsHoje = planoHoje.map(p => p.id_tanque);
+      const lotesHoje = lotes.filter(lt => idsHoje.includes(lt.id_tanque));
+      let lotesIntegrados = lotesHoje;
+
+      if (incluindoAtraso) {
+        const idsPendentes = pendentes.map(p => p.id_tanque);
+        const lotesPendentes = lotes.filter(lt => idsPendentes.includes(lt.id_tanque));
+        // Junta sem duplicar
+        const mapa = new Map();
+        lotesHoje.forEach(l => mapa.set(l.id_tanque, l));
+        lotesPendentes.forEach(l => mapa.set(l.id_tanque, l));
+        lotesIntegrados = Array.from(mapa.values());
+      }
+
+      const total = lotesIntegrados.length;
+      const labelHeader = incluindoAtraso
+        ? `📋 plano de hoje · ${total} tanque${total>1?'s':''} (${pendentes.length} atrasado${pendentes.length>1?'s':''} incluído${pendentes.length>1?'s':''})`
+        : `📋 plano de hoje · ${total} tanque${total>1?'s':''}`;
+
       html.push(`
-        <div class="secao-header" onclick="toggleSecao('hoje')" style="background:#D6E8F4; border-left:4px solid #0E2A47; margin-top:${pendentes.length?'12px':'0'};">
-          <span style="color:#0E2A47; font-weight:700;">📋 plano de hoje · ${planoHoje.length} tanque${planoHoje.length>1?'s':''}</span>
+        <div class="secao-header" onclick="toggleSecao('hoje')" style="background:#D6E8F4; border-left:4px solid #0E2A47; margin-top:${pendentes.length && !incluindoAtraso ? '12px':'0'};">
+          <span style="color:#0E2A47; font-weight:700;">${labelHeader}</span>
           <span style="color:#0E2A47; font-size:18px;">${aberto?'▼':'▶'}</span>
         </div>
       `);
+
       if (aberto) {
-        const idsHoje = planoHoje.map(p => p.id_tanque);
-        const lotesHoje = lotes.filter(lt => idsHoje.includes(lt.id_tanque));
-        lotesHoje.forEach(lt => html.push(renderItemLote(lt, true, 'hoje')));
+        // Se está incluindo atraso, mostra botão pra desfazer
+        if (incluindoAtraso) {
+          html.push(`
+            <div style="margin-bottom:8px;">
+              <button onclick="toggleIncluirAtraso()" style="background:#fff; color:#5C6B7A; border:1px solid #D6E0EA; padding:6px 12px; border-radius:8px; font-size:12px; cursor:pointer;">
+                ✕ separar atrasados de novo
+              </button>
+            </div>
+          `);
+        }
+        // Renderiza ordenado pela rota
+        const lotesOrdenados = ordenarLotesPorRota(lotesIntegrados);
+        lotesOrdenados.forEach(lt => {
+          // Decide se é atraso ou hoje (atrasados mantêm cor vermelha)
+          const pendenteItem = pendentes.find(p => p.id_tanque === lt.id_tanque);
+          if (pendenteItem) {
+            html.push(renderItemLote(lt, true, 'atraso', pendenteItem.dias_atras));
+          } else {
+            html.push(renderItemLote(lt, true, 'hoje'));
+          }
+        });
       }
     }
 
@@ -969,7 +1071,7 @@ function renderPlano(quandoAtualizado) {
         });
         diasOrdenados.forEach(dia => {
           const idsD = porDia[dia];
-          const lotesD = lotes.filter(lt => idsD.includes(lt.id_tanque));
+          const lotesD = ordenarLotesPorRota(lotes.filter(lt => idsD.includes(lt.id_tanque)));
           const dDate = parsearDataBR(dia);
           const diaNome = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'][dDate.getDay()];
           html.push(`<div style="font-size:11px; color:#7A4E10; margin:8px 4px 4px; font-weight:600;">${diaNome} ${dia.substring(0,5)} · ${lotesD.length}</div>`);
@@ -977,8 +1079,8 @@ function renderPlano(quandoAtualizado) {
         });
       }
     }
- 
-// ===== SEÇÃO: BUSCA DE TANQUES =====
+
+    // ===== BUSCA =====
     html.push(`
       <div style="margin-top:20px; padding:14px; background:#F7F9FC; border-radius:10px; border:1px solid #D6E0EA;">
         <div style="font-size:13px; font-weight:700; color:#0E2A47; margin-bottom:8px;">🔍 buscar tanque</div>
@@ -994,7 +1096,7 @@ function renderPlano(quandoAtualizado) {
         <div id="busca-resultados" style="margin-top:8px;"></div>
       </div>
     `);
- 
+
     // ===== TODOS OS LOTES =====
     const titulo = (pendentes.length || planoHoje.length || planoSemana.length)
       ? `todos os lotes · ${lotes.length} tanques`
