@@ -1164,9 +1164,15 @@ function montarPayload(tipo, qtd, sintomas) {
                String(agora.getSeconds()).padStart(2,'0');
 
     // Se tanque está no plano de hoje, captura o id_plano
-    const planoItem = (estado.planoHoje || []).find(p => p.id_tanque === lote.id_tanque);
-    const idPlano = planoItem ? planoItem.id_plano : '';
-
+ 
+    // Busca o plano em todas as seções (hoje, pendentes e semana)
+const todosPlanosVisiveis = [
+  ...(estado.planoHoje || []),
+  ...(estado.planoPendentes || []),
+  ...(estado.planoSemana || [])
+];
+const planoItem = todosPlanosVisiveis.find(p => p.id_tanque === lote.id_tanque);
+const idPlano = planoItem ? planoItem.id_plano : '';
     return {
       acao: 'registrar_mergulho',
       id_plano: idPlano,
@@ -1240,12 +1246,16 @@ async function enviar(payload) {
   }
 // Atualiza o estado local pro tanque ficar marcado como visitado na tela
   function atualizarPlanoLocal(payload) {
-    if (!estado.planoHoje) return;
-    const idx = estado.planoHoje.findIndex(p => p.id_tanque === payload.id_tanque);
-    if (idx >= 0) {
-      estado.planoHoje[idx].status = 'visitado';
-      estado.planoHoje[idx].visitado_em = new Date().toISOString();
-    }
+    // Atualiza em todas as seções do plano
+    const secoes = ['planoHoje', 'planoPendentes', 'planoSemana'];
+    secoes.forEach(secao => {
+      if (!estado[secao]) return;
+      const idx = estado[secao].findIndex(p => p.id_tanque === payload.id_tanque);
+      if (idx >= 0) {
+        estado[secao][idx].status = 'visitado';
+        estado[secao][idx].visitado_em = new Date().toISOString();
+      }
+    });
   }
 
   // Atualiza a linha do plano na planilha
