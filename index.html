@@ -1761,7 +1761,57 @@ window.addEventListener('offline', atualizarRede);
   // ===== Service Worker =====
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW erro:', err));
+      navigator.serviceWorker.register('sw.js').then(reg => {
+
+        // Detecta quando SW novo está esperando
+        reg.addEventListener('updatefound', () => {
+          const novaSW = reg.installing;
+          novaSW.addEventListener('statechange', () => {
+            if (novaSW.state === 'installed' && navigator.serviceWorker.controller) {
+              mostrarBannerAtualizacao(reg);
+            }
+          });
+        });
+
+      }).catch(err => console.log('SW erro:', err));
+
+      // Se SW novo já estava esperando ao carregar
+      navigator.serviceWorker.ready.then(reg => {
+        if (reg.waiting) mostrarBannerAtualizacao(reg);
+      });
+    });
+  }
+
+  function mostrarBannerAtualizacao(reg) {
+    const banner = document.createElement('div');
+    banner.id = 'banner-atualizacao';
+    banner.style.cssText = `
+      position:fixed; bottom:80px; left:16px; right:16px;
+      background:#0E2A47; color:#fff; border-radius:12px;
+      padding:14px 16px; display:flex; align-items:center;
+      justify-content:space-between; z-index:9999;
+      box-shadow:0 4px 16px rgba(0,0,0,0.3); font-size:14px;
+    `;
+    banner.innerHTML = `
+      <span>🔄 Nova versão disponível</span>
+      <button onclick="aplicarAtualizacao()" style="
+        background:#3B82F6; color:#fff; border:none;
+        padding:8px 14px; border-radius:8px; font-size:13px;
+        font-weight:600; cursor:pointer;
+      ">Atualizar agora</button>
+    `;
+    document.body.appendChild(banner);
+
+    window._swRegistration = reg;
+  }
+
+  function aplicarAtualizacao() {
+    const reg = window._swRegistration;
+    if (reg && reg.waiting) {
+      reg.waiting.postMessage('SKIP_WAITING');
+    }
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      window.location.reload();
     });
   }
 
