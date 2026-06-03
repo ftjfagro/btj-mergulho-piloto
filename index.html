@@ -925,7 +925,7 @@ async function carregarPlanoOperador() {
     'L2': false, 'L11': true, 'L1': true, 'LG': true
   };
 
-  // ===== Rota física da STC =====
+ // ===== Rota física da STC =====
   // ATENÇÃO: seq 1 = direita (inverso da ILHA)
   const ORDEM_ROTA_STC = ['L14','L13','L12','L11','L10','L09','L08','L07','L06','L05','L04','L03','L02','L01'];
   const DIRECAO_LINHA_STC = {
@@ -933,6 +933,14 @@ async function carregarPlanoOperador() {
     'L10': false, 'L09': true,  'L08': false, 'L07': true,
     'L06': true,  'L05': false, 'L04': true,  'L03': false,
     'L02': true,  'L01': false
+  };
+
+  // ===== Rota física da SUD =====
+  // Seq 1 = fora: lado esquerdo seq1=esquerda, lado direito seq1=direita
+  const ORDEM_ROTA_SUD = ['L1','L2','L3','L4','L5','L6','L7','L8','L9','L10'];
+  const DIRECAO_LINHA_SUD = {
+    'L1': true,  'L2': false, 'L3': true,  'L4': false, 'L5': true,
+    'L6': false, 'L7': true,  'L8': false, 'L9': true,  'L10': false
   };
 
   function codigoLinhaCurto(linhaFisica) {
@@ -952,6 +960,10 @@ async function carregarPlanoOperador() {
       const idx = ORDEM_ROTA_STC.indexOf(cod);
       return idx >= 0 ? idx : 998;
     }
+    if (estado.unidade === 'SUD') {
+      const idx = ORDEM_ROTA_SUD.indexOf(cod);
+      return idx >= 0 ? idx : 998;
+    }
     return 999;
   }
 
@@ -960,8 +972,10 @@ async function carregarPlanoOperador() {
     if (!cod) return true;
     if (estado.unidade === 'ILHA') return DIRECAO_LINHA_ILHA[cod] !== false;
     if (estado.unidade === 'STC')  return DIRECAO_LINHA_STC[cod]  !== false;
+    if (estado.unidade === 'SUD')  return DIRECAO_LINHA_SUD[cod]  !== false;
     return true;
   }
+  
   function ordenarLotesPorRota(lotes) {
     return lotes.slice().sort((a,b) => {
       const ordemA = ordemDaLinhaRota(a.linha_fisica);
@@ -974,6 +988,66 @@ async function carregarPlanoOperador() {
     });
   }
 
+ function renderCroquiSTC(conteudo, porLinha) {
+    const ladoEsq = ['L07','L08','L09','L10','L11','L12','L13','L14'];
+    const ladoDir = ['L06','L05','L04','L03','L02','L01'];
+    let html = '<div style="display:flex;gap:12px;padding:8px;">';
+    html += '<div style="flex:1;">';
+    html += '<div style="font-size:10px;font-weight:500;color:#888;text-align:center;margin-bottom:6px;">ESQUERDO</div>';
+    ladoEsq.forEach((cod, i) => {
+      html += renderLinhaRota(cod, i + 1, porLinha[cod] || [], DIRECAO_LINHA_STC);
+    });
+    html += '</div>';
+    html += '<div style="width:1px;background:var(--cor-borda, #ddd);flex-shrink:0;"></div>';
+    html += '<div style="flex:1;">';
+    html += '<div style="font-size:10px;font-weight:500;color:#888;text-align:center;margin-bottom:6px;">DIREITO</div>';
+    ladoDir.forEach((cod, i) => {
+      html += renderLinhaRota(cod, ladoEsq.length + i + 1, porLinha[cod] || [], DIRECAO_LINHA_STC);
+    });
+    html += '</div></div>';
+    conteudo.innerHTML = html;
+  }
+
+  function renderCroquiSUD(conteudo, porLinha) {
+    const ladoEsq = ['L5','L4','L3','L2','L1'];
+    const ladoDir = ['L6','L7','L8','L9','L10'];
+    let html = '<div style="display:flex;gap:12px;padding:8px;">';
+    html += '<div style="flex:1;">';
+    html += '<div style="font-size:10px;font-weight:500;color:#888;text-align:center;margin-bottom:6px;">ESQUERDO</div>';
+    ladoEsq.forEach((cod, i) => {
+      html += renderLinhaRota(cod, ladoEsq.length - i, porLinha[cod] || [], DIRECAO_LINHA_SUD);
+    });
+    html += '</div>';
+    html += '<div style="width:1px;background:var(--cor-borda, #ddd);flex-shrink:0;"></div>';
+    html += '<div style="flex:1;">';
+    html += '<div style="font-size:10px;font-weight:500;color:#888;text-align:center;margin-bottom:6px;">DIREITO</div>';
+    ladoDir.forEach((cod, i) => {
+      html += renderLinhaRota(cod, ladoEsq.length + i + 1, porLinha[cod] || [], DIRECAO_LINHA_SUD);
+    });
+    html += '</div></div>';
+    conteudo.innerHTML = html;
+  }
+
+  function renderLinhaRota(cod, ordem, tanques, direcaoMap) {
+    const direcao = direcaoMap[cod] !== false;
+    const seta = direcao ? '→' : '←';
+    const tanksSorted = tanques.slice().sort((a, b) => {
+      const sa = parseFloat(String(a.sequencia_linha||'0').replace(',','.')) || 999;
+      const sb = parseFloat(String(b.sequencia_linha||'0').replace(',','.')) || 999;
+      return direcao ? (sa - sb) : (sb - sa);
+    });
+    const tankHtml = tanksSorted.map(t => {
+      const cor = corPorSobrevivencia(t.sobrevivencia);
+      return `<div style="width:10px;height:10px;border-radius:2px;background:${cor};flex-shrink:0;cursor:pointer;" title="${t.id_tanque}" onclick="verDetalheTanqueCroqui('${t.id_tanque}')"></div>`;
+    }).join('');
+    return `<div style="display:flex;align-items:center;gap:3px;margin-bottom:3px;height:18px;">
+      <div style="font-size:8px;color:#aaa;width:10px;text-align:center;">${ordem}</div>
+      <div style="font-size:10px;font-weight:500;color:var(--cor-texto-sec,#666);width:28px;text-align:right;">${cod}</div>
+      <div style="font-size:11px;color:#3B82F6;width:14px;text-align:center;">${seta}</div>
+      <div style="display:flex;align-items:center;gap:1px;flex:1;overflow:hidden;">${tankHtml}</div>
+    </div>`;
+  }
+ 
   function toggleIncluirAtraso() {
     estado.incluirAtrasoNoDia = !estado.incluirAtrasoNoDia;
     renderPlano();
@@ -994,6 +1068,8 @@ async function carregarPlanoOperador() {
       return;
     }
 
+    if (estado.unidade === 'STC') { renderCroquiSTC(conteudo, porLinha); return; }
+    if (estado.unidade === 'SUD') { renderCroquiSUD(conteudo, porLinha); return; }
     if (estado.unidade !== 'ILHA') {
       conteudo.innerHTML = '<div class="loading">Croqui ainda não disponível para ' + estado.unidade + '.</div>';
       return;
