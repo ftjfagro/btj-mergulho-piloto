@@ -531,6 +531,16 @@
     'L06': false, 'L07': true,  'L08': false, 'L09': true,  'L10': false
   };
 
+function codigoLinhaCurto(linhaFisica) {
+    if (!linhaFisica) return null;
+    const m = String(linhaFisica).match(/^(L\d+|LG)/i);
+    return m ? m[1].toUpperCase() : null;
+  }
+
+  function ordemDaLinhaRota(linhaFisica) {
+    const cod = codigoLinhaCurto(linhaFisica);
+    if (!cod) return 999;
+ 
   function ordemDaLinhaRota(linhaFisica) {
     const cod = codigoLinhaCurto(linhaFisica);
     if (!cod) return 999;
