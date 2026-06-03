@@ -925,6 +925,16 @@ async function carregarPlanoOperador() {
     'L2': false, 'L11': true, 'L1': true, 'LG': true
   };
 
+  // ===== Rota física da STC =====
+  // ATENÇÃO: seq 1 = direita (inverso da ILHA)
+  const ORDEM_ROTA_STC = ['L14','L13','L12','L11','L10','L09','L08','L07','L06','L05','L04','L03','L02','L01'];
+  const DIRECAO_LINHA_STC = {
+    'L14': false, 'L13': true,  'L12': false, 'L11': true,
+    'L10': false, 'L09': true,  'L08': false, 'L07': true,
+    'L06': true,  'L05': false, 'L04': true,  'L03': false,
+    'L02': true,  'L01': false
+  };
+
   function codigoLinhaCurto(linhaFisica) {
     if (!linhaFisica) return null;
     const m = String(linhaFisica).match(/^(L\d+|LG)/i);
@@ -932,20 +942,26 @@ async function carregarPlanoOperador() {
   }
 
   function ordemDaLinhaRota(linhaFisica) {
-    if (estado.unidade !== 'ILHA') return 999;
     const cod = codigoLinhaCurto(linhaFisica);
     if (!cod) return 999;
-    const idx = ORDEM_ROTA_ILHA.indexOf(cod);
-    return idx >= 0 ? idx : 998;
+    if (estado.unidade === 'ILHA') {
+      const idx = ORDEM_ROTA_ILHA.indexOf(cod);
+      return idx >= 0 ? idx : 998;
+    }
+    if (estado.unidade === 'STC') {
+      const idx = ORDEM_ROTA_STC.indexOf(cod);
+      return idx >= 0 ? idx : 998;
+    }
+    return 999;
   }
 
   function direcaoDaLinhaRota(linhaFisica) {
-    if (estado.unidade !== 'ILHA') return true;
     const cod = codigoLinhaCurto(linhaFisica);
     if (!cod) return true;
-    return DIRECAO_LINHA_ILHA[cod] !== false;
+    if (estado.unidade === 'ILHA') return DIRECAO_LINHA_ILHA[cod] !== false;
+    if (estado.unidade === 'STC')  return DIRECAO_LINHA_STC[cod]  !== false;
+    return true;
   }
-
   function ordenarLotesPorRota(lotes) {
     return lotes.slice().sort((a,b) => {
       const ordemA = ordemDaLinhaRota(a.linha_fisica);
