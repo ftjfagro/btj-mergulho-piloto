@@ -4,7 +4,7 @@
 // ATENÇÃO: ao fazer deploy, incremente BUILD_VERSION abaixo
 // ============================================================
 
-const BUILD_VERSION = '20260603b';  // ← trocar na data do deploy
+const BUILD_VERSION = '20260603c';  // ← trocar na data do deploy
 const CACHE_NAME = 'btj-mergulho-' + BUILD_VERSION;
 
 const ARQUIVOS_CACHE = [
