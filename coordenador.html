@@ -540,10 +540,6 @@ function codigoLinhaCurto(linhaFisica) {
   function ordemDaLinhaRota(linhaFisica) {
     const cod = codigoLinhaCurto(linhaFisica);
     if (!cod) return 999;
- 
-  function ordemDaLinhaRota(linhaFisica) {
-    const cod = codigoLinhaCurto(linhaFisica);
-    if (!cod) return 999;
     if (estado.unidade === 'ILHA') {
       const idx = ORDEM_ROTA_ILHA.indexOf(cod);
       return idx >= 0 ? idx : 998;
