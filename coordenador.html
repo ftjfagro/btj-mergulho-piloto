@@ -419,6 +419,18 @@
     <button class="ordem-btn" id="ord-biosseg" onclick="mudarOrdem('biosseg')">🦠 biossegurança</button>
   </div>
 
+  <div id="busca-coord-wrap" style="margin-bottom:12px; display:none;">
+    <input
+      type="text"
+      id="busca-coord"
+      placeholder="🔍 buscar tanque por número, lote ou fornecedor..."
+      oninput="onBuscaCoord(this.value)"
+      autocomplete="off"
+      style="width:100%; padding:10px 12px; font-size:14px; border:1px solid #D6E0EA; border-radius:8px; box-sizing:border-box;"
+    >
+    <div id="busca-coord-resultados" style="margin-top:8px;"></div>
+  </div>
+
   <div style="margin-bottom:12px; font-size:12px; color:#5C6B7A;">
     selecione os dias da semana:
   </div>
@@ -739,8 +751,40 @@ function codigoLinhaCurto(linhaFisica) {
     document.querySelectorAll('.modo-btn').forEach(b => b.classList.remove('ativa'));
     $(m === 'lote' ? 'modo-lote' : 'modo-tanque').classList.add('ativa');
     $('ordem-group').style.display = (m === 'tanque') ? 'flex' : 'none';
+    const buscaWrap = $('busca-coord-wrap');
+    if (buscaWrap) {
+      buscaWrap.style.display = (m === 'tanque') ? 'block' : 'none';
+      if (m === 'lote') {
+        $('busca-coord').value = '';
+        $('busca-coord-resultados').innerHTML = '';
+      }
+    }
     if (m === 'lote') renderListaLotes();
     else renderListaTanques();
+  }
+
+  function onBuscaCoord(texto) {
+    const div = $('busca-coord-resultados');
+    if (!div) return;
+    const q = String(texto || '').trim().toLowerCase();
+    if (!q) { div.innerHTML = ''; return; }
+    if (!estado.lotes.length) {
+      div.innerHTML = '<div style="font-size:12px; color:#5C6B7A; padding:8px;">carregando tanques...</div>';
+      return;
+    }
+    const resultados = estado.lotes.filter(t => {
+      const numMatch = (t.id_tanque || '').match(/^(\d+)-/);
+      const num = numMatch ? numMatch[1] : '';
+      const alvo = [num, t.id_tanque||'', t.codigo_lote||'', t.fornecedor||'', t.produto_origem||'', t.linha_fisica||''].join(' ').toLowerCase();
+      return alvo.includes(q);
+    });
+    if (!resultados.length) {
+      div.innerHTML = '<div style="font-size:12px; color:#5C6B7A; padding:8px;">nenhum tanque encontrado</div>';
+      return;
+    }
+    const html = [`<div style="font-size:11px; color:#5C6B7A; margin-bottom:4px;">${resultados.length} resultado${resultados.length>1?'s':''}</div>`];
+    resultados.forEach(lt => html.push(itemHtml(lt)));
+    div.innerHTML = html.join('');
   }
 
   function mudarOrdem(o) {
