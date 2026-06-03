@@ -937,10 +937,10 @@ async function carregarPlanoOperador() {
 
   // ===== Rota física da SUD =====
   // Seq 1 = fora: lado esquerdo seq1=esquerda, lado direito seq1=direita
-  const ORDEM_ROTA_SUD = ['L1','L2','L3','L4','L5','L6','L7','L8','L9','L10'];
+  const ORDEM_ROTA_SUD = ['L01','L02','L03','L04','L05','L06','L07','L08','L09','L10'];
   const DIRECAO_LINHA_SUD = {
-    'L1': true,  'L2': false, 'L3': true,  'L4': false, 'L5': true,
-    'L6': false, 'L7': true,  'L8': false, 'L9': true,  'L10': false
+    'L01': true,  'L02': false, 'L03': true,  'L04': false, 'L05': true,
+    'L06': false, 'L07': true,  'L08': false, 'L09': true,  'L10': false
   };
 
   function codigoLinhaCurto(linhaFisica) {
@@ -1009,8 +1009,8 @@ async function carregarPlanoOperador() {
   }
 
   function renderCroquiSUD(conteudo, porLinha) {
-    const ladoEsq = ['L5','L4','L3','L2','L1'];
-    const ladoDir = ['L6','L7','L8','L9','L10'];
+    const ladoEsq = ['L05','L04','L03','L02','L01'];
+    const ladoDir = ['L06','L07','L08','L09','L10'];
     let html = '<div style="display:flex;gap:12px;padding:8px;">';
     html += '<div style="flex:1;">';
     html += '<div style="font-size:10px;font-weight:500;color:#888;text-align:center;margin-bottom:6px;">ESQUERDO</div>';
