@@ -1904,14 +1904,25 @@ window.addEventListener('offline', atualizarRede);
     window._swRegistration = reg;
   }
 
+  let _recarregando = false;
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (_recarregando) return;
+      _recarregando = true;
+      window.location.reload();
+    });
+  }
+
   function aplicarAtualizacao() {
+    const btn = document.querySelector('#banner-atualizacao button');
+    if (btn) { btn.textContent = 'atualizando...'; btn.disabled = true; }
     const reg = window._swRegistration;
     if (reg && reg.waiting) {
       reg.waiting.postMessage('SKIP_WAITING');
-    }
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
+    } else {
+      // Sem SW esperando: força reload direto
       window.location.reload();
-    });
+    }
   }
 
   // ===== Init =====
