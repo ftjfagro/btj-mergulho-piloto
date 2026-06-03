@@ -1068,14 +1068,7 @@ async function carregarPlanoOperador() {
       return;
     }
 
-    if (estado.unidade === 'STC') { renderCroquiSTC(conteudo, porLinha); return; }
-    if (estado.unidade === 'SUD') { renderCroquiSUD(conteudo, porLinha); return; }
-    if (estado.unidade !== 'ILHA') {
-      conteudo.innerHTML = '<div class="loading">Croqui ainda não disponível para ' + estado.unidade + '.</div>';
-      return;
-    }
-
-    const porLinha = {};
+   const porLinha = {};
     estado.todosTanques.forEach(t => {
       const cod = codigoLinhaCurto(t.linha_fisica);
       if (!cod) {
@@ -1095,6 +1088,13 @@ async function carregarPlanoOperador() {
       });
     });
 
+    if (estado.unidade === 'STC') { renderCroquiSTC(conteudo, porLinha); return; }
+    if (estado.unidade === 'SUD') { renderCroquiSUD(conteudo, porLinha); return; }
+    if (estado.unidade !== 'ILHA') {
+      conteudo.innerHTML = '<div class="loading">Croqui ainda não disponível para ' + estado.unidade + '.</div>';
+      return;
+    }
+   
     const pares = [
       { esq: 'L6', dir: null, lagoao: '403' },
       { esq: 'L7', dir: 'L5', lagoao: '402' },
