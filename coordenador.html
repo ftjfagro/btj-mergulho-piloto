@@ -524,6 +524,13 @@
     'L02': true,  'L01': false
   };
 
+  // ===== Rota física da SUD =====
+  const ORDEM_ROTA_SUD = ['L1','L2','L3','L4','L5','L6','L7','L8','L9','L10'];
+  const DIRECAO_LINHA_SUD = {
+    'L1': true,  'L2': false, 'L3': true,  'L4': false, 'L5': true,
+    'L6': false, 'L7': true,  'L8': false, 'L9': true,  'L10': false
+  };
+
   function ordemDaLinhaRota(linhaFisica) {
     const cod = codigoLinhaCurto(linhaFisica);
     if (!cod) return 999;
@@ -535,6 +542,10 @@
       const idx = ORDEM_ROTA_STC.indexOf(cod);
       return idx >= 0 ? idx : 998;
     }
+    if (estado.unidade === 'SUD') {
+      const idx = ORDEM_ROTA_SUD.indexOf(cod);
+      return idx >= 0 ? idx : 998;
+    }
     return extrairNumLinha(linhaFisica);
   }
 
@@ -543,6 +554,7 @@
     if (!cod) return true;
     if (estado.unidade === 'ILHA') return DIRECAO_LINHA_ILHA[cod] !== false;
     if (estado.unidade === 'STC')  return DIRECAO_LINHA_STC[cod]  !== false;
+    if (estado.unidade === 'SUD')  return DIRECAO_LINHA_SUD[cod]  !== false;
     return true;
   }
  
