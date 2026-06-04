@@ -655,6 +655,11 @@ function codigoLinhaCurto(linhaFisica) {
         const j2 = await r2.json();
         estado.lotes = j2.lotes || [];
       }
+      if (!estado.todosTanques || !estado.todosTanques.length) {
+        const r3 = await fetch(API_URL + '?acao=listar_todos_tanques&unidade=' + estado.unidade);
+        const j3 = await r3.json();
+        estado.todosTanques = j3.tanques || [];
+      }
       renderPlano();
     } catch(e) {
       $('plano-conteudo').innerHTML = '<div class="loading">erro - <a href="javascript:carregarPlano()" style="color:#3FA0D6;">tentar de novo</a></div>';
@@ -861,13 +866,14 @@ function codigoLinhaCurto(linhaFisica) {
   }
 
   function renderListaTanques() {
-    if (!estado.lotes.length) {
-      $('lista-tanques').innerHTML = '<div class="loading">nenhum lote</div>';
+    const fonte = (estado.todosTanques && estado.todosTanques.length) ? estado.todosTanques : estado.lotes;
+    if (!fonte.length) {
+      $('lista-tanques').innerHTML = '<div class="loading">nenhum tanque</div>';
       return;
     }
     let ordenados;
     if (estado.ordem === 'rota') {
-      ordenados = estado.lotes.slice().sort((a,b) => {
+      ordenados = fonte.slice().sort((a,b) => {
         const ordemA = ordemDaLinhaRota(a.linha_fisica);
         const ordemB = ordemDaLinhaRota(b.linha_fisica);
         if (ordemA !== ordemB) return ordemA - ordemB;
@@ -890,7 +896,7 @@ function codigoLinhaCurto(linhaFisica) {
       $('lista-tanques').innerHTML = html.join('');
     } else {
       const ordem = { 'saudavel':0, 'janela_viral':1, 'suspeito':2, 'viral_confirmado':3 };
-      ordenados = estado.lotes.slice().sort((a,b) => {
+      ordenados = fonte.slice().sort((a,b) => {
         const ga = ordem[a.grupo_biosseguranca] ?? 4;
         const gb = ordem[b.grupo_biosseguranca] ?? 4;
         if (ga !== gb) return ga - gb;
