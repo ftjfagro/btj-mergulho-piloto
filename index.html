@@ -1712,6 +1712,7 @@ async function enviar(payload) {
     btnsAcao.forEach(b => b.disabled = true);
 
     payload.id_local = gerarIdLocal();
+    payload.id_mergulho = payload.id_local;
     payload.criado_em = new Date().toISOString();
 
     let sucesso = false;
