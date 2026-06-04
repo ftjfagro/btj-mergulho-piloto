@@ -921,10 +921,14 @@ function codigoLinhaCurto(linhaFisica) {
     const sel = estado.selecionados.has(lt.id_tanque) ? 'selecionado' : '';
     const check = estado.selecionados.has(lt.id_tanque) ? '✓' : '';
     const sobrev = parseFloat(String(lt.sobrevivencia).replace(',','.')) || 0;
+    let ico = '🟢';
+    if (sobrev < 70) ico = '🔴';
+    else if (sobrev < 85) ico = '⚠️';
+    else if (sobrev < 92) ico = '🟡';
     return `
       <div class="item-selecao ${sel}" onclick="toggleTanque('${lt.id_tanque}')">
         <div class="check">${check}</div>
-        <span class="ico-grp">${iconGrupo(lt.grupo_biosseguranca)}</span>
+        <span class="ico-grp">${ico}</span>
         <span class="num">${num}</span>
         <span class="desc">${lt.dias_em_fase}d · ${sobrev.toFixed(1)}%</span>
       </div>
