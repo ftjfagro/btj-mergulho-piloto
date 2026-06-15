@@ -399,6 +399,7 @@
       total: <strong id="total-tanques">0</strong> tanques
     </div>
     <button class="btn-azul" onclick="salvarPlano()">salvar plano</button>
+    <button class="btn-azul" style="background:#B23A2A; margin-top:8px;" onclick="limparSemana()">🗑 excluir todos da semana</button>
   </div>
 </div>
 
@@ -698,8 +699,11 @@ function codigoLinhaCurto(linhaFisica) {
               <span class="dia-titulo">${DIAS_LONGOS[i]} ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}</span>
               <span class="dia-contagem">· ${itens.length}</span>
             </div>
-            <button class="dia-add" onclick="abrirSelecao('${dataStr}')">+ add</button>
-          </div>
+            <div style="display:flex; gap:6px;">
+              ${itens.length ? `<button class="dia-add" style="background:#FBE9E7; color:#B23A2A;" onclick="limparDia('${dataStr}')">🗑 limpar</button>` : ''}
+              <button class="dia-add" onclick="abrirSelecao('${dataStr}')">+ add</button>
+            </div>
+          </div><button class="btn-azul" onclick="salvarPlano()">salvar plano</button>
           ${itensHtml}
         </div>
       `);
@@ -712,6 +716,24 @@ function codigoLinhaCurto(linhaFisica) {
   function removerTanque(dia, idTanque) {
     estado.plano = estado.plano.filter(p => !(p.dia === dia && p.id_tanque === idTanque));
     renderPlano();
+  }
+
+  function limparDia(dia) {
+    const qtd = estado.plano.filter(p => p.dia === dia).length;
+    if (!qtd) return;
+    if (confirm('Tem certeza que quer excluir os ' + qtd + ' tanque(s) deste dia?\n\nA mudança só será definitiva ao salvar o plano.')) {
+      estado.plano = estado.plano.filter(p => p.dia !== dia);
+      renderPlano();
+    }
+  }
+
+  function limparSemana() {
+    const qtd = estado.plano.length;
+    if (!qtd) { alert('O plano da semana já está vazio.'); return; }
+    if (confirm('Tem certeza que quer excluir TODOS os ' + qtd + ' tanque(s) da semana inteira?\n\nA mudança só será definitiva ao salvar o plano.')) {
+      estado.plano = [];
+      renderPlano();
+    }
   }
 
   function abrirSelecao(dia) {
