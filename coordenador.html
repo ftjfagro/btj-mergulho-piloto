@@ -619,7 +619,7 @@ function codigoLinhaCurto(linhaFisica) {
   function sair() {
     try {
       localStorage.removeItem('btj_funcionario');
-      localStorage.removeItem('btj_unidade');
+      // mantém btj_unidade para pré-selecionar no próximo login
     } catch(e) {}
     window.location.href = 'index.html';
   }
