@@ -1936,6 +1936,17 @@ window.addEventListener('offline', atualizarRede);
     if (navigator.onLine) sincronizarFila();
   }, 30000);
 
+  // Pré-seleciona a última unidade usada (se houver)
+  try {
+    const ultimaUnidade = localStorage.getItem('btj_unidade');
+    if (ultimaUnidade && ['ILHA','STC','SUD'].includes(ultimaUnidade)) {
+      estado.unidade = ultimaUnidade;
+      document.querySelectorAll('.opcao-btn[data-unidade]').forEach(b => {
+        b.classList.toggle('ativo', b.dataset.unidade === ultimaUnidade);
+      });
+    }
+  } catch (e) { /* localStorage indisponível - mantém ILHA */ }
+
   carregarFuncionarios();
   atualizarRede();
 </script>
