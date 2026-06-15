@@ -701,13 +701,29 @@ function codigoLinhaCurto(linhaFisica) {
             </div>
             <div style="display:flex; gap:6px;">
               ${itens.length ? `<button class="dia-add" style="background:#FBE9E7; color:#B23A2A;" onclick="limparDia('${dataStr}')">🗑 limpar</button>` : ''}
+              <div style="display:flex; gap:6px; align-items:center;">
+              ${itens.length ? `<button class="dia-add" style="background:transparent; color:#B23A2A; padding:6px 8px;" onclick="limparDia('${dataStr}')" title="limpar este dia">🗑</button>` : ''}
               <button class="dia-add" onclick="abrirSelecao('${dataStr}')">+ add</button>
             </div>
-          </div><button class="btn-azul" onclick="salvarPlano()">salvar plano</button>
+          </div>
           ${itensHtml}
         </div>
       `);
     }
+
+    // Botão de excluir semana — depois do último dia, dentro da rolagem
+    if (estado.plano.length) {
+      html.push(`
+        <button onclick="limparSemana()" style="
+          width:100%; margin:8px 0 24px; padding:12px;
+          background:transparent; color:#B23A2A;
+          border:1px solid #E8C5BF; border-radius:8px;
+          font-size:13px; font-weight:600; cursor:pointer;">
+          🗑 excluir todos da semana
+        </button>
+      `);
+    }
+
     $('plano-conteudo').innerHTML = html.join('');
     $('plano-rodape').style.display = 'block';
     $('total-tanques').textContent = estado.plano.length;
@@ -716,6 +732,24 @@ function codigoLinhaCurto(linhaFisica) {
   function removerTanque(dia, idTanque) {
     estado.plano = estado.plano.filter(p => !(p.dia === dia && p.id_tanque === idTanque));
     renderPlano();
+  }
+
+  function limparDia(dia) {
+    const qtd = estado.plano.filter(p => p.dia === dia).length;
+    if (!qtd) return;
+    if (confirm('Tem certeza que quer excluir os ' + qtd + ' tanque(s) deste dia?\n\nA mudança só será definitiva ao salvar o plano.')) {
+      estado.plano = estado.plano.filter(p => p.dia !== dia);
+      renderPlano();
+    }
+  }
+
+  function limparSemana() {
+    const qtd = estado.plano.length;
+    if (!qtd) return;
+    if (confirm('Tem certeza que quer excluir TODOS os ' + qtd + ' tanque(s) da semana inteira?\n\nA mudança só será definitiva ao salvar o plano.')) {
+      estado.plano = [];
+      renderPlano();
+    }
   }
 
   function limparDia(dia) {
