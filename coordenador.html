@@ -674,7 +674,8 @@ function codigoLinhaCurto(linhaFisica) {
       const dataStr = fmtData(d);
       const itens = estado.plano.filter(p => p.dia === dataStr);
       const itensHtml = itens.length ? itens.map(it => {
-        const lt = estado.lotes.find(l => l.id_tanque === it.id_tanque);
+        const lt = estado.lotes.find(l => l.id_tanque === it.id_tanque)
+                || (estado.todosTanques || []).find(t => t.id_tanque === it.id_tanque);
         const m = it.id_tanque.match(/^(\d+)-/);
         const num = m ? m[1] : it.id_tanque;
         const dias = lt ? lt.dias_em_fase : '';
