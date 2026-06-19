@@ -1219,6 +1219,18 @@ html.push(`
     window._croquiTipTimer = setTimeout(() => { tip.style.display = 'none'; }, 3500);
   }
  
+ // Resolve os dados de um tanque do plano: procura em lotes (F1/F4) e,
+  // se não achar (ex: tanque F3 planejado manualmente), cai pra todosTanques.
+  function resolverTanquePlano(idTanque) {
+    let lt = estado.lotes.find(l => l.id_tanque === idTanque);
+    if (lt) return lt;
+    if (estado.todosTanques && estado.todosTanques.length) {
+      lt = estado.todosTanques.find(t => t.id_tanque === idTanque);
+      if (lt) return lt;
+    }
+    return null;
+  }
+
  function renderPlano(quandoAtualizado) {
     if (!estado.lotes.length) {
       $('merg-conteudo').innerHTML = '<div class="loading">Nenhum lote encontrado para ' + estado.unidade + '.</div>';
@@ -1244,7 +1256,7 @@ html.push(`
     if (pendentes.length && !incluindoAtraso) {
       const aberto = estado.secoesAbertas.pendentes;
       const totalLotes = pendentes
-        .map(p => lotes.find(l => l.id_tanque === p.id_tanque))
+        .map(p => resolverTanquePlano(p.id_tanque))
         .filter(Boolean).length;
       html.push(`
         <div class="secao-header" onclick="toggleSecao('pendentes')" style="background:#FBE9E5; border-left:4px solid #B23A2A;">
@@ -1263,7 +1275,7 @@ html.push(`
         `);
         // Lista de atrasados (ordenada pela rota)
         const lotesPendentes = pendentes
-          .map(p => lotes.find(l => l.id_tanque === p.id_tanque))
+          .map(p => resolverTanquePlano(p.id_tanque))
           .filter(Boolean);
         const lotesPendentesOrdenados = ordenarLotesPorRota(lotesPendentes);
         lotesPendentesOrdenados.forEach(lt => {
@@ -1278,13 +1290,15 @@ html.push(`
       const aberto = estado.secoesAbertas.hoje;
 
       // Junta plano de hoje + atrasados (se incluindo) + ordena pela rota
-      const idsHoje = planoHoje.map(p => p.id_tanque);
-      const lotesHoje = lotes.filter(lt => idsHoje.includes(lt.id_tanque));
+      const lotesHoje = planoHoje
+        .map(p => resolverTanquePlano(p.id_tanque))
+        .filter(Boolean);
       let lotesIntegrados = lotesHoje;
 
       if (incluindoAtraso) {
-        const idsPendentes = pendentes.map(p => p.id_tanque);
-        const lotesPendentes = lotes.filter(lt => idsPendentes.includes(lt.id_tanque));
+        const lotesPendentes = pendentes
+          .map(p => resolverTanquePlano(p.id_tanque))
+          .filter(Boolean);
         // Junta sem duplicar
         const mapa = new Map();
         lotesHoje.forEach(l => mapa.set(l.id_tanque, l));
